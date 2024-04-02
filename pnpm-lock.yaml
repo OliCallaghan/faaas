@@ -11,6 +11,9 @@ importers:
       only-allow:
         specifier: ^1.2.1
         version: 1.2.1
+      prettier:
+        specifier: ^3.2.5
+        version: 3.2.5
 
   docs: {}
 
@@ -21,6 +24,12 @@ packages:
     hasBin: true
     dependencies:
       which-pm-runs: 1.1.0
+    dev: true
+
+  /prettier@3.2.5:
+    resolution: {integrity: sha512-3/GWa9aOC0YeD7LUfvOG2NiDyhOWRvt1k+rcKhOuYnMY24iiCphgneUfJDyFXd6rZCAnuLBv6UeAULtrhT/F4A==}
+    engines: {node: '>=14'}
+    hasBin: true
     dev: true
 
   /which-pm-runs@1.1.0:
