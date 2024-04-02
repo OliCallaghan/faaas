@@ -1,0 +1,16 @@
+{
+  "name": "@faaas/mono",
+  "type": "module",
+  "version": "1.0.0",
+  "description": "Asynchronicity as a first class citizen within FaaS.",
+  "scripts": {
+    "build": "turbo build",
+    "preinstall": "npx only-allow pnpm",
+    "test": "turbo test"
+  },
+  "author": "Oli Callaghan",
+  "license": "ISC",
+  "devDependencies": {
+    "only-allow": "^1.2.1"
+  }
+}
