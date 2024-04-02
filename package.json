@@ -5,6 +5,7 @@
   "description": "Asynchronicity as a first class citizen within FaaS.",
   "scripts": {
     "build": "turbo build",
+    "clean": "turbo clean",
     "preinstall": "npx only-allow pnpm",
     "test": "turbo test"
   },

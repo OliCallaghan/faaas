@@ -4,10 +4,15 @@ settings:
   autoInstallPeers: true
   excludeLinksFromLockfile: false
 
-devDependencies:
-  only-allow:
-    specifier: ^1.2.1
-    version: 1.2.1
+importers:
+
+  .:
+    devDependencies:
+      only-allow:
+        specifier: ^1.2.1
+        version: 1.2.1
+
+  docs: {}
 
 packages:
 

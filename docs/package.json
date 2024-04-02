@@ -1,0 +1,10 @@
+{
+  "name": "@faaas/docs",
+  "type": "module",
+  "version": "1.0.0",
+  "description": "FaaAS documentation and report.",
+  "scripts": {
+    "build": "latexmk -pdf -jobname=out/report report.tex",
+    "clean": "latexmk -c -jobname=out/report report.tex"
+  }
+}
