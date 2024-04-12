@@ -1,0 +1,13 @@
+version: "3.9"
+services:
+  database:
+    image: postgres
+    environment:
+      POSTGRES_USER: $BENCHMARKS_DATABASE_USER
+      POSTGRES_PASSWORD: $BENCHMARKS_DATABASE_PASS
+    ports:
+      - 5432:5432
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+volumes:
+  pgdata:

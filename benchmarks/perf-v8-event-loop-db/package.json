@@ -1,0 +1,20 @@
+{
+  "name": "@faaas/perf-v8-event-loop-db",
+  "version": "1.0.0",
+  "description": "Database used for performance profiling",
+  "main": "index.js",
+  "scripts": {
+    "build": "echo hello",
+    "db:generate": "prisma generate",
+    "db:push": "prisma db push --skip-generate"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@prisma/client": "^5.12.1"
+  },
+  "devDependencies": {
+    "prisma": "^5.12.1"
+  }
+}

@@ -1,6 +1,6 @@
 [
   {
-    "label": "Build",
+    "label": "build",
     "command": "pnpm build",
     "use_new_terminal": false,
     "allow_concurrent_runs": false,

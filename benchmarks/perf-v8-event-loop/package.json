@@ -1,0 +1,23 @@
+{
+  "name": "@faaas/perf-v8-event-loop",
+  "version": "1.0.0",
+  "description": "Performance profiling of the V8 event loop.",
+  "main": "index.js",
+  "scripts": {
+    "build": "tsc --build"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@tsconfig/node20": "^20.1.4",
+    "@tsconfig/strictest": "^2.0.5",
+    "@types/express": "^4.17.21",
+    "@types/node": "^20.12.5",
+    "typescript": "^5.4.4"
+  },
+  "dependencies": {
+    "express": "^4.19.2",
+    "postgres": "^3.4.4"
+  }
+}

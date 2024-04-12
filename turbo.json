@@ -2,9 +2,15 @@
   "$schema": "https://turbo.build/schema.json",
   "pipeline": {
     "build": {
-      "dependsOn": ["^build"]
+      "dependsOn": ["^build", "db:generate", "db:push"]
     },
-    "clean": {}
+    "clean": {},
+    "db:generate": {
+      "cache": false
+    },
+    "db:push": {
+      "cache": false
+    }
   },
   "experimentalUI": true
 }

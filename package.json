@@ -4,7 +4,7 @@
   "version": "1.0.0",
   "description": "Asynchronicity as a first class citizen within FaaS.",
   "scripts": {
-    "build": "turbo build",
+    "build": "dotenvx run -- turbo build",
     "clean": "turbo clean",
     "format": "prettier --write .",
     "preinstall": "npx only-allow pnpm",
@@ -13,7 +13,9 @@
   "author": "Oli Callaghan",
   "license": "ISC",
   "devDependencies": {
+    "@dotenvx/dotenvx": "^0.32.0",
     "only-allow": "^1.2.1",
-    "prettier": "^3.2.5"
+    "prettier": "^3.2.5",
+    "turbo": "^1.13.2"
   }
 }

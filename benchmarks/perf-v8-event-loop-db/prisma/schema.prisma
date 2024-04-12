@@ -1,0 +1,15 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../node_modules/.prisma/client-benchmark-perf-v8-event-loop-db"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("BENCHMARKS_DATABASE_URL")
+}
+
+model Pet {
+  id   String @id
+  name String
+  tag  String
+}
