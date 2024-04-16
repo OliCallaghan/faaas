@@ -2,9 +2,9 @@
   "name": "@faaas/perf-v8-event-loop-db",
   "version": "1.0.0",
   "description": "Database used for performance profiling",
-  "main": "index.js",
+  "main": "./index.ts",
+  "types": "./index.ts",
   "scripts": {
-    "build": "echo hello",
     "db:generate": "prisma generate",
     "db:push": "prisma db push --skip-generate"
   },

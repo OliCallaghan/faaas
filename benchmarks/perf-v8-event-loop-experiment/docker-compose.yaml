@@ -1,0 +1,53 @@
+version: "3.9"
+
+x-faas-fn-cfg: &faas-fn-cfg
+  init: true
+  privileged: true
+  build:
+    context: .
+    dockerfile: benchmarks/perf-v8-event-loop/Dockerfile
+  environment:
+    BMK_DB_URL: "postgres://${BMK_DB_USER}:${BMK_DB_PASS}@${BMK_DB_HOST}:${BMK_DB_PORT}/${BMK_DB_NAME}"
+
+services:
+  database:
+    image: postgres
+    environment:
+      POSTGRES_USER: $BMK_DB_USER
+      POSTGRES_PASSWORD: $BMK_DB_PASS
+    ports:
+      - 5432:5432
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+  migrate:
+    build:
+      context: .
+      dockerfile: benchmarks/perf-v8-event-loop-db/Dockerfile
+    restart: on-failure
+    depends_on:
+      - database
+    environment:
+      BMK_DB_URL: "postgres://${BMK_DB_USER}:${BMK_DB_PASS}@${BMK_DB_HOST}:${BMK_DB_PORT}/${BMK_DB_NAME}?schema=public"
+  on_http_get_pet:
+    <<: *faas-fn-cfg
+    command: 0x --kernel-tracing --output-dir=/app/perf -- node onHttpGetPet.trigger.js
+  on_http_get_pets:
+    <<: *faas-fn-cfg
+    command: 0x --kernel-tracing --output-dir=/app/perf -- node onHttpGetPets.trigger.js
+  on_http_put_pet:
+    <<: *faas-fn-cfg
+    command: 0x --kernel-tracing --output-dir=/app/perf -- node onHttpPutPet.trigger.js
+  on_http_delete_pet:
+    <<: *faas-fn-cfg
+    command: 0x --kernel-tracing --output-dir=/app/perf -- node onHttpDeletePet.trigger.js
+  artillery:
+    build: benchmarks/perf-v8-event-loop-artillery
+    privileged: true
+    depends_on:
+      - database
+      - on_http_delete_pet
+      - on_http_get_pet
+      - on_http_get_pets
+      - on_http_put_pet
+volumes:
+  pgdata:

@@ -4,7 +4,8 @@
   "description": "Performance profiling of the V8 event loop.",
   "main": "index.js",
   "scripts": {
-    "build": "tsc --build"
+    "build": "esbuild src/triggers/*.trigger.ts --platform=node --bundle --minify --outdir=dist",
+    "clean": "rm -rf ./dist/"
   },
   "keywords": [],
   "author": "",
@@ -14,9 +15,11 @@
     "@tsconfig/strictest": "^2.0.5",
     "@types/express": "^4.17.21",
     "@types/node": "^20.12.5",
+    "esbuild": "^0.20.2",
     "typescript": "^5.4.4"
   },
   "dependencies": {
+    "@faaas/perf-v8-event-loop-db": "workspace:*",
     "express": "^4.19.2",
     "postgres": "^3.4.4"
   }

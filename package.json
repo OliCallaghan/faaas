@@ -6,6 +6,7 @@
   "scripts": {
     "build": "dotenvx run -- turbo build",
     "clean": "turbo clean",
+    "daemon:clean": "turbo daemon clean",
     "format": "prettier --write .",
     "preinstall": "npx only-allow pnpm",
     "test": "turbo test"

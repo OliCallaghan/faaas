@@ -1,0 +1,40 @@
+config:
+  target: http://on_http_gets_pet:3000
+  phases:
+    - duration: 5
+      arrivalRate: 1
+      rampTo: 10
+      name: Warm up phase
+    - duration: 10
+      arrivalRate: 10
+      name: Maximum AWS Lambda instance load
+    - duration: 5
+      arrivalRate: 10
+      rampTo: 1
+      name: Decrease load
+  plugins:
+    expect: {}
+    apdex: {}
+    metrics-by-endpoint: {}
+    fake-data: {}
+scenarios:
+  - flow:
+      - get:
+          name: "OnHttpGetPets"
+          url: "http://on_http_get_pets:3000/"
+      - put:
+          name: "OnHttpPutPet"
+          url: "http://on_http_put_pet:3000/"
+          json:
+            name: "{{ $randFullName }}"
+            tag: "{{ $randWord }}"
+          capture:
+            json: "$.id"
+            as: "petId"
+      - get:
+          name: "OnHttpGetPet"
+          url: "http://on_http_get_pet:3000/{{ petId }}"
+      - think: 5
+      - delete:
+          name: "OnHttpDeletePet"
+          url: "http://on_http_delete_pet:3000/{{ petId }}"

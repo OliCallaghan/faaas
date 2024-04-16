@@ -2,3 +2,4 @@ packages:
   - "docs"
   - "benchmarks/perf-v8-event-loop"
   - "benchmarks/perf-v8-event-loop-db"
+  - "benchmarks/perf-v8-event-loop-experiment"

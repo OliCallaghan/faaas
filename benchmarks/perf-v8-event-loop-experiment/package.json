@@ -1,0 +1,15 @@
+{
+  "name": "@faaas/perf-v8-event-loop-experiment",
+  "version": "1.0.0",
+  "description": "Experiment to profile CPU time and wall time of V8 functions",
+  "scripts": {
+    "build": "./experiment_local.sh",
+    "clean": "rimraf results/local/{onHttpDeletePet,onHttpGetPet,onHttpGetPets,onHttpPutPet}"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "rimraf": "^5.0.5"
+  }
+}
