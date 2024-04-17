@@ -21,6 +21,7 @@
   "dependencies": {
     "@faaas/perf-v8-event-loop-db": "workspace:*",
     "express": "^4.19.2",
-    "postgres": "^3.4.4"
+    "postgres": "^3.4.4",
+    "pprof": "^4.0.0"
   }
 }

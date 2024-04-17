@@ -6,5 +6,8 @@
   "scripts": {
     "build": "latexmk -pdf -jobname=out/report report.tex",
     "clean": "latexmk -c -jobname=out/report report.tex"
+  },
+  "devDependencies": {
+    "@faaas/perf-v8-event-loop-experiment": "workspace:*"
   }
 }

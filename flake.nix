@@ -22,6 +22,12 @@
             texliveMedium
           ];
 
+          packages = [
+            (pkgs.python3.withPackages (python-pkgs: [
+                python-pkgs.packaging
+            ]))
+          ];
+
           shellHook = "pnpm install --frozen-lockfile";
         };
       }
