@@ -1,2 +1,4 @@
-results/local/**/*
-!results/local/.gitkeep
+results/local_cpu/**/*
+results/local_wall/**/*
+!results/local_cpu/.gitkeep
+!results/local_wall/.gitkeep

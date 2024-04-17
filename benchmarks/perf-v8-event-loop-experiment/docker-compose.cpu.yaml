@@ -1,0 +1,12 @@
+version: "3.9"
+name: "faaas-cpu"
+
+services:
+  on_http_get_pet:
+    command: 0x --kernel-tracing --output-dir=/app/perf -- node onHttpGetPet.trigger.js
+  on_http_get_pets:
+    command: 0x --kernel-tracing --output-dir=/app/perf -- node onHttpGetPets.trigger.js
+  on_http_put_pet:
+    command: 0x --kernel-tracing --output-dir=/app/perf -- node onHttpPutPet.trigger.js
+  on_http_delete_pet:
+    command: 0x --kernel-tracing --output-dir=/app/perf -- node onHttpDeletePet.trigger.js

@@ -21,7 +21,8 @@ FROM base AS runner
 RUN apt-get update && apt-get -y install \
     linux-perf \
     sudo
-RUN npm install -g 0x
+RUN mkdir -p /app/perf
+RUN npm install -g 0x pprof-it
 
 COPY --from=installer /app/benchmarks/perf-v8-event-loop/node_modules/@faaas/perf-v8-event-loop-db/node_modules/.prisma/client-benchmark-perf-v8-event-loop-db/schema.prisma .
 COPY --from=installer /app/benchmarks/perf-v8-event-loop/node_modules/@faaas/perf-v8-event-loop-db/node_modules/.prisma/client-benchmark-perf-v8-event-loop-db/libquery_engine-* .

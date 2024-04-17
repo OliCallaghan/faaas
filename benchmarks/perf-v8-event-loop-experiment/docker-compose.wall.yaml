@@ -1,0 +1,23 @@
+version: "3.9"
+name: "faaas-wall"
+
+x-pprof-cfg: &pprof-cfg
+  environment:
+    PPROF_OUT: /app/perf
+    PPROF_HEAP_OUT: ./pprof-heap.pb.gz
+    PPROF_TIME_OUT: ./pprof-time.pb.gz
+    PPROF_TIME_INTERVAL: 10
+
+services:
+  on_http_get_pet:
+    command: pprof-it onHttpGetPet.trigger.js
+    <<: *pprof-cfg
+  on_http_get_pets:
+    command: pprof-it onHttpGetPets.trigger.js
+    <<: *pprof-cfg
+  on_http_put_pet:
+    command: pprof-it onHttpPutPet.trigger.js
+    <<: *pprof-cfg
+  on_http_delete_pet:
+    command: pprof-it onHttpDeletePet.trigger.js
+    <<: *pprof-cfg

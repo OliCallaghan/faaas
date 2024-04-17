@@ -3,8 +3,8 @@
   "version": "1.0.0",
   "description": "Experiment to profile CPU time and wall time of V8 functions",
   "scripts": {
-    "build": "./experiment_local.sh",
-    "clean": "rimraf results/local/{onHttpDeletePet,onHttpGetPet,onHttpGetPets,onHttpPutPet}"
+    "build": "./local.sh",
+    "clean": "rimraf results/{local_cpu,local_wall}/{onHttpDeletePet,onHttpGetPet,onHttpGetPets,onHttpPutPet}"
   },
   "keywords": [],
   "author": "",
