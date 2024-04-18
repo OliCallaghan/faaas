@@ -52,6 +52,8 @@ importers:
         specifier: ^5.4.4
         version: 5.4.4
 
+  benchmarks/perf-v8-event-loop-artillery: {}
+
   benchmarks/perf-v8-event-loop-db:
     dependencies:
       '@prisma/client':
@@ -63,6 +65,13 @@ importers:
         version: 5.12.1
 
   benchmarks/perf-v8-event-loop-experiment:
+    dependencies:
+      '@faaas/perf-v8-event-loop':
+        specifier: workspace:^
+        version: link:../perf-v8-event-loop
+      '@faaas/perf-v8-event-loop-artillery':
+        specifier: workspace:*
+        version: link:../perf-v8-event-loop-artillery
     devDependencies:
       rimraf:
         specifier: ^5.0.5

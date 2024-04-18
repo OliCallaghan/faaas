@@ -42,7 +42,7 @@ experiment () {
     $COMPOSE wait migrate &> $LOG_DEST
 
     echo "Start artillery"
-    $COMPOSE run -d --build artillery &> $LOG_DEST
+    $COMPOSE run -v $X_DIR/results/local_$TYPE/reports:/reports -d --build artillery &> $LOG_DEST
 
     # Add latency
     echo "Simulate network latency"
@@ -71,9 +71,13 @@ experiment () {
     $COMPOSE cp on_http_get_pet:/app/perf/. $X_DIR/results/local_$TYPE/onHttpGetPet &> $LOG_DEST
     $COMPOSE cp on_http_get_pets:/app/perf/. $X_DIR/results/local_$TYPE/onHttpGetPets &> $LOG_DEST
     $COMPOSE cp on_http_put_pet:/app/perf/. $X_DIR/results/local_$TYPE/onHttpPutPet &> $LOG_DEST
+
+    # Generate HTML report
+    echo "Generate HTML artillery report"
+    docker run -v $X_DIR/results/local_$TYPE/reports:/home/node/artillery/reports artilleryio/artillery:2.0.9 report -o reports/report.html reports/report.json
 }
 
-# experiment "cpu"
-# experiment "io"
+experiment "cpu"
+experiment "io"
 experiment "time"
-# experiment "wall"
+experiment "wall"

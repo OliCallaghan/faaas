@@ -1,0 +1,9 @@
+{
+  "name": "@faaas/perf-v8-event-loop-artillery",
+  "version": "1.0.0",
+  "description": "Benchmarking artillery configuration",
+  "main": "artillery.yaml",
+  "scripts": {},
+  "author": "",
+  "license": "ISC"
+}

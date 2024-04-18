@@ -14,7 +14,7 @@ x-faas-fn-cfg: &faas-fn-cfg
   deploy:
     resources:
       limits:
-        cpus: "0.05"
+        cpus: "0.1"
         memory: 128M
       reservations:
         memory: 128M

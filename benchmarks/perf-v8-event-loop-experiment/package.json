@@ -11,5 +11,9 @@
   "license": "ISC",
   "devDependencies": {
     "rimraf": "^5.0.5"
+  },
+  "dependencies": {
+    "@faaas/perf-v8-event-loop": "workspace:^",
+    "@faaas/perf-v8-event-loop-artillery": "workspace:*"
   }
 }

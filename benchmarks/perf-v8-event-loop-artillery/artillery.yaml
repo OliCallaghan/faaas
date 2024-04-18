@@ -15,13 +15,16 @@ config:
   plugins:
     expect: {}
     apdex: {}
-    metrics-by-endpoint: {}
+    metrics-by-endpoint:
+      useOnlyRequestNames: true
     fake-data: {}
 scenarios:
   - flow:
       - get:
           name: "OnHttpGetPets"
           url: "http://on_http_get_pets:3000/"
+          expect:
+            - statusCode: 200
       - put:
           name: "OnHttpPutPet"
           url: "http://on_http_put_pet:3000/"
@@ -31,10 +34,16 @@ scenarios:
           capture:
             json: "$.id"
             as: "petId"
+          expect:
+            - statusCode: 200
       - get:
           name: "OnHttpGetPet"
           url: "http://on_http_get_pet:3000/{{ petId }}"
+          expect:
+            - statusCode: 200
       - think: 5
       - delete:
           name: "OnHttpDeletePet"
           url: "http://on_http_delete_pet:3000/{{ petId }}"
+          expect:
+            - statusCode: 200
