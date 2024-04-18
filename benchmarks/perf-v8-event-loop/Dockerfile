@@ -20,10 +20,14 @@ RUN pnpm run build --filter=@faaas/perf-v8-event-loop...
 FROM base AS runner
 RUN apt-get update && apt-get -y install \
     linux-perf \
-    sudo
+    iproute2 \
+    strace \
+    sudo \
+    time
 RUN mkdir -p /app/perf
 RUN npm install -g 0x pprof-it
 
+COPY --chmod=0755 --from=installer /app/benchmarks/perf-v8-event-loop/scripts/terminate.sh .
 COPY --from=installer /app/benchmarks/perf-v8-event-loop/node_modules/@faaas/perf-v8-event-loop-db/node_modules/.prisma/client-benchmark-perf-v8-event-loop-db/schema.prisma .
 COPY --from=installer /app/benchmarks/perf-v8-event-loop/node_modules/@faaas/perf-v8-event-loop-db/node_modules/.prisma/client-benchmark-perf-v8-event-loop-db/libquery_engine-* .
 COPY --from=installer /app/benchmarks/perf-v8-event-loop/dist .

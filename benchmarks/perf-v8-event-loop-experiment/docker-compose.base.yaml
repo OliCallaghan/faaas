@@ -8,10 +8,24 @@ x-faas-fn-cfg: &faas-fn-cfg
     dockerfile: benchmarks/perf-v8-event-loop/Dockerfile
   environment:
     BMK_DB_URL: "postgres://${BMK_DB_USER}:${BMK_DB_PASS}@${BMK_DB_HOST}:${BMK_DB_PORT}/${BMK_DB_NAME}"
+  cap_add:
+    - NET_ADMIN
+    - SYS_PTRACE
+  deploy:
+    resources:
+      limits:
+        cpus: "0.05"
+        memory: 128M
+      reservations:
+        memory: 128M
 
 services:
   database:
-    image: postgres
+    build:
+      context: .
+      dockerfile_inline: |
+        FROM postgres
+        RUN apt-get -y update && apt-get -y install iproute2
     environment:
       POSTGRES_USER: $BMK_DB_USER
       POSTGRES_PASSWORD: $BMK_DB_PASS
@@ -19,6 +33,9 @@ services:
       - 5432:5432
     volumes:
       - pgdata:/var/lib/postgresql/data
+    privileged: true
+    cap_add:
+      - NET_ADMIN
   migrate:
     build:
       context: .

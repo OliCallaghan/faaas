@@ -6,7 +6,7 @@ x-pprof-cfg: &pprof-cfg
     PPROF_OUT: /app/perf
     PPROF_HEAP_OUT: ./pprof-heap.pb.gz
     PPROF_TIME_OUT: ./pprof-time.pb.gz
-    PPROF_TIME_INTERVAL: 10
+    PPROF_TIME_INTERVAL: 1000
 
 services:
   on_http_get_pet:

@@ -1,0 +1,12 @@
+version: "3.9"
+name: "faaas-io"
+
+services:
+  on_http_get_pet:
+    command: strace -o /app/perf/strace.log -c node ./onHttpGetPet.trigger.js
+  on_http_get_pets:
+    command: strace -o /app/perf/strace.log -c node ./onHttpGetPets.trigger.js
+  on_http_put_pet:
+    command: strace -o /app/perf/strace.log -c node ./onHttpPutPet.trigger.js
+  on_http_delete_pet:
+    command: strace -o /app/perf/strace.log -c node ./onHttpDeletePet.trigger.js

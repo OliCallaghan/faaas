@@ -1,6 +1,7 @@
 #!/bin/bash
 
 set -e
+set -o pipefail
 
 # Determine experiment and root directories
 X_DIR=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &> /dev/null && pwd)
@@ -12,6 +13,14 @@ echo "Root directory: $R_DIR"
 # Change to root directory
 cd $R_DIR
 
+# Configure log output
+if [[ $* == *--flag* ]]
+then
+    LOG_DEST=/dev/null
+else
+    LOG_DEST=$X_DIR/local.log
+fi
+
 experiment () {
     # Get experiment type
     local TYPE=$1
@@ -19,26 +28,52 @@ experiment () {
     echo "Running $TYPE experiment"
 
     # Define Docker compose command
-    local COMPOSE_CPU="docker compose --env-file $X_DIR/.env -f $X_DIR/docker-compose.base.yaml -f $X_DIR/docker-compose.$TYPE.yaml --project-directory=$R_DIR"
+    local COMPOSE="docker compose --env-file $X_DIR/.env -f $X_DIR/docker-compose.base.yaml -f $X_DIR/docker-compose.$TYPE.yaml --project-directory=$R_DIR"
+
+    echo "Using $COMPOSE"
+    echo "Writing logs to $LOG_DEST"
 
     # Cleanup previous compose runs
-    $COMPOSE_CPU down --volumes &> /dev/null
+    $COMPOSE down --volumes &> $LOG_DEST
 
     # Startup DB and run migrations
     echo "Startup DB and run migrations"
-    $COMPOSE_CPU up --build -d database migrate &> /dev/null
-    $COMPOSE_CPU wait migrate &> /dev/null
+    $COMPOSE up --build -d database migrate &> $LOG_DEST
+    $COMPOSE wait migrate &> $LOG_DEST
 
-    echo "Run artillery"
-    $COMPOSE_CPU run --build artillery &> /dev/null
-    $COMPOSE_CPU stop &> /dev/null
+    echo "Start artillery"
+    $COMPOSE run -d --build artillery &> $LOG_DEST
+
+    # Add latency
+    echo "Simulate network latency"
+    $COMPOSE exec database tc qdisc add dev eth0 root netem delay 20ms 30ms
+    $COMPOSE exec on_http_delete_pet tc qdisc add dev eth0 root netem delay 20ms 30ms
+    $COMPOSE exec on_http_get_pet tc qdisc add dev eth0 root netem delay 20ms 30ms
+    $COMPOSE exec on_http_get_pets tc qdisc add dev eth0 root netem delay 20ms 30ms
+    $COMPOSE exec on_http_put_pet tc qdisc add dev eth0 root netem delay 20ms 30ms
+
+    echo "Wait for artillery"
+    $COMPOSE wait artillery &> $LOG_DEST
+
+    if [ $TYPE = "io" ] || [ $TYPE = "time" ]
+    then
+        echo "Killing webservers"
+        $COMPOSE exec on_http_delete_pet /app/terminate.sh
+        $COMPOSE exec on_http_get_pet /app/terminate.sh
+        $COMPOSE exec on_http_get_pets /app/terminate.sh
+        $COMPOSE exec on_http_put_pet /app/terminate.sh
+    fi
+
+    $COMPOSE stop &> $LOG_DEST
 
     echo "Copy results from containers"
-    $COMPOSE_CPU cp on_http_delete_pet:/app/perf/. $X_DIR/results/local_$TYPE/onHttpDeletePet &> /dev/null
-    $COMPOSE_CPU cp on_http_get_pet:/app/perf/. $X_DIR/results/local_$TYPE/onHttpGetPet &> /dev/null
-    $COMPOSE_CPU cp on_http_get_pets:/app/perf/. $X_DIR/results/local_$TYPE/onHttpGetPets &> /dev/null
-    $COMPOSE_CPU cp on_http_put_pet:/app/perf/. $X_DIR/results/local_$TYPE/onHttpPutPet &> /dev/null
+    $COMPOSE cp on_http_delete_pet:/app/perf/. $X_DIR/results/local_$TYPE/onHttpDeletePet &> $LOG_DEST
+    $COMPOSE cp on_http_get_pet:/app/perf/. $X_DIR/results/local_$TYPE/onHttpGetPet &> $LOG_DEST
+    $COMPOSE cp on_http_get_pets:/app/perf/. $X_DIR/results/local_$TYPE/onHttpGetPets &> $LOG_DEST
+    $COMPOSE cp on_http_put_pet:/app/perf/. $X_DIR/results/local_$TYPE/onHttpPutPet &> $LOG_DEST
 }
 
-experiment "cpu"
-experiment "wall"
+# experiment "cpu"
+# experiment "io"
+experiment "time"
+# experiment "wall"

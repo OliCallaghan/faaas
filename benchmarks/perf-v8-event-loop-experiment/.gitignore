@@ -1,4 +1,12 @@
+# Results
 results/local_cpu/**/*
+results/local_io/**/*
+results/local_time/**/*
 results/local_wall/**/*
 !results/local_cpu/.gitkeep
+!results/local_io/.gitkeep
+!results/local_time/.gitkeep
 !results/local_wall/.gitkeep
+
+# Logs
+local.log

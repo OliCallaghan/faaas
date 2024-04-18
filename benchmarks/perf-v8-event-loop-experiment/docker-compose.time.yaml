@@ -1,0 +1,12 @@
+version: "3.9"
+name: "faaas-time"
+
+services:
+  on_http_get_pet:
+    command: /usr/bin/time -p -o /app/perf/time.log node ./onHttpGetPet.trigger.js
+  on_http_get_pets:
+    command: /usr/bin/time -p -o /app/perf/time.log node ./onHttpGetPets.trigger.js
+  on_http_put_pet:
+    command: /usr/bin/time -p -o /app/perf/time.log node ./onHttpPutPet.trigger.js
+  on_http_delete_pet:
+    command: /usr/bin/time -p -o /app/perf/time.log node ./onHttpDeletePet.trigger.js
