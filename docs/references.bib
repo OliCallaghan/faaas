@@ -1,6 +1,637 @@
-@book{texbook,
-  author = {Donald E. Knuth},
-  year = {1986},
-  title = {The {\TeX} Book},
-  publisher = {Addison-Wesley Professional}
+@article{rise-of-the-planet-of-serverless-computing,
+  author = {Wen, Jinfeng and Chen, Zhenpeng and Jin, Xin and Liu, Xuanzhe},
+  title = {Rise of the Planet of Serverless Computing: A Systematic Review},
+  year = {2023},
+  issue_date = {September 2023},
+  publisher = {Association for Computing Machinery},
+  address = {New York, NY, USA},
+  volume = {32},
+  number = {5},
+  issn = {1049-331X},
+  url = {https://doi.org/10.1145/3579643},
+  doi = {10.1145/3579643},
+  abstract = {Serverless computing is an emerging cloud computing paradigm, being adopted to develop a wide range of software applications. It allows developers to focus on the application logic in the granularity of function, thereby freeing developers from tedious and error-prone infrastructure management. Meanwhile, its unique characteristic poses new challenges to the development and deployment of serverless-based applications. To tackle these challenges, enormous research efforts have been devoted. This article provides a comprehensive literature review to characterize the current research state of serverless computing. Specifically, this article covers 164 articles on 17 research directions of serverless computing, including performance optimization, programming framework, application migration, multi-cloud development, testing and debugging, and so on. It also derives research trends, focus, and commonly-used platforms for serverless computing, as well as promising research opportunities.},
+  journal = {ACM Trans. Softw. Eng. Methodol.},
+  month = {7},
+  articleno = {131},
+  numpages = {61},
+  keywords = {Serverless computing, literature view}
+}
+
+@article{review-of-serverless-use-cases-and-characteristics,
+  author       = {Simon Eismann and
+                  Joel Scheuner and
+                  Erwin Van Eyk and
+                  Maximilian Schwinger and
+                  Johannes Grohmann and
+                  Nikolas Herbst and
+                  Cristina L. Abad and
+                  Alexandru Iosup},
+  title        = {A Review of Serverless Use Cases and their Characteristics},
+  journal      = {CoRR},
+  volume       = {abs/2008.11110},
+  year         = {2020},
+  url          = {https://arxiv.org/abs/2008.11110},
+  eprinttype    = {arXiv},
+  eprint       = {2008.11110},
+  timestamp    = {Fri, 28 Aug 2020 14:37:31 +0200},
+  biburl       = {https://dblp.org/rec/journals/corr/abs-2008-11110.bib},
+  bibsource    = {dblp computer science bibliography, https://dblp.org}
+}
+
+@online{ibm-what-is-faas,
+  author = {IBM},
+  title = {What is FaaS (Function-as-a-Service)? | IBM},
+  url = {https://www.ibm.com/topics/faas},
+  urldate = {Thu, 18 Jan 2024},
+  year = {2024}
+}
+
+@online{ibm-cloud-functions-openwhisk,
+  author = {IBM},
+  title = {IBM Cloud Functions},
+  url = {https://cloud.ibm.com/docs/openwhisk},
+  urldate = {Thu, 18 Jan 2024},
+  year = {2024}
+}
+
+@online{openwhisk-repo,
+  author = {Apache},
+  title = {OpenWhisk},
+  url = {https://github.com/apache/openwhisk},
+  urldate = {Thu, 18 Jan 2024},
+  year = {2024}
+}
+
+@online{aws-lambdas-calling-lambdas,
+  author = {Amazon},
+  title = {Functions calling functions},
+  url = {https://docs.aws.amazon.com/lambda/latest/operatorguide/functions-calling-functions.html},
+  urldate = {Thu, 18 Jan 2024},
+  year = {2024}
+}
+
+@online{aws-lambda,
+  author = {Amazon},
+  title = {AWS Lambda},
+  url = {https://aws.amazon.com/lambda/},
+  urldate = {Tue, 23 Jan 2024},
+  year = {2024}
+}
+
+@online{aws-step-functions,
+  author = {Amazon},
+  title = {AWS Step Functions},
+  url = {https://aws.amazon.com/step-functions/},
+  urldate = {Tue, 23 Jan 2024},
+  year = {2024}
+}
+
+@online{google-cloud-functions,
+  author = {Google},
+  title = {Google Cloud Functions},
+  url = {https://cloud.google.com/functions},
+  urldate = {Tue, 23 Jan 2024},
+  year = {2024}
+}
+
+@online{azure-functions,
+  author = {Azure},
+  title = {Azure Functions},
+  url = {https://learn.microsoft.com/en-us/azure/azure-functions/functions-overview},
+  urldate = {Tue, 23 Jan 2024},
+  year = {2024}
+}
+
+@online{amazon-prime-video-lambda,
+  author = {Amazon},
+  title = {Scaling up the Prime Video audio/video monitoring service and reducing costs by 90\%},
+  url = {https://www.primevideotech.com/video-streaming/scaling-up-the-prime-video-audio-video-monitoring-service-and-reducing-costs-by-90},
+  urldate = {Tue, 23 Jan 2024},
+  year = {2024}
+}
+
+@online{openfaas-github,
+  author = {Alex Ellis},
+  title = {OpenFaaS},
+  url = {https://github.com/openfaas/faas},
+  urldate = {Tue, 23 Jan 2024},
+  year = {2024}
+}
+
+@inproceedings{comparison-of-faas-orchestrators,
+  author={García López, Pedro and Sánchez-Artigas, Marc and París, Gerard and Barcelona Pons, Daniel and Ruiz Ollobarren, Álvaro and Arroyo Pinto, David},
+  booktitle={2018 IEEE/ACM International Conference on Utility and Cloud Computing Companion (UCC Companion)},
+  title={Comparison of FaaS Orchestration Systems},
+  year={2018},
+  volume={},
+  number={},
+  pages={148-153},
+  keywords={Programming;Software;Packaging;Computer architecture;FAA;Measurement;DSL;Cloud computing;Serverless;Function Composition;Orchestration;Amazon Step Functions;Azure Durable Functions;IBM Composer},
+  doi={10.1109/UCC-Companion.2018.00049}
+}
+
+@inproceedings{cgroups-process-containers,
+  title={Adding Generic Process Containers to the Linux Kernel},
+  author={Paul Menage},
+  year={2010},
+  url={https://api.semanticscholar.org/CorpusID:195183412}
+}
+
+@inproceedings{refunction-cold-starts,
+  title={Refunction: Eliminating Serverless Cold Starts Through Container Reuse},
+  author={Oliver Stenbom, Robert Chatley},
+  year={2019},
+  url={https://www.imperial.ac.uk/media/imperial-college/faculty-of-engineering/computing/public/1819-ug-projects/StenbomO-Refunction-Eliminating-Serverless-Cold-Starts-Through-Container-Reuse.pdf}
+}
+
+@inproceedings{polardb-serverless-cloud-native-db-for-disaggregated-data-centers,
+  author = {Cao, Wei and Zhang, Yingqiang and Yang, Xinjun and Li, Feifei and Wang, Sheng and Hu, Qingda and Cheng, Xuntao and Chen, Zongzhi and Liu, Zhenjun and Fang, Jing and Wang, Bo and Wang, Yuhui and Sun, Haiqing and Yang, Ze and Cheng, Zhushi and Chen, Sen and Wu, Jian and Hu, Wei and Zhao, Jianwei and Gao, Yusong and Cai, Songlu and Zhang, Yunyang and Tong, Jiawang},
+  title = {PolarDB Serverless: A Cloud Native Database for Disaggregated Data Centers},
+  year = {2021},
+  isbn = {9781450383431},
+  publisher = {Association for Computing Machinery},
+  address = {New York, NY, USA},
+  url = {https://doi.org/10.1145/3448016.3457560},
+  doi = {10.1145/3448016.3457560},
+  abstract = {beginabstract The trend in the DBMS market is to migrate to the cloud for elasticity, high availability, and lower costs. The traditional, monolithic database architecture is difficult to meet these requirements. With the development of high-speed network and new memory technologies, disaggregated data center has become a reality: it decouples various components from monolithic servers into separated resource pools (e.g., compute, memory, and storage) and connects them through a high-speed network. The next generation cloud native databases should be designed for disaggregated data centers. In this paper, we describe the novel architecture of name, which follows thedisaggregation design paradigm: the CPU resource on compute nodes is decoupled from remote memory pool and storage pool. Each resource pool grows or shrinks independently, providing revon-demand provisoning at multiple dimensions while improving reliability. We also design our system to mitigate the inherent penalty brought by resource disaggregation, and introduce optimizations such as optimistic locking and index awared prefetching. Compared to the architecture that uses local resources, name achieves better dynamic resource provisioning capabilities and 5.3 times faster failure recovery speed, while achieving comparable performance. endabstract},
+  booktitle = {Proceedings of the 2021 International Conference on Management of Data},
+  pages = {2477–2489},
+  numpages = {13},
+  keywords = {cloud database, disaggregated data center, shared remote memory, shared storage},
+  location = {Virtual Event, China},
+  series = {SIGMOD '21}
+}
+
+@inproceedings{caching-techniques-improve-latency-serverless,
+  author={Ghosh, Bishakh Chandra and Addya, Sourav Kanti and Somy, Nishant Baranwal and Nath, Shubha Brata and Chakraborty, Sandip and Ghosh, Soumya K},
+  booktitle={2020 International Conference on COMmunication Systems \& NETworkS (COMSNETS)},
+  title={Caching Techniques to Improve Latency in Serverless Architectures},
+  year={2020},
+  volume={},
+  number={},
+  pages={666-669},
+  doi={10.1109/COMSNETS48256.2020.9027427}
+}
+
+@inproceedings {sock-containers,
+  author = {Edward Oakes and Leon Yang and Dennis Zhou and Kevin Houck and Tyler Harter and Andrea Arpaci-Dusseau and Remzi Arpaci-Dusseau},
+  title = {{SOCK}: Rapid Task Provisioning with {Serverless-Optimized} Containers},
+  booktitle = {2018 USENIX Annual Technical Conference (USENIX ATC 18)},
+  year = {2018},
+  isbn = {978-1-931971-44-7},
+  address = {Boston, MA},
+  pages = {57--70},
+  url = {https://www.usenix.org/conference/atc18/presentation/oakes},
+  publisher = {USENIX Association},
+  month = jul
+}
+
+@inproceedings{sebs-serverless-benchmarking-suite,
+  author = {Copik, Marcin and Kwasniewski, Grzegorz and Besta, Maciej and Podstawski, Michal and Hoefler, Torsten},
+  title = {SeBS: A Serverless Benchmark Suite for Function-as-a-Service Computing},
+  year = {2021},
+  isbn = {9781450385343},
+  publisher = {Association for Computing Machinery},
+  address = {New York, NY, USA},
+  url = {https://doi.org/10.1145/3464298.3476133},
+  doi = {10.1145/3464298.3476133},
+  booktitle = {Proceedings of the 22nd International Middleware Conference},
+  pages = {64-78},
+  numpages = {15},
+  keywords = {benchmark, serverless, FaaS, function-as-a-service},
+  location = {Qu\'{e}bec city, Canada},
+  series = {Middleware '21}
+}
+
+@inproceedings{cost-minimisation-for-deploying-serverless-functions,
+  author = {Sedefo\u{g}lu, \"{O}zg\"{u}r and S\"{o}zer, Hasan},
+  title = {Cost minimization for deploying serverless functions},
+  year = {2021},
+  isbn = {9781450381048},
+  publisher = {Association for Computing Machinery},
+  address = {New York, NY, USA},
+  url = {https://doi.org/10.1145/3412841.3442069},
+  doi = {10.1145/3412841.3442069},
+  abstract = {The costs of serverless functions increase proportional to the amount of memory reserved on the deployed server. However, increasing the amount of memory decreases the function execution time, which is also a factor that contributes to cost. We propose an automated approach for optimizing the amount of memory reserved for serverless functions. First, we measure the running time of a given function in various memory settings and derive a regression model. Then, we define an objective function and a set of constraints based on this regression model and the configuration space. Finally, we determine the optimal memory setting for minimizing cost. Our industrial case study shows that significant cost reductions can be achieved by accurate estimations of the impact of memory settings on runtime performance.},
+  booktitle = {Proceedings of the 36th Annual ACM Symposium on Applied Computing},
+  pages = {83–85},
+  numpages = {3},
+  keywords = {serverless computing, industrial case study, function as a service, cost minimization, cloud computing},
+  location = {Virtual Event, Republic of Korea},
+  series = {SAC '21}
+}
+
+@online{v8js,
+  author = {Google},
+  title = {What is V8?},
+  url = {https://v8.dev/},
+  year = {2024}
+}
+
+@online{spidermonkey,
+  author = {Mozilla},
+  title = {SpiderMonkey JavaScript/WebAssembly Engine},
+  url = {https://spidermonkey.dev/},
+  year = {2024}
+}
+
+@online{nodejs,
+  author = {OpenJS Foundation},
+  title = {NodeJS},
+  url = {https://nodejs.org/},
+  year = {2024}
+}
+
+@online{nodejs-event-loop,
+  author = {OpenJS Foundation},
+  title = {The Node.js Event Loop, Timers, and process.nextTick()},
+  url = {https://nodejs.org/en/guides/event-loop-timers-and-nexttick},
+  year = {2024}
+}
+
+@online{deno,
+  author = {Deno Land Inc},
+  title = {Deno},
+  url = {https://deno.com/},
+  year = {2024}
+}
+
+@online{bun,
+  author = {Jared Sumner},
+  title = {Bun},
+  url = {https://bun.sh/},
+  year = {2024}
+}
+
+@online{quickjs,
+  author = {Fabrice Bellard},
+  title = {QuickJS},
+  url = {https://bellard.org/quickjs/},
+  year = {2024}
+}
+
+@online{wasmtime,
+  author = {Bytecode Alliance},
+  title = {Wasmtime},
+  url = {https://wasmtime.dev/},
+  year = {2024},
+}
+
+@online{cranelift,
+  author = {Bytecode Alliance},
+  title = {Cranelift},
+  url = {https://cranelift.dev/},
+  year = {2024},
+}
+
+@inproceedings{sledge-serverless-wasm,
+  author = {Gadepalli, Phani Kishore and McBride, Sean and Peach, Gregor and Cherkasova, Ludmila and Parmer, Gabriel},
+  title = {Sledge: a Serverless-first, Light-weight Wasm Runtime for the Edge},
+  year = {2020},
+  isbn = {9781450381536},
+  publisher = {Association for Computing Machinery},
+  address = {New York, NY, USA},
+  url = {https://doi.org/10.1145/3423211.3425680},
+  doi = {10.1145/3423211.3425680},
+  abstract = {Emerging IoT applications with real-time latency constraints require new data processing systems operating at the Edge. Serverless computing offers a new compelling paradigm, where a user can execute a small application without handling the operational issues of server provisioning and resource management. Despite a variety of existing commercial and open source serverless platforms (utilizing VMs and containers), these solutions are too heavy-weight for a resource-constrained Edge systems (due to large memory footprint and high invocation time). Moreover, serverless workloads that focus on per-client, short-running computations are not an ideal fit for existing general purpose computing systems.In this paper, we present the design and implementation of Sledge -- a novel and efficient WebAssembly-based serverless framework for the Edge. Sledge is optimized for supporting unique properties of serverless workloads: the need for high density multi-tenancy, low startup time, bursty client request rates, and short-lived computations. Sledge is designed for these constraints by offering (i) optimized scheduling policies and efficient work-distribution for short-lived computations, and (ii) a light-weight function isolation model implemented using our own WebAssembly-based software fault isolation infrastructure. These lightweight sandboxes are designed to support high-density computation: with fast startup and teardown times to handle high client request rates. An extensive evaluation of Sledge with varying workloads and real-world serverless applications demonstrates the effectiveness of the designed serverless-first runtime for the Edge. Sledge supports up to 4 times higher throughput and 4 times lower latencies compared to Nuclio, one of the fastest open-source serverless frameworks.},
+  booktitle = {Proceedings of the 21st International Middleware Conference},
+  pages = {265–279},
+  numpages = {15},
+  keywords = {serverless, WebAssembly, IoT, Edge computing},
+  location = {Delft, Netherlands},
+  series = {Middleware '20}
+}
+
+@article{memory-safety-preservation-for-wasm,
+  title={Memory safety preservation for webassembly},
+  author={Vassena, Marco and Patrignani, Marco},
+  journal={arXiv preprint arXiv:1910.09586},
+  year={2019}
+}
+
+@online{awsm-compiler,
+  author = {Gregor Peach, et al.},
+  title = {aWsm},
+  url = {https://github.com/gwsystems/aWsm},
+  year = {2024},
+}
+
+@article{netherite-serverless-workflows,
+  author = {Burckhardt, Sebastian and Chandramouli, Badrish and Gillum, Chris and Justo, David and Kallas, Konstantinos and McMahon, Connor and Meiklejohn, Christopher S. and Zhu, Xiangfeng},
+  title = {Netherite: efficient execution of serverless workflows},
+  year = {2022},
+  issue_date = {April 2022},
+  publisher = {VLDB Endowment},
+  volume = {15},
+  number = {8},
+  issn = {2150-8097},
+  url = {https://doi.org/10.14778/3529337.3529344},
+  doi = {10.14778/3529337.3529344},
+  abstract = {Serverless is a popular choice for cloud service architects because it can provide scalability and load-based billing with minimal developer effort. Functions-as-a-service (FaaS) are originally stateless, but emerging frameworks add stateful abstractions. For instance, the widely used Durable Functions (DF) allow developers to write advanced serverless applications, including reliable workflows and actors, in a programming language of choice. DF implicitly and continuosly persists the state and progress of applications, which greatly simplifies development, but can create an IOps bottleneck.To improve efficiency, we introduce Netherite, a novel architecture for executing serverless workflows on an elastic cluster. Netherite groups the numerous application objects into a smaller number of partitions, and pipelines the state persistence of each partition. This improves latency and throughput, as it enables workflow steps to group commit, even if causally dependent. Moreover, Netherite leverages FASTER's hybrid log approach to support larger-than-memory application state, and to enable efficient partition movement between compute hosts.Our evaluation shows that (a) Netherite achieves lower latency and higher throughput than the original DF engine, by more than an order of magnitude in some cases, and (b) that Netherite has lower latency than some commonly used alternatives, like AWS Step Functions or cloud storage triggers.},
+  journal = {Proc. VLDB Endow.},
+  month = {apr},
+  pages = {1591-1604},
+  numpages = {14}
+}
+
+@article{mswasm-memory-safety,
+  author = {Michael, Alexandra E. and Gollamudi, Anitha and Bosamiya, Jay and Johnson, Evan and Denlinger, Aidan and Disselkoen, Craig and Watt, Conrad and Parno, Bryan and Patrignani, Marco and Vassena, Marco and Stefan, Deian},
+  title = {MSWasm: Soundly Enforcing Memory-Safe Execution of Unsafe Code},
+  year = {2023},
+  issue_date = {January 2023},
+  publisher = {Association for Computing Machinery},
+  address = {New York, NY, USA},
+  volume = {7},
+  number = {POPL},
+  url = {https://doi.org/10.1145/3571208},
+  doi = {10.1145/3571208},
+  abstract = {Most programs compiled to WebAssembly (Wasm) today are written in unsafe languages like C and C++.
+  Unfortunately, memory-unsafe C code remains unsafe when compiled to Wasm—and attackers can exploit
+  buffer overflows and use-after-frees in Wasm almost as easily as they can on native platforms. Memory-
+  Safe WebAssembly (MSWasm) proposes to extend Wasm with language-level memory-safety abstractions to
+  precisely address this problem. In this paper, we build on the original MSWasm position paper to realize this vision. We give a precise and formal semantics of MSWasm, and prove that well-typed MSWasm programs are, by construction, robustly memory safe. To this end, we develop a novel, language-independent memory-safety property based on colored memory locations and pointers. This property also lets us reason about the security guarantees of a formal C-to-MSWasm compiler—and prove that it always produces memory-safe programs (and preserves the semantics of safe programs). We use these formal results to then guide several implementations: Two compilers of MSWasm to native code, and a C-to-MSWasm compiler (that extends Clang). Our MSWasm compilers support different enforcement mechanisms, allowing developers to make security-performance trade-offs according to their needs. Our evaluation shows that on the PolyBenchC suite, the overhead of enforcing memory safety in software ranges from 22\% (enforcing spatial safety alone) to 198\% (enforcing full memory safety), and 51.7\% when using hardware memory capabilities for spatial safety and pointer integrity.
+
+  More importantly, MSWasm’s design makes it easy to swap between enforcement mechanisms; as fast (especially hardware-based) enforcement techniques become available, MSWasm will be able to take advantage of these advances almost for free.},
+  journal = {Proc. ACM Program. Lang.},
+  month = {1},
+  articleno = {15},
+  numpages = {30},
+  keywords = {WebAssembly, Semantics, Secure Compilation, Memory-safety}
+}
+
+@inproceedings {faasm-stateful-faas,
+  author = {Simon Shillaker and Peter Pietzuch},
+  title = {Faasm: Lightweight Isolation for Efficient Stateful Serverless Computing},
+  booktitle = {2020 USENIX Annual Technical Conference (USENIX ATC 20)},
+  year = {2020},
+  isbn = {978-1-939133-14-4},
+  pages = {419--433},
+  url = {https://www.usenix.org/conference/atc20/presentation/shillaker},
+  publisher = {USENIX Association},
+  month = jul
+}
+
+@article{cloudburst-stateful-faas,
+  author       = {Vikram Sreekanti and
+                  Chenggang Wu and
+                  Xiayue Charles Lin and
+                  Johann Schleier{-}Smith and
+                  Jose M. Faleiro and
+                  Joseph E. Gonzalez and
+                  Joseph M. Hellerstein and
+                  Alexey Tumanov},
+  title        = {Cloudburst: Stateful Functions-as-a-Service},
+  journal      = {CoRR},
+  volume       = {abs/2001.04592},
+  year         = {2020},
+  url          = {https://arxiv.org/abs/2001.04592},
+  eprinttype    = {arXiv},
+  eprint       = {2001.04592},
+  timestamp    = {Tue, 18 Aug 2020 20:24:11 +0200},
+  biburl       = {https://dblp.org/rec/journals/corr/abs-2001-04592.bib},
+  bibsource    = {dblp computer science bibliography, https://dblp.org}
+}
+
+@inproceedings {sand-serverless,
+  author = {Istemi Ekin Akkus and Ruichuan Chen and Ivica Rimac and Manuel Stein and Klaus Satzke and Andre Beck and Paarijaat Aditya and Volker Hilt},
+  title = {{SAND}: Towards {High-Performance} Serverless Computing},
+  booktitle = {2018 USENIX Annual Technical Conference (USENIX ATC 18)},
+  year = {2018},
+  isbn = {978-1-939133-01-4},
+  address = {Boston, MA},
+  pages = {923--935},
+  url = {https://www.usenix.org/conference/atc18/presentation/akkus},
+  publisher = {USENIX Association},
+  month = jul
+}
+
+@inproceedings{catalyzer,
+  author = {Du, Dong and Yu, Tianyi and Xia, Yubin and Zang, Binyu and Yan, Guanglu and Qin, Chenggang and Wu, Qixuan and Chen, Haibo},
+  title = {Catalyzer: Sub-millisecond Startup for Serverless Computing with Initialization-less Booting},
+  year = {2020},
+  isbn = {9781450371025},
+  publisher = {Association for Computing Machinery},
+  address = {New York, NY, USA},
+  url = {https://doi.org/10.1145/3373376.3378512},
+  doi = {10.1145/3373376.3378512},
+  abstract = {Serverless computing promises cost-efficiency and elasticity for high-productive software development. To achieve this, the serverless sandbox system must address two challenges: strong isolation between function instances, and low startup latency to ensure user experience. While strong isolation can be provided by virtualization-based sandboxes, the initialization of sandbox and application causes non-negligible startup overhead. Conventional sandbox systems fall short in low-latency startup due to their application-agnostic nature: they can only reduce the latency of sandbox initialization through hypervisor and guest kernel customization, which is inadequate and does not mitigate the majority of startup overhead.This paper proposes Catalyzer, a serverless sandbox system design providing both strong isolation and extremely fast function startup. Instead of booting from scratch, Catalyzer restores a virtualization-based function instance from a well-formed checkpoint image and thereby skips the initialization on the critical path (init-less). Catalyzer boosts the restore performance by on-demand recovering both user-level memory state and system state. We also propose a new OS primitive, sfork (sandbox fork), to further reduce the startup latency by directly reusing the state of a running sandbox instance. Fundamentally, Catalyzer removes the initialization cost by reusing state, which enables general optimizations for diverse serverless functions. The evaluation shows that Catalyzer reduces startup latency by orders of magnitude, achieves < 1ms latency in the best case, and significantly reduces the end-to-end latency for real-world workloads. Catalyzer has been adopted by Ant Financial, and we also present lessons learned from industrial development.},
+  booktitle = {Proceedings of the Twenty-Fifth International Conference on Architectural Support for Programming Languages and Operating Systems},
+  pages = {467–481},
+  numpages = {15},
+  keywords = {startup latency, serverless computing, operating system, checkpoint and restore},
+  location = {Lausanne, Switzerland},
+  series = {ASPLOS '20}
+}
+
+@inproceedings{awsm-wasm-for-edge,
+  author={Gadepalli, Phani Kishore and Peach, Gregor and Cherkasova, Ludmila and Aitken, Rob and Parmer, Gabriel},
+  booktitle={2019 38th Symposium on Reliable Distributed Systems (SRDS)},
+  title={Challenges and Opportunities for Efficient Serverless Computing at the Edge},
+  year={2019},
+  volume={},
+  number={},
+  pages={261-2615},
+  doi={10.1109/SRDS47363.2019.00036}
+}
+
+@inproceedings{optimising-serverless-adaptive-function-placement,
+  author = {Mahmoudi, Nima and Lin, Changyuan and Khazaei, Hamzeh and Litoiu, Marin},
+  title = {Optimizing serverless computing: introducing an adaptive function placement algorithm},
+  year = {2019},
+  publisher = {IBM Corp.},
+  address = {USA},
+  abstract = {The main concept behind serverless computing is to build and run applications without the need for server management. It refers to a fine-grained deployment model where applications, comprising of one or more functions, are uploaded to a platform and then executed, scaled, and billed in response to the exact demand needed at the moment. While elite cloud vendors such as Amazon, Google, Microsoft, and IBM are now providing serverless computing, their approach for the placement of functions, i.e. associated container or sandbox, on servers is oblivious to the workload which may lead to poor performance and/or higher operational cost for software owners. In this paper, using statistical machine learning, we design and evaluate an adaptive function placement algorithm which can be used by serverless computing platforms to optimize the performance of running functions while minimizing the operational cost. Given a fixed amount of resources, our smart spread function placement algorithm results in higher performance compared to existing approaches; this will be achieved by maintaining the users' desired quality of service for a longer time which prevents premature scaling of the cloud resources. Extensive experimental studies revealed that the proposed adaptive function placement algorithm can be easily adopted by serverless computing providers and integrated to container orchestration platforms without introducing any limiting side effects.},
+  booktitle = {Proceedings of the 29th Annual International Conference on Computer Science and Software Engineering},
+  pages = {203-213},
+  numpages = {11},
+  keywords = {container placement algorithms, machine learning, optimization, predictive performance modeling, serverless computing},
+  location = {Toronto, Ontario, Canada},
+  series = {CASCON '19}
+}
+
+@inproceedings{ibm-pywren-mapreduce,
+  author = {Samp\'{e}, Josep and Vernik, Gil and S\'{a}nchez-Artigas, Marc and Garc\'{\i}a-L\'{o}pez, Pedro},
+  title = {Serverless Data Analytics in the IBM Cloud},
+  year = {2018},
+  isbn = {9781450360166},
+  publisher = {Association for Computing Machinery},
+  address = {New York, NY, USA},
+  url = {https://doi.org/10.1145/3284028.3284029},
+  doi = {10.1145/3284028.3284029},
+  abstract = {Unexpectedly, the rise of serverless computing has also collaterally started the "democratization" of massive-scale data parallelism. This new trend heralded by PyWren pursues to enable untrained users to execute single-machine code in the cloud at massive scale through platforms like AWS Lambda. Inspired by this vision, this industry paper presents IBM-PyWren, which continues the pioneering work begun by PyWren in this field. It must be noted that IBM-PyWren is not, however, just a mere reimplementation of PyWren's API atop IBM Cloud Functions. Rather, it is must be viewed as an advanced extension of PyWren to run broader MapReduce jobs. We describe the design, innovative features (API extensions, data discovering \& partitioning, composability, etc.) and performance of IBM-PyWren, along with the challenges encountered during its implementation.},
+  booktitle = {Proceedings of the 19th International Middleware Conference Industry},
+  pages = {1–8},
+  numpages = {8},
+  keywords = {Serverless computing, PyWren, IBM Cloud Object Storage, IBM Cloud Functions, Distributed computing},
+  location = {Rennes, France},
+  series = {Middleware '18}
+}
+
+@inproceedings{occupy-the-cloud-distributed-computing-for-all,
+  author = {Jonas, Eric and Pu, Qifan and Venkataraman, Shivaram and Stoica, Ion and Recht, Benjamin},
+  title = {Occupy the cloud: distributed computing for the 99\%},
+  year = {2017},
+  isbn = {9781450350280},
+  publisher = {Association for Computing Machinery},
+  address = {New York, NY, USA},
+  url = {https://doi.org/10.1145/3127479.3128601},
+  doi = {10.1145/3127479.3128601},
+  abstract = {Distributed computing remains inaccessible to a large number of users, in spite of many open source platforms and extensive commercial offerings. While distributed computation frameworks have moved beyond a simple map-reduce model, many users are still left to struggle with complex cluster management and configuration tools, even for running simple embarrassingly parallel jobs. We argue that stateless functions represent a viable platform for these users, eliminating cluster management overhead, fulfilling the promise of elasticity. Furthermore, using our prototype implementation, PyWren, we show that this model is general enough to implement a number of distributed computing models, such as BSP, efficiently. Extrapolating from recent trends in network bandwidth and the advent of disaggregated storage, we suggest that stateless functions are a natural fit for data processing in future computing environments.},
+  booktitle = {Proceedings of the 2017 Symposium on Cloud Computing},
+  pages = {445–451},
+  numpages = {7},
+  keywords = {AWS lambda, PyWren, distributed computing, serverless},
+  location = {Santa Clara, California},
+  series = {SoCC '17}
+}
+
+@article{serverless-computing-one-step-forward-two-back,
+  author       = {Joseph M. Hellerstein and
+                  Jose M. Faleiro and
+                  Joseph E. Gonzalez and
+                  Johann Schleier{-}Smith and
+                  Vikram Sreekanti and
+                  Alexey Tumanov and
+                  Chenggang Wu},
+  title        = {Serverless Computing: One Step Forward, Two Steps Back},
+  journal      = {CoRR},
+  volume       = {abs/1812.03651},
+  year         = {2018},
+  url          = {http://arxiv.org/abs/1812.03651},
+  eprinttype    = {arXiv},
+  eprint       = {1812.03651},
+  timestamp    = {Tue, 18 Aug 2020 20:24:11 +0200},
+  biburl       = {https://dblp.org/rec/journals/corr/abs-1812-03651.bib},
+  bibsource    = {dblp computer science bibliography, https://dblp.org}
+}
+
+@inproceedings{shared-memory-for-chained-faas,
+  author={Sabbioni, Andrea and Rosa, Lorenzo and Bujari, Armir and Foschini, Luca and Corradi, Antonio},
+  booktitle={2021 IEEE Symposium on Computers and Communications (ISCC)},
+  title={A Shared Memory Approach for Function Chaining in Serverless Platforms},
+  year={2021},
+  volume={},
+  number={},
+  pages={1-6},
+  doi={10.1109/ISCC53001.2021.9631385}
+}
+
+@inproceedings{xanadu-chained-cold-starts,
+  author = {Daw, Nilanjan and Bellur, Umesh and Kulkarni, Purushottam},
+  title = {Xanadu: Mitigating cascading cold starts in serverless function chain deployments},
+  year = {2020},
+  isbn = {9781450381536},
+  publisher = {Association for Computing Machinery},
+  address = {New York, NY, USA},
+  url = {https://doi.org/10.1145/3423211.3425690},
+  doi = {10.1145/3423211.3425690},
+  abstract = {Organization of tasks as workflows are an essential feature to expand the applicability of the serverless computing framework. Existing serverless platforms are either agnostic to function chains (workflows as a composition of functions) or rely on naive provisioning and management mechanisms of the serverless framework---an example is that they provision resources after the trigger to each function in a workflow arrives thereby forcing a setup latency for each function in the workflow. In this work, we focus on mitigating the cascading cold start problem--- the latency overheads in triggering a sequence of serverless functions according to a workflow specification. We first establish the nature and extent of the cascading effects in cold start situations across multiple commercial server platforms and cloud providers. Towards mitigating these cascading overheads, we design and develop several optimizations, that are built into our tool Xanadu. Xanadu offers multiple instantiation options based on the desired runtime isolation requirements and supports function chaining with or without explicit workflow specifications. Xanadu's optimizations to address the cascading cold start problem are built on speculative and just-in-time provisioning of resources. Our evaluation of the Xanadu system reveals almost complete elimination of cascading cold starts at minimal cost overheads, outperforming the available state of the art platforms. For even relatively short workflows, Xanadu reduces platform overheads by almost 18x compared to Knative and 10x compared to Apache Openwhisk.},
+  booktitle = {Proceedings of the 21st International Middleware Conference},
+  pages = {356–370},
+  numpages = {15},
+  keywords = {Just-in-time scheduling, Serverless workflows, Speculative deployment},
+  location = {Delft, Netherlands},
+  series = {Middleware '20}
+}
+
+@article{funcx-sci-faas,
+  author       = {Ryan Chard and
+                  Tyler J. Skluzacek and
+                  Zhuozhao Li and
+                  Yadu N. Babuji and
+                  Anna Woodard and
+                  Ben Blaiszik and
+                  Steven Tuecke and
+                  Ian T. Foster and
+                  Kyle Chard},
+  title        = {Serverless Supercomputing: High Performance Function as a Service
+                  for Science},
+  journal      = {CoRR},
+  volume       = {abs/1908.04907},
+  year         = {2019},
+  url          = {http://arxiv.org/abs/1908.04907},
+  eprinttype    = {arXiv},
+  eprint       = {1908.04907},
+  timestamp    = {Mon, 19 Aug 2019 13:21:03 +0200},
+  biburl       = {https://dblp.org/rec/journals/corr/abs-1908-04907.bib},
+  bibsource    = {dblp computer science bibliography, https://dblp.org}
+}
+
+@inproceedings {faastlane-chaining,
+  author = {Swaroop Kotni and Ajay Nayak and Vinod Ganapathy and Arkaprava Basu},
+  title = {Faastlane: Accelerating {Function-as-a-Service} Workflows},
+  booktitle = {2021 USENIX Annual Technical Conference (USENIX ATC 21)},
+  year = {2021},
+  isbn = {978-1-939133-23-6},
+  pages = {805--820},
+  url = {https://www.usenix.org/conference/atc21/presentation/kotni},
+  publisher = {USENIX Association},
+  month = jul
+}
+
+@article{cloud-programming-simplified-a-berkley-view-on-serverless,
+  title={Cloud Programming Simplified: A Berkeley View on Serverless Computing},
+  author={Eric Jonas and Johann Schleier-Smith and Vikram Sreekanti and Chia-che Tsai and Anurag Khandelwal and Qifan Pu and Vaishaal Shankar and Jo{\~a}o Carreira and Karl Krauth and Neeraja Jayant Yadwadkar and Joseph Gonzalez and Raluca A. Popa and Ion Stoica and David A. Patterson},
+  journal={ArXiv},
+  year={2019},
+  volume={abs/1902.03383},
+  url={https://api.semanticscholar.org/CorpusID:60440467}
+}
+
+@inproceedings{ofc-an-opportunistic-caching-system-for-faas,
+  author = {Mvondo, Djob and Bacou, Mathieu and Nguetchouang, Kevin and Ngale, Lucien and Pouget, St\'{e}phane and Kouam, Josiane and Lachaize, Renaud and Hwang, Jinho and Wood, Tim and Hagimont, Daniel and De Palma, No\"{e}l and Batchakui, Bernab\'{e} and Tchana, Alain},
+  title = {OFC: an opportunistic caching system for FaaS platforms},
+  year = {2021},
+  isbn = {9781450383349},
+  publisher = {Association for Computing Machinery},
+  address = {New York, NY, USA},
+  url = {https://doi.org/10.1145/3447786.3456239},
+  doi = {10.1145/3447786.3456239},
+  abstract = {Cloud applications based on the "Functions as a Service" (FaaS) paradigm have become very popular. Yet, due to their stateless nature, they must frequently interact with an external data store, which limits their performance. To mitigate this issue, we introduce OFC, a transparent, vertically and horizontally elastic in-memory caching system for FaaS platforms, distributed over the worker nodes. OFC provides these benefits cost-effectively by exploiting two common sources of resource waste: (i) most cloud tenants overprovision the memory resources reserved for their functions because their footprint is non-trivially input-dependent and (ii) FaaS providers keep function sandboxes alive for several minutes to avoid cold starts. Using machine learning models adjusted for typical function input data categories (e.g., multimedia formats), OFC estimates the actual memory resources required by each function invocation and hoards the remaining capacity to feed the cache. We build our OFC prototype based on enhancements to the OpenWhisk FaaS platform, the Swift persistent object store, and the RAM-Cloud in-memory store. Using a diverse set of workloads, we show that OFC improves by up to 82 \% and 60 \% respectively the execution time of single-stage and pipelined functions.},
+  booktitle = {Proceedings of the Sixteenth European Conference on Computer Systems},
+  pages = {228–244},
+  numpages = {17},
+  keywords = {serverless, latency, functions as a service (FaaS), cloud computing, cache},
+  location = {Online Event, United Kingdom},
+  series = {EuroSys '21}
+}
+
+@article{crucial-stateful-faas,
+  author = {Barcelona-Pons, Daniel and Sutra, Pierre and S\'{a}nchez-Artigas, Marc and Par\'{\i}s, Gerard and Garc\'{\i}a-L\'{o}pez, Pedro},
+  title = {Stateful Serverless Computing with Crucial},
+  year = {2022},
+  issue_date = {July 2022},
+  publisher = {Association for Computing Machinery},
+  address = {New York, NY, USA},
+  volume = {31},
+  number = {3},
+  issn = {1049-331X},
+  url = {https://doi.org/10.1145/3490386},
+  doi = {10.1145/3490386},
+  abstract = {Serverless computing greatly simplifies the use of cloud resources. In particular, Function-as-a-Service (FaaS) platforms enable programmers to develop applications as individual functions that can run and scale independently. Unfortunately, applications that require fine-grained support for mutable state and synchronization, such as machine learning (ML) and scientific computing, are notoriously hard to build with this new paradigm. In this work, we aim at bridging this gap. We present Crucial, a system to program highly-parallel stateful serverless applications. Crucial retains the simplicity of serverless computing. It is built upon the key insight that FaaS resembles to concurrent programming at the scale of a datacenter. Accordingly, a distributed shared memory layer is the natural answer to the needs for fine-grained state management and synchronization. Crucial allows to port effortlessly a multi-threaded code base to serverless, where it can benefit from the scalability and pay-per-use model of FaaS platforms. We validate Crucial with the help of micro-benchmarks and by considering various stateful applications. Beyond classical parallel tasks (e.g., a Monte Carlo simulation), these applications include representative ML algorithms such as k-means and logistic regression. Our evaluation shows that Crucial obtains superior or comparable performance to Apache Spark at similar cost (18\%–40\% faster). We also use Crucial to port (part of) a state-of-the-art multi-threaded ML library to serverless. The ported application is up to 30\% faster than with a dedicated high-end server. Finally, we attest that Crucial can rival in performance with a single-machine, multi-threaded implementation of a complex coordination problem. Overall, Crucial delivers all these benefits with less than 6\% of changes in the code bases of the evaluated applications.},
+  journal = {ACM Trans. Softw. Eng. Methodol.},
+  month = {3},
+  articleno = {39},
+  numpages = {38},
+  keywords = {Serverless, FaaS, in-memory, stateful, synchronization}
+}
+
+@article{durable-functions-azure,
+  author = {Burckhardt, Sebastian and Gillum, Chris and Justo, David and Kallas, Konstantinos and McMahon, Connor and Meiklejohn, Christopher S.},
+  title = {Durable functions: semantics for stateful serverless},
+  year = {2021},
+  issue_date = {October 2021},
+  publisher = {Association for Computing Machinery},
+  address = {New York, NY, USA},
+  volume = {5},
+  number = {OOPSLA},
+  url = {https://doi.org/10.1145/3485510},
+  doi = {10.1145/3485510},
+  abstract = {Serverless, or Functions-as-a-Service (FaaS), is an increasingly popular paradigm for application development, as it provides implicit elastic scaling and load based billing. However, the weak execution guarantees and intrinsic compute-storage separation of FaaS create serious challenges when developing applications that require persistent state, reliable progress, or synchronization. This has motivated a new generation of serverless frameworks that provide stateful abstractions. For instance, Azure's Durable Functions (DF) programming model enhances FaaS with actors, workflows, and critical sections. As a programming model, DF is interesting because it combines task and actor parallelism, which makes it suitable for a wide range of serverless applications. We describe DF both informally, using examples, and formally, using an idealized high-level model based on the untyped lambda calculus. Next, we demystify how the DF runtime can (1) execute in a distributed unreliable serverless environment with compute-storage separation, yet still conform to the fault-free high-level model, and (2) persist execution progress without requiring checkpointing support by the language runtime. To this end we define two progressively more complex execution models, which contain the compute-storage separation and the record-replay, and prove that they are equivalent to the high-level model.},
+  journal = {Proc. ACM Program. Lang.},
+  month = {oct},
+  articleno = {133},
+  numpages = {27},
+  keywords = {Durable Functions, Programming, Reliable, Serverless, Service Composition, Services, Workflows}
 }
