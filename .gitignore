@@ -1,2 +1,4 @@
+.direnv/
 .turbo
 node_modules
+dist/

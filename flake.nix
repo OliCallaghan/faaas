@@ -19,7 +19,7 @@
             corepack_20
             nodejs_20
             rustup
-            texliveMedium
+            texliveFull
           ];
 
           packages = [
