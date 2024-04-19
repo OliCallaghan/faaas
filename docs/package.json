@@ -4,10 +4,10 @@
   "version": "1.0.0",
   "description": "FaaAS documentation and report.",
   "scripts": {
-    "build": "latexmk -pdf -jobname=out/report report.tex",
-    "clean": "latexmk -c -jobname=out/report report.tex"
+    "build": "latexmk -silent -pdf -jobname=out/report report.tex",
+    "clean": "latexmk -silent -c -jobname=out/report report.tex"
   },
-  "devDependencies": {
-    "@faaas/perf-v8-event-loop-experiment": "workspace:*"
+  "dependencies": {
+    "@faaas/perf-v8-event-loop-results": "workspace:^"
   }
 }

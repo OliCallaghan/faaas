@@ -77,11 +77,21 @@ importers:
         specifier: ^5.0.5
         version: 5.0.5
 
-  docs:
-    devDependencies:
+  benchmarks/perf-v8-event-loop-results:
+    dependencies:
       '@faaas/perf-v8-event-loop-experiment':
-        specifier: workspace:*
-        version: link:../benchmarks/perf-v8-event-loop-experiment
+        specifier: workspace:^
+        version: link:../perf-v8-event-loop-experiment
+    devDependencies:
+      rimraf:
+        specifier: ^5.0.5
+        version: 5.0.5
+
+  docs:
+    dependencies:
+      '@faaas/perf-v8-event-loop-results':
+        specifier: workspace:^
+        version: link:../benchmarks/perf-v8-event-loop-results
 
 packages:
 

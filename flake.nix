@@ -12,23 +12,46 @@
         pkgs = import nixpkgs {
           inherit system;
         };
+        python = pkgs.python311;
+        pythonPackages = python.pkgs;
       in
       {
         devShell = pkgs.mkShell {
+          nativeBuildInputs = [ pkgs.bashInteractive ];
           buildInputs = with pkgs; [
             corepack_20
             nodejs_20
             rustup
             texliveFull
+            pythonPackages.venvShellHook
+            pkgs.nodePackages.pyright
+            pkgs.poetry
+            pythonPackages.setuptools
+            pythonPackages.wheel
           ];
 
+          venvDir = ".venv";
+          src = null;
+
           packages = [
-            (pkgs.python3.withPackages (python-pkgs: [
+            (python.withPackages (python-pkgs: [
                 python-pkgs.packaging
             ]))
           ];
 
           shellHook = "pnpm install --frozen-lockfile";
+
+          VIRTUAL_ENV_DISABLE_PROMPT = true;
+
+          postVenv = ''
+            unset SOURCE_DATE_EPOCH
+          '';
+          postShellHook = ''
+            unset SOURCE_DATE_EPOCH
+            unset LD_PRELOAD
+
+            PYTHONPATH=$PWD/$venvDir/${python.sitePackages}:$PYTHONPATH
+          '';
         };
       }
     );

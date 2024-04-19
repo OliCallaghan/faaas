@@ -1,0 +1,32 @@
+[tool.pyright]
+include = ["benchmarks/perf-v8-event-loop-results/src"]
+exclude = ["**/node_modules", "**/__pycache__"]
+
+reportMissingImports = true
+reportMissingTypeStubs = false
+
+pythonVersion = "3.11"
+
+venvPath = "."
+venv = ".venv"
+
+executionEnvironments = [{ root = "benchmarks/perf-v8-event-loop-results/src" }]
+
+[tool.poetry]
+name = "faaas"
+version = "0.1.0"
+description = ""
+package-mode = false
+authors = ["Oli Callaghan <me@olicallaghan.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.11"
+numpy = "^1.26.4"
+matplotlib = "^3.8.4"
+pandas = "^2.2.2"
+seaborn = "^0.13.2"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

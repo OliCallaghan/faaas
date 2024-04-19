@@ -1,0 +1,18 @@
+{
+  "name": "@faaas/perf-v8-event-loop-results",
+  "version": "1.0.0",
+  "description": "Diagrams for V8 event loop profiling",
+  "scripts": {
+    "build": "poetry run python src/generate.py",
+    "clean": "rimraf assets"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@faaas/perf-v8-event-loop-experiment": "workspace:^"
+  },
+  "devDependencies": {
+    "rimraf": "^5.0.5"
+  }
+}

@@ -10,6 +10,18 @@
 \usepackage{csquotes} % Not sure what this is for
 \usepackage{siunitx} % For SI units
 
+% For generated diagrams and plots
+\usepackage{layouts}
+\usepackage{lmodern}
+\usepackage{tikz}
+\usepackage{tikz-cd}
+\usepackage{pgfplots}
+
+% Matplotlib required preamble
+\def\mathdefault#1{#1}
+\everymath=\expandafter{\the\everymath\displaystyle}
+\makeatletter\@ifpackageloaded{underscore}{}{\usepackage[strings]{underscore}}\makeatother
+
 \addbibresource{references.bib}
 
 \title{\textbf{FaaAS: Introducing asynchronicity as a first class citizen for serverless functions}}
@@ -41,6 +53,13 @@ This research aims to yield control back to the runtime from these `functions' w
 
 % Motivation
 \subsection{Motivation}
+\begin{figure}
+    \begin{center}
+        \input{node_modules/@faaas/perf-v8-event-loop-results/assets/faas-profile-waiting-on-io.pgf}
+    \end{center}
+    \caption{\faas{} function execution profile}
+\end{figure}
+
 \faaslong{} has become increasingly more common amongst system architectures since the introduction of AWS Lambda\cite{aws-lambda} in 2014, with developers citing cost, scalability, and ease of development as the most important factors\cite{review-of-serverless-use-cases-and-characteristics}.
 
 Typical \faas{} workloads can be characterised as `glue', most commonly handling HTTP requests and interacting with a form of persistent storage --- in fact, around 50\% of all serverless functions fall into this category\cite{review-of-serverless-use-cases-and-characteristics}.
@@ -50,6 +69,8 @@ Typical \faas{} workloads can be characterised as `glue', most commonly handling
 The resolution of the billing model however extends only to the level of granularity of functions, whereby resources are allocated for the entire lifetime of the function's execution. This is particularly important when considering that the serverless suffers from additional latency when accessing persistent storage, for example, the average latency between AWS Lambda and DynamoDB is usually \qtyrange{60}{90}{\ms}\cite{caching-techniques-improve-latency-serverless}.
 
 Since the median execution time for serverless functions lies between milliseconds and a second\cite{review-of-serverless-use-cases-and-characteristics}, this latency accounts for a significant proportion of time when resources are allocated and unused during function execution time. Developers are charged for this time, and cannot temporarily yield resources back to the host until the asynchronous action completes.
+
+\printinunitsof{in}\prntlen{\columnwidth}
 
 \printbibliography
 

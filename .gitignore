@@ -1,4 +1,5 @@
 .direnv/
-.turbo
+.turbo/
+.venv/
 node_modules
 dist/

@@ -6,7 +6,6 @@
     "build": "./local.sh",
     "clean": "rimraf results/local_{cpu,io,time,wall}/{onHttpDeletePet,onHttpGetPet,onHttpGetPets,onHttpPutPet}"
   },
-  "keywords": [],
   "author": "",
   "license": "ISC",
   "devDependencies": {
