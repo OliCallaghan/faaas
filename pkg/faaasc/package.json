@@ -1,0 +1,11 @@
+{
+  "name": "@faaas/faaasc",
+  "version": "1.0.0",
+  "description": "SWC based JavaScript compiler",
+  "scripts": {
+    "build": "echo hi"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}

@@ -1,0 +1,11 @@
+[package]
+name = "faaastime"
+version = "0.1.0"
+edition = "2021"
+
+[[bin]]
+name = "faaastime"
+
+[dependencies]
+anyhow = "1.0.82"
+wasmtime = { version = "19.0.2", features = ["component-model"] }

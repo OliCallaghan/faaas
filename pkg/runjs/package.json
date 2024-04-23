@@ -1,0 +1,13 @@
+{
+  "name": "@faaas/runjs",
+  "version": "1.0.0",
+  "description": "JavaScript FaaAS runtime",
+  "main": "target/wasm32-wasi/release/runjs.wasm",
+  "scripts": {
+    "build": "cargo component build --release --quiet",
+    "build:debug": "cargo component build --debug --quiet"
+  },
+  "keywords": [],
+  "author": "Oli Callaghan",
+  "license": "ISC"
+}

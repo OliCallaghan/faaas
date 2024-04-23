@@ -1,5 +1,8 @@
+**/.DS_Store
+
 .direnv/
 .turbo/
 .venv/
 node_modules
 dist/
+target/

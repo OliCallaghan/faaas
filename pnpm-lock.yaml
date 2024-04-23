@@ -93,6 +93,16 @@ importers:
         specifier: workspace:^
         version: link:../benchmarks/perf-v8-event-loop-results
 
+  pkg/faaasc: {}
+
+  pkg/faaastime:
+    dependencies:
+      '@faaas/runjs':
+        specifier: workspace:^
+        version: link:../runjs
+
+  pkg/runjs: {}
+
 packages:
 
   /@colors/colors@1.6.0:

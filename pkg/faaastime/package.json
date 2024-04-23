@@ -1,0 +1,14 @@
+{
+  "name": "@faaas/faaastime",
+  "version": "1.0.0",
+  "description": "FaaAS serverless functions runtime",
+  "scripts": {
+    "build": "cargo build --release --quiet"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@faaas/runjs": "workspace:^"
+  }
+}

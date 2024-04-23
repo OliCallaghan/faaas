@@ -82,7 +82,7 @@ fig = figure(figsize=(3.27791,3.27791 * 2))
 
 Plot(on_http_time_df_melt, x="fn", y="value", color="measure") \
     .add(Bar(), Stack()) \
-    .label(title="Function execution time in each phase", x="Function name", y="Time (s)", color="phase") \
+    .label(title="Billed execution time by phase", x="Function name", y="Time (s)", color="phase") \
     .layout(engine="tight", size=(3.27791,3.27791 * 1.5)) \
     .on(fig) \
     .plot()

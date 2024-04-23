@@ -5,3 +5,6 @@ packages:
   - "benchmarks/perf-v8-event-loop-artillery"
   - "benchmarks/perf-v8-event-loop-experiment"
   - "benchmarks/perf-v8-event-loop-results"
+  - "pkg/faaasc"
+  - "pkg/faaastime"
+  - "pkg/runjs"

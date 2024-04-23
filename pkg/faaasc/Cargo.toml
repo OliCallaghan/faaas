@@ -1,0 +1,16 @@
+[package]
+name = "faaasc"
+version = "0.1.0"
+edition = "2021"
+
+[[bin]]
+name = "faaasc"
+test = false
+bench = false
+
+[dependencies]
+clap = { version = "4.5.4", features = ["derive"] }
+clio = { version = "0.3.5", features = ["clap-parse"] }
+swc_common = { version = "0.33.25", features = ["tty-emitter"] }
+swc_ecma_ast = "0.112.8"
+swc_ecma_parser = { version = "0.143.16", features = ["typescript"] }

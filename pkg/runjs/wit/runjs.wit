@@ -1,0 +1,5 @@
+package faaas:runjs;
+
+world runjs {
+   include wasi:http/proxy@0.2.0;
+}

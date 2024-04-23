@@ -28,6 +28,8 @@
             pkgs.poetry
             pythonPackages.setuptools
             pythonPackages.wheel
+          ] ++ lib.optional stdenv.isDarwin libiconv ++ lib.optional stdenv.isDarwin [
+            darwin.apple_sdk.frameworks.SystemConfiguration
           ];
 
           venvDir = ".venv";
