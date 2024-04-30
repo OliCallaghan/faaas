@@ -22,6 +22,7 @@
             corepack_20
             nodejs_20
             rustup
+            wasmtime
             texliveFull
             pythonPackages.venvShellHook
             pkgs.nodePackages.pyright

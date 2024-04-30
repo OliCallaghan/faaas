@@ -5,9 +5,15 @@
   "main": "target/wasm32-wasi/release/runjs.wasm",
   "scripts": {
     "build": "cargo component build --release --quiet",
-    "build:debug": "cargo component build --debug --quiet"
+    "build:debug": "cargo component build --debug --quiet",
+    "serve:0": "wasmtime serve --addr 0.0.0.0:8080 target/wasm32-wasi/release/runjs.wasm",
+    "serve:1": "wasmtime serve --addr 0.0.0.0:8081 target/wasm32-wasi/release/runjs.wasm",
+    "serve:2": "wasmtime serve --addr 0.0.0.0:8082 target/wasm32-wasi/release/runjs.wasm"
   },
   "keywords": [],
   "author": "Oli Callaghan",
-  "license": "ISC"
+  "license": "ISC",
+  "dependencies": {
+    "@faaas/perf-v8-event-loop": "workspace:*"
+  }
 }

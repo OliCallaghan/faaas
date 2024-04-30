@@ -101,7 +101,11 @@ importers:
         specifier: workspace:^
         version: link:../runjs
 
-  pkg/runjs: {}
+  pkg/runjs:
+    dependencies:
+      '@faaas/perf-v8-event-loop':
+        specifier: workspace:*
+        version: link:../../benchmarks/perf-v8-event-loop
 
 packages:
 
