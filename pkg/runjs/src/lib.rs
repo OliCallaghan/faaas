@@ -2,6 +2,7 @@
 mod bindings;
 mod buffer;
 mod console;
+mod crypto;
 
 use bindings::wasi::http::types::{
     Fields, IncomingRequest, OutgoingBody, OutgoingResponse, ResponseOutparam,
@@ -9,6 +10,8 @@ use bindings::wasi::http::types::{
 use rquickjs::{CatchResultExt, Class, Context, Module, Runtime};
 
 use crate::buffer::js_buffer_mod;
+use crate::crypto::js_crypto_mod;
+
 use crate::console::Console;
 
 struct Component;
@@ -24,8 +27,8 @@ impl bindings::exports::wasi::http::incoming_handler::Guest for Component {
         // require('tls'):
         // - tls.connect({ socket... })
         // require('crypto')
-        // - crypto.randomBytes()
-        // - crypto.pbkdf2Sync()
+        // - crypto.randomBytes() [DONE]
+        // - crypto.pbkdf2Sync() [DONE]
         // - crypto.createHash()
         // - crypto.createHmac()
         // require('stream')
@@ -55,22 +58,38 @@ impl bindings::exports::wasi::http::incoming_handler::Guest for Component {
 
             // Define minimum stdlib
             Module::declare_def::<js_buffer_mod, _>(ctx.clone(), "buffer").unwrap();
+            Module::declare_def::<js_crypto_mod, _>(ctx.clone(), "crypto").unwrap();
 
             let invoc_mod_res = Module::evaluate(
                 ctx.clone(),
                 "invocation",
                 r#"
                     import { Buffer } from 'buffer'
+                    import { randomBytes, pbkdf2Sync } from 'crypto'
 
-                    function handler() {
+                    console.log("hello")
+
+                    function handleFoo() {
                         const x = Buffer.fromArray([1,2,3,4,5]);
 
                         return x.readUInt32BE();
                     }
 
-                    const res = handler()
+                    function handleBar() {
+                        return randomBytes(256).readUInt32BE();
+                    }
 
-                    console.log(res)
+                    function handleBuz() {
+                        return pbkdf2Sync('foo', 'bar', 60, 64, 'sha256');
+                    }
+
+                    const foo = handleFoo();
+                    const bar = handleBar();
+                    const buz = handleBuz();
+
+                    console.log(foo);
+                    console.log(bar);
+                    console.log(buz.toString('hex'));
                 "#,
             );
 

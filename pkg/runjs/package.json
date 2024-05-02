@@ -5,6 +5,7 @@
   "main": "target/wasm32-wasi/release/runjs.wasm",
   "scripts": {
     "build": "cargo component build --release --quiet",
+    "build:loud": "cargo component build --release",
     "build:debug": "cargo component build --debug --quiet",
     "serve:0": "wasmtime serve --addr 0.0.0.0:8080 target/wasm32-wasi/release/runjs.wasm",
     "serve:1": "wasmtime serve --addr 0.0.0.0:8081 target/wasm32-wasi/release/runjs.wasm",

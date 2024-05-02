@@ -63,6 +63,17 @@ impl Buffer {
     pub fn get_uint16le(&self, offset: Opt<usize>) -> u16 {
         u16::from_le_bytes(self.get_bytes(offset.unwrap_or(0)))
     }
+
+    #[qjs(rename = "toString")]
+    pub fn to_string(&self, encoding: Opt<String>) -> String {
+        let enc = encoding.0.unwrap_or_else(|| "utf8".to_string());
+
+        match enc.as_str() {
+            "utf8" => String::from_utf8(self.data.clone()).unwrap_or_default(),
+            "hex" => hex::encode(&self.data),
+            &_ => panic!("unsupported operation"),
+        }
+    }
 }
 
 #[module]
