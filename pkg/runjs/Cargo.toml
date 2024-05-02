@@ -8,9 +8,11 @@ crate-type = ["cdylib"]
 
 [dependencies]
 hex = "0.4.3"
+hmac = "0.12.1"
+md-5 = "0.10.6"
 pbkdf2 = "0.12.2"
 rquickjs = { version = "0.6.0", features = ["bindgen", "loader", "macro"] }
-sha2 = { version = "0.10", default-features = false }
+sha2 = "0.10"
 wit-bindgen = "0.24.0"
 wit-bindgen-rt = "0.24.0"
 

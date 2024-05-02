@@ -29,8 +29,8 @@ impl bindings::exports::wasi::http::incoming_handler::Guest for Component {
         // require('crypto')
         // - crypto.randomBytes() [DONE]
         // - crypto.pbkdf2Sync() [DONE]
-        // - crypto.createHash()
-        // - crypto.createHmac()
+        // - crypto.createHash() [DONE]
+        // - crypto.createHmac() [DONE]
         // require('stream')
         // - Stream.Writable
         // - Stream.Readable
