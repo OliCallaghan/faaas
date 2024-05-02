@@ -13,7 +13,6 @@ use wasmtime::{Config, Engine, Store};
 // Generate bindings for runjs
 bindgen!("faaastime");
 
-// #[derive(monotonic_clock::Host)]
 struct FaaastimeState {}
 
 impl monotonic_clock::Host for FaaastimeState {

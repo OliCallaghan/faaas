@@ -3,21 +3,24 @@ mod bindings;
 mod buffer;
 mod console;
 mod crypto;
+mod faaas;
 
 use bindings::wasi::http::types::{
     Fields, IncomingRequest, OutgoingBody, OutgoingResponse, ResponseOutparam,
 };
-use rquickjs::{CatchResultExt, Class, Context, Module, Runtime};
+use rquickjs::function::Args;
+use rquickjs::{CatchResultExt, Class, Context, Error, Function, Module, Runtime};
 
 use crate::buffer::js_buffer_mod;
 use crate::crypto::js_crypto_mod;
+use crate::faaas::{js_faaas_mod, Request, Response};
 
 use crate::console::Console;
 
 struct Component;
 
 impl bindings::exports::wasi::http::incoming_handler::Guest for Component {
-    fn handle(_request: IncomingRequest, response: ResponseOutparam) {
+    fn handle(req_param: IncomingRequest, res_param: ResponseOutparam) {
         // TODO:
         // console.log [DONE]
         // require('buffer') [Need polymorphic constructors still]
@@ -39,15 +42,15 @@ impl bindings::exports::wasi::http::incoming_handler::Guest for Component {
         //   - stream.push
         // require('perf_hooks')
         // - performance.now()
+        // require('faaas')
+        // - Request
         // require('os') <-- also virtualised
         // require('fs') <-- virtualised
 
-        let hdrs = Fields::new();
-        let resp = OutgoingResponse::new(hdrs);
-        let body = resp.body().expect("outgoing response");
-
         let rt = Runtime::new().unwrap();
         let ctx = Context::full(&rt).unwrap();
+
+        let req = Request::new();
 
         ctx.with(|ctx| {
             // Define globals
@@ -59,70 +62,51 @@ impl bindings::exports::wasi::http::incoming_handler::Guest for Component {
             // Define minimum stdlib
             Module::declare_def::<js_buffer_mod, _>(ctx.clone(), "buffer").unwrap();
             Module::declare_def::<js_crypto_mod, _>(ctx.clone(), "crypto").unwrap();
+            Module::declare_def::<js_faaas_mod, _>(ctx.clone(), "faaas").unwrap();
 
-            let invoc_mod_res = Module::evaluate(
+            let (m, p) = Module::declare(
                 ctx.clone(),
                 "invocation",
                 r#"
                     import { Buffer } from 'buffer'
                     import { randomBytes, pbkdf2Sync } from 'crypto'
+                    import { Response } from 'faaas'
 
-                    console.log("hello")
-
-                    function handleFoo() {
-                        const x = Buffer.fromArray([1,2,3,4,5]);
-
-                        return x.readUInt32BE();
+                    export function handler(req) {
+                        return new Response(200).text("Hello faaas!");
                     }
-
-                    function handleBar() {
-                        return randomBytes(256).readUInt32BE();
-                    }
-
-                    function handleBuz() {
-                        return pbkdf2Sync('foo', 'bar', 60, 64, 'sha256');
-                    }
-
-                    const foo = handleFoo();
-                    const bar = handleBar();
-                    const buz = handleBuz();
-
-                    console.log(foo);
-                    console.log(bar);
-                    console.log(buz.toString('hex'));
                 "#,
-            );
+            )
+            .unwrap()
+            .eval()
+            .unwrap();
 
-            if let Err(err) = invoc_mod_res {
-                let e = ctx.catch();
-                println!("Error {:?} {:?}", err, e);
-                panic!("Failed to invoke")
-            }
+            p.finish::<()>().catch(&ctx).expect("module to evaluate");
 
-            let res_eval = invoc_mod_res.unwrap().finish::<()>().catch(&ctx);
+            let handler: Function = m.get("handler").unwrap();
+            let mut args = Args::new(ctx.clone(), 1);
 
-            match res_eval {
-                Ok(_) => {
-                    let out = body.write().expect("outgoing stream");
-                    out.blocking_write_and_flush(b"Success!, wasi:http/proxy world!\n")
-                        .expect("writing response");
-                    drop(out);
+            args.push_arg(req).expect("request");
+
+            match handler.call_arg::<Response>(args) {
+                Ok(res) => {
+                    let hdrs = Fields::from_list(res.fields()).unwrap();
+                    let resp = OutgoingResponse::new(hdrs);
+                    let body = resp.body().unwrap();
+
+                    resp.set_status_code(res.status_code).unwrap();
+                    body.write()
+                        .unwrap()
+                        .blocking_write_and_flush(res.contents())
+                        .unwrap();
+
+                    ResponseOutparam::set(res_param, Ok(resp));
+                    OutgoingBody::finish(body, None).unwrap();
                 }
-                Err(_err) => {
-                    println!("Hello world");
-                    let out = body.write().expect("outgoing stream");
-                    let msg = _err.to_string();
-                    let msg_bytes = msg.as_bytes();
-
-                    out.blocking_write_and_flush(msg_bytes)
-                        .expect("writing response");
-                    drop(out);
-                }
-            }
+                Err(Error::Exception) => panic!("Something went wrong"),
+                Err(_) => panic!("Something else went wrong"),
+            };
         });
-
-        ResponseOutparam::set(response, Ok(resp));
-        OutgoingBody::finish(body, None).unwrap();
     }
 }
 
