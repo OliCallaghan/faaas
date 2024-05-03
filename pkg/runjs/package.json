@@ -7,9 +7,10 @@
     "build": "cargo component build --release --quiet",
     "build:loud": "cargo component build --release",
     "build:debug": "cargo component build --debug --quiet",
-    "serve:0": "wasmtime serve --addr 0.0.0.0:8080 target/wasm32-wasi/release/runjs.wasm",
-    "serve:1": "wasmtime serve --addr 0.0.0.0:8081 target/wasm32-wasi/release/runjs.wasm",
-    "serve:2": "wasmtime serve --addr 0.0.0.0:8082 target/wasm32-wasi/release/runjs.wasm"
+    "serve:0": "wasmtime serve -S cli=y --dir js::js --addr 0.0.0.0:8080 target/wasm32-wasi/release/runjs.wasm",
+    "serve:1": "wasmtime serve -S cli=y --dir js::js --addr 0.0.0.0:8081 target/wasm32-wasi/release/runjs.wasm",
+    "serve:2": "wasmtime serve -S cli=y --dir js::js --addr 0.0.0.0:8082 target/wasm32-wasi/release/runjs.wasm",
+    "serve:3": "wasmtime serve -S cli=y --dir js::js --addr 0.0.0.0:8083 target/wasm32-wasi/release/runjs.wasm"
   },
   "keywords": [],
   "author": "Oli Callaghan",

@@ -1,5 +1,5 @@
 package faaas:faaastime;
 
 world faaastime {
-   include faaas:runjs/runjs;
+    include faaas:runjs/runjs;
 }

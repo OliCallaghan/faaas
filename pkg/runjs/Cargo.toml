@@ -22,7 +22,6 @@ proxy = true
 
 [package.metadata.component.dependencies]
 
-[package.metadata.component.target]
 
 [package.metadata.component.target.dependencies]
 "wasi:cli" = { path = "wit/deps/cli" }

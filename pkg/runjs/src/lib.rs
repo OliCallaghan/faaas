@@ -5,12 +5,17 @@ mod console;
 mod crypto;
 mod faaas;
 
+use std::collections::HashMap;
+
+use bindings::wasi::filesystem::types::Descriptor;
 use bindings::wasi::http::types::{
     Fields, IncomingRequest, OutgoingBody, OutgoingResponse, ResponseOutparam,
 };
 use rquickjs::function::Args;
+use rquickjs::loader::{BuiltinResolver, ModuleLoader};
 use rquickjs::{CatchResultExt, Class, Context, Error, Function, Module, Runtime};
 
+use crate::bindings::wasi::filesystem::types::{DescriptorFlags, OpenFlags, PathFlags};
 use crate::buffer::js_buffer_mod;
 use crate::crypto::js_crypto_mod;
 use crate::faaas::{js_faaas_mod, Request, Response};
@@ -18,6 +23,48 @@ use crate::faaas::{js_faaas_mod, Request, Response};
 use crate::console::Console;
 
 struct Component;
+
+impl Descriptor {
+    pub fn read_to_string(&self) -> String {
+        let mut contents = vec![];
+        let mut offset = 0;
+
+        loop {
+            let (mut data, more) = self.read(512, offset).expect("read to succeed");
+            contents.append(&mut data);
+            offset += 512;
+
+            if !more {
+                break;
+            }
+        }
+
+        String::from_utf8(contents).expect("utf8 contents")
+    }
+}
+
+fn load_entrypoint() -> Result<String, ()> {
+    let dirs = bindings::wasi::filesystem::preopens::get_directories();
+
+    let dirs_mapped = dirs
+        .into_iter()
+        .map(|(d, n)| (n, d))
+        .collect::<HashMap<String, Descriptor>>();
+
+    let js_dir = dirs_mapped.get("js").expect("js directory");
+
+    let pflags = PathFlags::empty();
+    let oflags = OpenFlags::empty();
+    let dflags = DescriptorFlags::READ;
+
+    let entrypoint_file = js_dir
+        .open_at(pflags, "entrypoint.js", oflags, dflags)
+        .expect("open entrypoint.js");
+
+    let entrypoint_js = entrypoint_file.read_to_string();
+
+    Ok(entrypoint_js)
+}
 
 impl bindings::exports::wasi::http::incoming_handler::Guest for Component {
     fn handle(req_param: IncomingRequest, res_param: ResponseOutparam) {
@@ -50,35 +97,37 @@ impl bindings::exports::wasi::http::incoming_handler::Guest for Component {
         let rt = Runtime::new().unwrap();
         let ctx = Context::full(&rt).unwrap();
 
+        // Define minimum stdlib
+        let resolver = BuiltinResolver::default()
+            .with_module("buffer")
+            .with_module("crypto")
+            .with_module("faaas");
+
+        let loader = ModuleLoader::default()
+            .with_module("buffer", js_buffer_mod)
+            .with_module("crypto", js_crypto_mod)
+            .with_module("faaas", js_faaas_mod);
+
+        rt.set_loader(resolver, loader);
+
         let req = Request::new();
 
         ctx.with(|ctx| {
             // Define globals
             let console = Class::instance(ctx.clone(), Console::new()).unwrap();
 
-            // Attach globals to context
+            // Register globals to context
             ctx.globals().set("console", console).unwrap();
-
-            // Define minimum stdlib
-            Module::declare_def::<js_buffer_mod, _>(ctx.clone(), "buffer").unwrap();
-            Module::declare_def::<js_crypto_mod, _>(ctx.clone(), "crypto").unwrap();
-            Module::declare_def::<js_faaas_mod, _>(ctx.clone(), "faaas").unwrap();
 
             let (m, p) = Module::declare(
                 ctx.clone(),
                 "invocation",
-                r#"
-                    import { Buffer } from 'buffer'
-                    import { randomBytes, pbkdf2Sync } from 'crypto'
-                    import { Response } from 'faaas'
-
-                    export function handler(req) {
-                        return new Response(200).text("Hello faaas!");
-                    }
-                "#,
+                load_entrypoint().expect("handler"),
             )
+            .map_err(|_| ctx.catch())
             .unwrap()
             .eval()
+            .map_err(|_| ctx.catch())
             .unwrap();
 
             p.finish::<()>().catch(&ctx).expect("module to evaluate");
