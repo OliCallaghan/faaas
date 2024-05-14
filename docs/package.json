@@ -8,6 +8,7 @@
     "clean": "latexmk -silent -c -jobname=out/report report.tex"
   },
   "dependencies": {
+    "@faaas/aws-lambda-exec-env": "workspace:^",
     "@faaas/perf-v8-event-loop-results": "workspace:^"
   }
 }

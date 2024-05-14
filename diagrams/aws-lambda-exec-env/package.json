@@ -1,0 +1,12 @@
+{
+  "name": "@faaas/aws-lambda-exec-env",
+  "version": "1.0.0",
+  "description": "Diagrams for AWS lambda execution environment",
+  "scripts": {
+    "build": "poetry run python src/generate.py",
+    "clean": "rimraf assets"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}

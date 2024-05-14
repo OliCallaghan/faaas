@@ -11,6 +11,7 @@
 \usepackage{siunitx} % For SI units
 
 % For generated diagrams and plots
+\usepackage{graphicx}
 \usepackage{layouts}
 \usepackage{lmodern}
 \usepackage{tikz}
@@ -70,7 +71,37 @@ The resolution of the billing model however extends only to the level of granula
 
 Since the median execution time for serverless functions lies between milliseconds and a second\cite{review-of-serverless-use-cases-and-characteristics}, this latency accounts for a significant proportion of time when resources are allocated and unused during function execution time. Developers are charged for this time, and cannot temporarily yield resources back to the host until the asynchronous action completes.
 
-\printinunitsof{in}\prntlen{\columnwidth}
+%\printinunitsof{in}\prntlen{\columnwidth}
+
+\section{Background}
+
+\subsection{AWS Lambda}
+
+AWS Lambda is by far the most popular \faas{} platform used by developers to deploy code.
+
+\subsubsection{System architecture}
+
+The AWS Lambda system architecture is centered around the concept of Firecracker MicroVMs\cite{firecracker-microvm}.
+
+\begin{figure*}[t]
+    \includegraphics[width=\linewidth]{node_modules/@faaas/aws-lambda-exec-env/assets/aws-lambda-exec-env.pdf}
+    \caption{AWS Lambda Execution Environment}
+    \label{fig:aws-lambda-exec-env}
+\end{figure*}
+
+\subsubsection{Concurrent executions}
+
+Each invocation of a lambda function executes independently inside of it's own Firecracker MicroVM, in what is known as a slot.
+
+Each MicroVM provides a slot which can handle a single invocation, however once this invocation completes, the slot can be used by another invocation.
+
+\subsubsection{Pricing structure}
+
+Billed for execution time from start to finish, since a MicroVM is provisioned the entire time.
+
+\section{Proposed Solution}
+
+In order to better utilise the resources of the MicroVM, the execution environment is to be augmented such that a MicroVM executes WASM programs. Whilst the WASM program is executing, any 'async' calls are registered with an event loop executtors
 
 \printbibliography
 

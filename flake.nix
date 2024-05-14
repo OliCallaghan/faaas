@@ -24,6 +24,7 @@
             rustup
             wasmtime
             texliveFull
+            graphviz
             pythonPackages.venvShellHook
             pkgs.nodePackages.pyright
             pkgs.poetry
