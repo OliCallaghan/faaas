@@ -3,7 +3,9 @@
   "version": "1.0.0",
   "description": "FaaAS serverless functions runtime",
   "scripts": {
-    "build": "cargo build --release --quiet"
+    "build": "cargo build --release --quiet",
+    "watch:run": "cargo watch -x run",
+    "watch:check": "cargo watch -x check"
   },
   "keywords": [],
   "author": "",

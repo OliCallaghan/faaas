@@ -8,4 +8,12 @@ name = "faaastime"
 
 [dependencies]
 anyhow = "1.0.82"
-wasmtime = { version = "19.0.2", features = ["component-model"] }
+hyper = { version = "1", features = ["full"] }
+tokio = { version = "1", features = ["full"] }
+http-body-util = "0.1"
+hyper-util = { version = "0.1", features = ["full"] }
+wasmtime = { version = "20.0.2", features = ["async", "component-model"] }
+bytes = "1.6.0"
+wasmtime-wasi = "20.0.2"
+wasmtime-wasi-http = "20.0.2"
+http = "1.1.0"

@@ -22,6 +22,7 @@
             corepack_20
             nodejs_20
             rustup
+            cargo-watch
             wasmtime
             texliveFull
             graphviz
