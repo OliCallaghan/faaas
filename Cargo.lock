@@ -731,6 +731,7 @@ dependencies = [
  "http-body-util",
  "hyper",
  "hyper-util",
+ "pin-project",
  "tokio",
  "wasmtime",
  "wasmtime-wasi",

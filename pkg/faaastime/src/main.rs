@@ -1,7 +1,13 @@
 use anyhow::{bail, Result};
 
+use std::future::Future;
 use std::net::SocketAddr;
+use std::pin::Pin;
 use std::sync::Arc;
+use std::task::{Context, Poll};
+use std::time::{Duration, Instant};
+
+use pin_project::pin_project;
 
 use hyper::server::conn::http1;
 use hyper::service::service_fn;
@@ -78,6 +84,64 @@ impl FaaasHandler {
     }
 }
 
+#[pin_project]
+struct Timed<Fut, Func>
+where
+    Fut: Future,
+    Func: FnMut(&Fut::Output, Duration, Duration),
+{
+    #[pin]
+    inner: Fut,
+    f: Func,
+    start: Option<Instant>,
+    total: Duration,
+}
+
+impl<Fut, Func> Future for Timed<Fut, Func>
+where
+    Fut: Future,
+    Func: FnMut(&Fut::Output, Duration, Duration),
+{
+    type Output = Fut::Output;
+
+    fn poll(self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<Self::Output> {
+        let this = self.project();
+        let start_poll = Instant::now();
+        let start_fut = this.start.get_or_insert(start_poll);
+
+        match this.inner.poll(cx) {
+            Poll::Pending => {
+                let elapsed = start_poll.elapsed();
+                *this.total += elapsed;
+
+                Poll::Pending
+            }
+            Poll::Ready(v) => {
+                let total_fut = start_fut.elapsed();
+                (this.f)(&v, *this.total, total_fut);
+
+                Poll::Ready(v)
+            }
+        }
+    }
+}
+
+trait TimedExt: Sized + Future {
+    fn timed<F>(self, f: F) -> Timed<Self, F>
+    where
+        F: FnMut(&Self::Output, Duration, Duration),
+    {
+        Timed {
+            inner: self,
+            f,
+            total: Duration::new(0, 0),
+            start: None,
+        }
+    }
+}
+
+impl<F: Future> TimedExt for F {}
+
 type Request = hyper::Request<hyper::body::Incoming>;
 
 #[derive(Clone)]
@@ -149,7 +213,15 @@ async fn handle(
         Ok(())
     });
 
-    match receiver.await {
+    match receiver
+        .timed(|_res, elapsed_poll, elapsed_fut| {
+            println!(
+                "Execution took {:?}, in total, taking {:?}",
+                elapsed_poll, elapsed_fut
+            )
+        })
+        .await
+    {
         Ok(Ok(resp)) => Ok(resp),
         Ok(Err(e)) => Err(e.into()),
         Err(_) => {
