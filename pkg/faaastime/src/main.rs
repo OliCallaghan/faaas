@@ -1,15 +1,10 @@
 use anyhow::{bail, Result};
 
-use std::future::Future;
 use std::net::SocketAddr;
-use std::pin::Pin;
 use std::sync::Arc;
 
-use bytes::Bytes;
-use http_body_util::Full;
 use hyper::server::conn::http1;
-use hyper::service::{service_fn, Service};
-use hyper::Response;
+use hyper::service::service_fn;
 use hyper_util::rt::TokioIo;
 use tokio::net::TcpListener;
 
