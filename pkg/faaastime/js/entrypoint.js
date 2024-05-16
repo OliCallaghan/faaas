@@ -1,13 +1,16 @@
-import { Buffer } from 'buffer'
-import { randomBytes, pbkdf2Sync } from 'crypto'
 import { Response } from 'faaas'
-import { Performance } from 'perf_hooks'
+import { performance } from 'perf_hooks'
 
-export function handler(req) {
-    const now = Performance.now();
+// import { sql } from 'faaas:sql'
+
+export async function handler(req) {
+    const now = performance.now();
 
     const data = req.json();
     const name = data.name ?? "faaas";
 
-    return new Response(200).text(`Hello ${name}! Its ${now}`);
+    // const oldies = await sql('SELECT name FROM person WHERE person.age > 50')
+    const oldies = []
+
+    return new Response(200).text(`Hello ${name}! Its ${now}, and there are ${oldies.length} oldies`);
 }

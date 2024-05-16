@@ -14,7 +14,9 @@ use bindings::wasi::http::types::{
 };
 use rquickjs::function::Args;
 use rquickjs::loader::{BuiltinResolver, ModuleLoader};
-use rquickjs::{CatchResultExt, Class, Context, Error, Function, Module, Runtime};
+use rquickjs::{
+    CatchResultExt, Class, Context, Error, FromJs, Function, Module, Promise, Runtime, Value,
+};
 
 use crate::bindings::wasi::filesystem::types::{DescriptorFlags, OpenFlags, PathFlags};
 use crate::buffer::js_buffer_mod;
@@ -141,8 +143,14 @@ impl bindings::exports::wasi::http::incoming_handler::Guest for Component {
 
             args.push_arg(req).expect("request");
 
-            match handler.call_arg::<Response>(args) {
-                Ok(res) => {
+            match handler.call_arg::<Value>(args) {
+                Ok(ret) => {
+                    let res = match ret.clone().into_promise() {
+                        Some(promise) => promise.finish(),
+                        None => Response::from_js(&ctx, ret),
+                    }
+                    .unwrap();
+
                     let hdrs = Fields::from_list(res.fields()).unwrap();
                     let resp = OutgoingResponse::new(hdrs);
                     let body = resp.body().unwrap();
@@ -169,6 +177,19 @@ impl bindings::exports::wasi::http::incoming_handler::Guest for Component {
                         .blocking_write_and_flush(message.as_bytes())
                         .unwrap();
 
+                    ResponseOutparam::set(res_param, Ok(resp));
+                    OutgoingBody::finish(body, None).unwrap();
+                }
+                Err(Error::WouldBlock) => {
+                    let hdrs = Fields::new();
+                    let resp = OutgoingResponse::new(hdrs);
+                    let body = resp.body().unwrap();
+
+                    resp.set_status_code(200).unwrap();
+                    body.write()
+                        .unwrap()
+                        .blocking_write_and_flush("waiting on promise".as_bytes())
+                        .unwrap();
                     ResponseOutparam::set(res_param, Ok(resp));
                     OutgoingBody::finish(body, None).unwrap();
                 }

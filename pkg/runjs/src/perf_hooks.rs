@@ -4,7 +4,7 @@ use rquickjs::{class, methods, module};
 use crate::bindings::wasi::clocks::monotonic_clock::now;
 
 #[derive(Clone, Trace)]
-#[class(rename_all = "camelCase")]
+#[class(rename_all = "camelCase", rename = "performance")]
 pub struct Performance {}
 
 #[methods]
@@ -23,7 +23,7 @@ impl Performance {
     }
 }
 
-#[module]
+#[module(rename_types = "lowercase")]
 pub mod perf_hooks_mod {
     pub use super::Performance;
 }
