@@ -114,7 +114,7 @@ impl bindings::exports::wasi::http::incoming_handler::Guest for Component {
 
         rt.set_loader(resolver, loader);
 
-        let req = Request::new();
+        let req = Request::new(req_param);
 
         ctx.with(|ctx| {
             // Define globals
@@ -156,7 +156,22 @@ impl bindings::exports::wasi::http::incoming_handler::Guest for Component {
                     ResponseOutparam::set(res_param, Ok(resp));
                     OutgoingBody::finish(body, None).unwrap();
                 }
-                Err(Error::Exception) => panic!("Something went wrong"),
+                Err(Error::Exception) => {
+                    let hdrs = Fields::new();
+                    let resp = OutgoingResponse::new(hdrs);
+                    let body = resp.body().unwrap();
+
+                    let message = format!("{:?}", ctx.catch());
+
+                    resp.set_status_code(500).unwrap();
+                    body.write()
+                        .unwrap()
+                        .blocking_write_and_flush(message.as_bytes())
+                        .unwrap();
+
+                    ResponseOutparam::set(res_param, Ok(resp));
+                    OutgoingBody::finish(body, None).unwrap();
+                }
                 Err(_) => panic!("Something else went wrong"),
             };
         });

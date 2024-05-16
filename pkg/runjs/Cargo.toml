@@ -11,7 +11,7 @@ hex = "0.4.3"
 hmac = "0.12.1"
 md-5 = "0.10.6"
 pbkdf2 = "0.12.2"
-rquickjs = { version = "0.6.0", features = ["bindgen", "loader", "macro"] }
+rquickjs = { version = "0.6.2", features = ["bindgen", "loader", "macro"] }
 sha2 = "0.10"
 wit-bindgen = "0.24.0"
 wit-bindgen-rt = "0.24.0"
