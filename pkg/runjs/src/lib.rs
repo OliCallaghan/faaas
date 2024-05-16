@@ -4,6 +4,7 @@ mod buffer;
 mod console;
 mod crypto;
 mod faaas;
+mod perf_hooks;
 
 use std::collections::HashMap;
 
@@ -19,6 +20,7 @@ use crate::bindings::wasi::filesystem::types::{DescriptorFlags, OpenFlags, PathF
 use crate::buffer::js_buffer_mod;
 use crate::crypto::js_crypto_mod;
 use crate::faaas::{js_faaas_mod, Request, Response};
+use crate::perf_hooks::js_perf_hooks_mod;
 
 use crate::console::Console;
 
@@ -101,12 +103,14 @@ impl bindings::exports::wasi::http::incoming_handler::Guest for Component {
         let resolver = BuiltinResolver::default()
             .with_module("buffer")
             .with_module("crypto")
-            .with_module("faaas");
+            .with_module("faaas")
+            .with_module("perf_hooks");
 
         let loader = ModuleLoader::default()
             .with_module("buffer", js_buffer_mod)
             .with_module("crypto", js_crypto_mod)
-            .with_module("faaas", js_faaas_mod);
+            .with_module("faaas", js_faaas_mod)
+            .with_module("perf_hooks", js_perf_hooks_mod);
 
         rt.set_loader(resolver, loader);
 

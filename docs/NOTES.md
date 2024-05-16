@@ -6,10 +6,15 @@
 - KVM Overview
   - Virtio devices
 - Firecracker
+- Kata Containers
+- NEMU (Intel cleaning up QEMU)
 - OSv
+- Unikernels generally
 - Docker containers, CGroups, Namespaces
 - WASM encapsulation
 - Tokio (green threads) vs OS level threading and processes
+
+- Delimited continuations and effect types (WASMFX)
 
 ## Additional Approaches to Consider
 

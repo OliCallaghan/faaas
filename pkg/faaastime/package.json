@@ -4,6 +4,7 @@
   "description": "FaaAS serverless functions runtime",
   "scripts": {
     "build": "cargo build --release --quiet",
+    "start": "./target/release/faaastime",
     "watch:run": "cargo watch -x run",
     "watch:check": "cargo watch -x check"
   },

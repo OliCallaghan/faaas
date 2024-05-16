@@ -5,5 +5,12 @@
     "use_new_terminal": true,
     "allow_concurrent_runs": false,
     "reveal": "always"
+  },
+  {
+    "label": "start",
+    "command": "nix develop --command pnpm start:faaastime",
+    "use_new_terminal": true,
+    "allow_concurrent_runs": false,
+    "reveal": "always"
   }
 ]
