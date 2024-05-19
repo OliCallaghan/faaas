@@ -1,0 +1,15 @@
+{
+  "name": "@faaas/universe",
+  "version": "1.0.0",
+  "description": "FaaAS universe deployments",
+  "main": "src/universe.ts",
+  "types": "src/universe.ts",
+  "scripts": {},
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@faaas/tsconfig": "workspace:^",
+    "@types/node": "^20.12.5"
+  }
+}

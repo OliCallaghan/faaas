@@ -1,0 +1,16 @@
+{
+  "name": "@faaas/workflow",
+  "version": "1.0.0",
+  "description": "FaaAS workflow deployments",
+  "main": "src/workflow.ts",
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@faaas/tsconfig": "workspace:^",
+    "@types/node": "^20.12.5"
+  },
+  "dependencies": {
+    "@faaas/universe": "workspace:^"
+  }
+}

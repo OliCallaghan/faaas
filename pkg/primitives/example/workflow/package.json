@@ -1,0 +1,18 @@
+{
+  "name": "@faaas-example/workflow",
+  "version": "1.0.0",
+  "description": "Example workflow using example tasks",
+  "main": "workflow.ts",
+  "scripts": {
+    "build": "faaasman workflow deploy workflow.ts"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@faaas-example/universe": "workspace:^",
+    "@faaas/faaasman": "workspace:^",
+    "@faaas/tsconfig": "workspace:^",
+    "@faaas/workflow": "workspace:^"
+  }
+}

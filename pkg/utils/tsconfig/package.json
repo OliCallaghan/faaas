@@ -1,0 +1,12 @@
+{
+  "name": "@faaas/tsconfig",
+  "version": "1.0.0",
+  "description": "Shared TSConfig for FaaAS utils",
+  "main": "tsconfig.json",
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@tsconfig/node20": "^20.1.4"
+  }
+}

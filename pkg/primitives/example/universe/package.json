@@ -1,0 +1,22 @@
+{
+  "name": "@faaas-example/universe",
+  "version": "1.0.0",
+  "description": "Example FaaaS function universe",
+  "main": "universe.ts",
+  "types": "universe.ts",
+  "scripts": {
+    "build": "faaasman universe deploy universe.ts"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@faaas-example/task1": "workspace:^",
+    "@faaas/faaasman": "workspace:^",
+    "@faaas/universe": "workspace:^"
+  },
+  "devDependencies": {
+    "@faaas/tsconfig": "workspace:^",
+    "typescript": "^5.4.4"
+  }
+}
