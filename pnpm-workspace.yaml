@@ -9,4 +9,7 @@ packages:
   - "benchmarks/perf-v8-event-loop-results"
   - "pkg/faaasc"
   - "pkg/faaastime"
+  - "pkg/primitives/condition"
+  - "pkg/primitives/linear"
+  - "pkg/primitives/task"
   - "pkg/runjs"

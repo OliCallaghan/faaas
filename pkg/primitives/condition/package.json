@@ -1,0 +1,12 @@
+{
+  "name": "@faaas/condition",
+  "version": "1.0.0",
+  "description": "Conditional composition primitive",
+  "main": "target/wasm32-wasi/release/condition.wasm",
+  "scripts": {
+    "build": "cargo component build --release"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}

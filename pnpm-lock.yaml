@@ -108,6 +108,12 @@ importers:
         specifier: workspace:^
         version: link:../runjs
 
+  pkg/primitives/condition: {}
+
+  pkg/primitives/linear: {}
+
+  pkg/primitives/task: {}
+
   pkg/runjs:
     dependencies:
       '@faaas/perf-v8-event-loop':

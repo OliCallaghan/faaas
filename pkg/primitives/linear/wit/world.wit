@@ -1,0 +1,14 @@
+package faaas:linear;
+
+interface linear-impl {
+    use faaas:task/types.{task-input, task-output, task-error};
+
+    task-fst: func(input: task-input) -> result<task-output, task-error>;
+    task-snd: func(input: task-input) -> result<task-output, task-error>;
+}
+
+world linear {
+    include faaas:task/task;
+
+    import linear-impl;
+}

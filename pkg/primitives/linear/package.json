@@ -1,0 +1,12 @@
+{
+  "name": "@faaas/linear",
+  "version": "1.0.0",
+  "description": "Linear composition primitive",
+  "main": "target/wasm32-wasi/release/linear.wasm",
+  "scripts": {
+    "build": "cargo component build --release"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}

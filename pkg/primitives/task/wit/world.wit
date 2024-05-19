@@ -1,0 +1,18 @@
+package faaas:task;
+
+interface types {
+    resource task-input {}
+
+    resource task-output {
+        constructor();
+        as-input: func() -> task-input;
+    }
+
+    resource task-error {}
+}
+
+world task {
+    use types.{task-input, task-output, task-error};
+
+    export call: func(input: task-input) -> result<task-output, task-error>;
+}

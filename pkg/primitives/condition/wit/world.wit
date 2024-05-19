@@ -1,0 +1,15 @@
+package faaas:condition;
+
+interface condition-impl {
+    use faaas:task/types.{task-input, task-output, task-error};
+
+    task-condition: func(input: task-input) -> result<task-output, task-error>;
+    task-branch-true: func(input: task-input) -> result<task-output, task-error>;
+    task-branch-false: func(input: task-input) -> result<task-output, task-error>;
+}
+
+world condition {
+    include faaas:task/task;
+
+    import condition-impl;
+}

@@ -1,0 +1,12 @@
+{
+  "name": "@faaas/task",
+  "version": "1.0.0",
+  "description": "Task wrapper primitive",
+  "main": "target/wasm32-wasi/release/task.wasm",
+  "scripts": {
+    "build": "cargo component build --release"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}

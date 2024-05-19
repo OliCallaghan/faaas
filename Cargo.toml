@@ -1,3 +1,3 @@
 [workspace]
 resolver = "2"
-members = ["pkg/faaasc", "pkg/faaastime", "pkg/runjs"]
+members = ["pkg/faaasc", "pkg/faaastime", "pkg/primitives/condition", "pkg/primitives/linear", "pkg/primitives/task", "pkg/runjs"]
