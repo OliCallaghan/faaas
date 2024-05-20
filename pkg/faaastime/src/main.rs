@@ -13,7 +13,7 @@ use hyper_util::rt::TokioIo;
 use tokio::net::TcpListener;
 
 use wasmtime::component::{Component, Linker};
-use wasmtime::{AsContext, AsContextMut, Config, Engine, Store};
+use wasmtime::{AsContextMut, Config, Engine, Store};
 
 use wasmtime_wasi_http::{
     bindings::http::types as http_types, body::HyperOutgoingBody, hyper_response_error,
