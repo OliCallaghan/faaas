@@ -7,8 +7,6 @@ use wasmtime_wasi_http::{WasiHttpCtx, WasiHttpView};
 use self::bindings::faaas::task::types::Host;
 use self::bindings::faaas::task::types::HostTaskContext;
 use self::bindings::faaas::task::types::HostTaskError;
-use self::bindings::faaas::task::types::HostTaskOutput;
-use self::exports::faaas::task::callable::TaskOutput;
 
 use self::bindings::faaas::task::types::TaskContext;
 
@@ -18,15 +16,13 @@ mod types {
     #[derive(Clone)]
     pub struct TaskContext {
         pub value: u32,
-    }
-
-    pub struct TaskOutput {
         pub status: TaskStatus,
     }
 
-    impl TaskOutput {
+    impl TaskContext {
         pub fn new() -> Self {
             Self {
+                value: 0,
                 status: TaskStatus::Success,
             }
         }
@@ -42,7 +38,6 @@ pub mod bindings {
         async: false,
         with: {
             "faaas:task/types/task-context": super::types::TaskContext,
-            "faaas:task/types/task-output": super::types::TaskOutput
         }
     });
 }
@@ -72,7 +67,7 @@ pub trait FaaasTaskView: Send {
     fn table(&mut self) -> &mut ResourceTable;
 
     fn new_task_ctx(&mut self) -> wasmtime::Result<Resource<TaskContext>> {
-        let task_ctx = TaskContext { value: 5 };
+        let task_ctx = TaskContext::new();
 
         Ok(self.table().push(task_ctx)?)
     }
@@ -118,37 +113,9 @@ impl<V: FaaasTaskView> HostTaskContext for V {
         Ok(self.table().push(ctx_clone)?)
     }
 
-    fn merge(
-        &mut self,
-        fst: wasmtime::component::Resource<TaskContext>,
-        snd: wasmtime::component::Resource<TaskContext>,
-    ) -> wasmtime::Result<wasmtime::component::Resource<TaskContext>> {
-        todo!("Need to do this, not sure whether the function signature is correct even actualy.")
-    }
-}
-
-impl<V: FaaasTaskView> HostTaskOutput for V {
-    fn new(
-        &mut self,
-    ) -> wasmtime::Result<wasmtime::component::Resource<bindings::faaas::task::types::TaskOutput>>
-    {
-        let out = TaskOutput::new();
-
-        Ok(self.table().push(out)?)
-    }
-
-    fn drop(
-        &mut self,
-        rep: wasmtime::component::Resource<bindings::faaas::task::types::TaskOutput>,
-    ) -> wasmtime::Result<()> {
-        self.table().delete(rep)?;
-
-        Ok(())
-    }
-
     fn get_status(
         &mut self,
-        rep: wasmtime::component::Resource<bindings::faaas::task::types::TaskOutput>,
+        rep: wasmtime::component::Resource<TaskContext>,
     ) -> wasmtime::Result<bindings::faaas::task::types::TaskStatus> {
         let out = self.table().get(&rep)?;
 
@@ -157,7 +124,7 @@ impl<V: FaaasTaskView> HostTaskOutput for V {
 
     fn set_status(
         &mut self,
-        rep: wasmtime::component::Resource<bindings::faaas::task::types::TaskOutput>,
+        rep: wasmtime::component::Resource<TaskContext>,
         status: bindings::faaas::task::types::TaskStatus,
     ) -> wasmtime::Result<()> {
         let out = self.table().get_mut(&rep)?;

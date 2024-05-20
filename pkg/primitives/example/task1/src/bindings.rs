@@ -60,12 +60,14 @@ pub mod faaas {
             #[repr(u8)]
             #[derive(Clone, Copy, Eq, PartialEq)]
             pub enum TaskStatus {
+                Unknown,
                 Success,
                 Error,
             }
             impl ::core::fmt::Debug for TaskStatus {
                 fn fmt(&self, f: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
                     match self {
+                        TaskStatus::Unknown => f.debug_tuple("TaskStatus::Unknown").finish(),
                         TaskStatus::Success => f.debug_tuple("TaskStatus::Success").finish(),
                         TaskStatus::Error => f.debug_tuple("TaskStatus::Error").finish(),
                     }
@@ -79,54 +81,11 @@ pub mod faaas {
                     }
 
                     match val {
-                        0 => TaskStatus::Success,
-                        1 => TaskStatus::Error,
+                        0 => TaskStatus::Unknown,
+                        1 => TaskStatus::Success,
+                        2 => TaskStatus::Error,
 
                         _ => panic!("invalid enum discriminant"),
-                    }
-                }
-            }
-
-            #[derive(Debug)]
-            #[repr(transparent)]
-            pub struct TaskOutput {
-                handle: _rt::Resource<TaskOutput>,
-            }
-
-            impl TaskOutput {
-                #[doc(hidden)]
-                pub unsafe fn from_handle(handle: u32) -> Self {
-                    Self {
-                        handle: _rt::Resource::from_handle(handle),
-                    }
-                }
-
-                #[doc(hidden)]
-                pub fn take_handle(&self) -> u32 {
-                    _rt::Resource::take_handle(&self.handle)
-                }
-
-                #[doc(hidden)]
-                pub fn handle(&self) -> u32 {
-                    _rt::Resource::handle(&self.handle)
-                }
-            }
-
-            unsafe impl _rt::WasmResource for TaskOutput {
-                #[inline]
-                unsafe fn drop(_handle: u32) {
-                    #[cfg(not(target_arch = "wasm32"))]
-                    unreachable!();
-
-                    #[cfg(target_arch = "wasm32")]
-                    {
-                        #[link(wasm_import_module = "faaas:task/types")]
-                        extern "C" {
-                            #[link_name = "[resource-drop]task-output"]
-                            fn drop(_: u32);
-                        }
-
-                        drop(_handle);
                     }
                 }
             }
@@ -175,6 +134,26 @@ pub mod faaas {
                 }
             }
 
+            impl TaskContext {
+                #[allow(unused_unsafe, clippy::all)]
+                pub fn clone(&self) -> TaskContext {
+                    unsafe {
+                        #[cfg(target_arch = "wasm32")]
+                        #[link(wasm_import_module = "faaas:task/types")]
+                        extern "C" {
+                            #[link_name = "[method]task-context.clone"]
+                            fn wit_import(_: i32) -> i32;
+                        }
+
+                        #[cfg(not(target_arch = "wasm32"))]
+                        fn wit_import(_: i32) -> i32 {
+                            unreachable!()
+                        }
+                        let ret = wit_import((self).handle() as i32);
+                        TaskContext::from_handle(ret as u32)
+                    }
+                }
+            }
             impl TaskContext {
                 #[allow(unused_unsafe, clippy::all)]
                 pub fn set(&self, key: &str, value: u32) {
@@ -229,72 +208,12 @@ pub mod faaas {
             }
             impl TaskContext {
                 #[allow(unused_unsafe, clippy::all)]
-                pub fn clone(&self) -> TaskContext {
-                    unsafe {
-                        #[cfg(target_arch = "wasm32")]
-                        #[link(wasm_import_module = "faaas:task/types")]
-                        extern "C" {
-                            #[link_name = "[method]task-context.clone"]
-                            fn wit_import(_: i32) -> i32;
-                        }
-
-                        #[cfg(not(target_arch = "wasm32"))]
-                        fn wit_import(_: i32) -> i32 {
-                            unreachable!()
-                        }
-                        let ret = wit_import((self).handle() as i32);
-                        TaskContext::from_handle(ret as u32)
-                    }
-                }
-            }
-            impl TaskContext {
-                #[allow(unused_unsafe, clippy::all)]
-                pub fn marge(fst: &TaskContext, snd: &TaskContext) -> TaskContext {
-                    unsafe {
-                        #[cfg(target_arch = "wasm32")]
-                        #[link(wasm_import_module = "faaas:task/types")]
-                        extern "C" {
-                            #[link_name = "[static]task-context.marge"]
-                            fn wit_import(_: i32, _: i32) -> i32;
-                        }
-
-                        #[cfg(not(target_arch = "wasm32"))]
-                        fn wit_import(_: i32, _: i32) -> i32 {
-                            unreachable!()
-                        }
-                        let ret = wit_import((fst).handle() as i32, (snd).handle() as i32);
-                        TaskContext::from_handle(ret as u32)
-                    }
-                }
-            }
-            impl TaskOutput {
-                #[allow(unused_unsafe, clippy::all)]
-                pub fn new() -> Self {
-                    unsafe {
-                        #[cfg(target_arch = "wasm32")]
-                        #[link(wasm_import_module = "faaas:task/types")]
-                        extern "C" {
-                            #[link_name = "[constructor]task-output"]
-                            fn wit_import() -> i32;
-                        }
-
-                        #[cfg(not(target_arch = "wasm32"))]
-                        fn wit_import() -> i32 {
-                            unreachable!()
-                        }
-                        let ret = wit_import();
-                        TaskOutput::from_handle(ret as u32)
-                    }
-                }
-            }
-            impl TaskOutput {
-                #[allow(unused_unsafe, clippy::all)]
                 pub fn set_status(&self, status: TaskStatus) {
                     unsafe {
                         #[cfg(target_arch = "wasm32")]
                         #[link(wasm_import_module = "faaas:task/types")]
                         extern "C" {
-                            #[link_name = "[method]task-output.set-status"]
+                            #[link_name = "[method]task-context.set-status"]
                             fn wit_import(_: i32, _: i32);
                         }
 
@@ -306,14 +225,14 @@ pub mod faaas {
                     }
                 }
             }
-            impl TaskOutput {
+            impl TaskContext {
                 #[allow(unused_unsafe, clippy::all)]
                 pub fn get_status(&self) -> TaskStatus {
                     unsafe {
                         #[cfg(target_arch = "wasm32")]
                         #[link(wasm_import_module = "faaas:task/types")]
                         extern "C" {
-                            #[link_name = "[method]task-output.get-status"]
+                            #[link_name = "[method]task-context.get-status"]
                             fn wit_import(_: i32) -> i32;
                         }
 
@@ -345,32 +264,31 @@ pub mod exports {
                 use super::super::super::super::_rt;
                 pub type TaskContext = super::super::super::super::faaas::task::types::TaskContext;
                 pub type TaskError = super::super::super::super::faaas::task::types::TaskError;
-                pub type TaskOutput = super::super::super::super::faaas::task::types::TaskOutput;
                 #[doc(hidden)]
                 #[allow(non_snake_case)]
                 pub unsafe fn _export_call_cabi<T: Guest>(arg0: i32) -> *mut u8 {
                     #[cfg(target_arch = "wasm32")]
                     _rt::run_ctors_once();
-                    let handle0;
-                    let result1 = T::call({
-                        handle0 = super::super::super::super::faaas::task::types::TaskContext::from_handle(arg0 as u32);
-                        &handle0
-                    });
-                    let ptr2 = _RET_AREA.0.as_mut_ptr().cast::<u8>();
-                    match result1 {
+                    let result0 = T::call(
+                        super::super::super::super::faaas::task::types::TaskContext::from_handle(
+                            arg0 as u32,
+                        ),
+                    );
+                    let ptr1 = _RET_AREA.0.as_mut_ptr().cast::<u8>();
+                    match result0 {
                         Ok(e) => {
-                            *ptr2.add(0).cast::<u8>() = (0i32) as u8;
-                            *ptr2.add(4).cast::<i32>() = (e).take_handle() as i32;
+                            *ptr1.add(0).cast::<u8>() = (0i32) as u8;
+                            *ptr1.add(4).cast::<i32>() = (e).take_handle() as i32;
                         }
                         Err(e) => {
-                            *ptr2.add(0).cast::<u8>() = (1i32) as u8;
-                            *ptr2.add(4).cast::<i32>() = (e).take_handle() as i32;
+                            *ptr1.add(0).cast::<u8>() = (1i32) as u8;
+                            *ptr1.add(4).cast::<i32>() = (e).take_handle() as i32;
                         }
                     };
-                    ptr2
+                    ptr1
                 }
                 pub trait Guest {
-                    fn call(ctx: &TaskContext) -> Result<TaskOutput, TaskError>;
+                    fn call(ctx: TaskContext) -> Result<TaskContext, TaskError>;
                 }
                 #[doc(hidden)]
 
@@ -595,24 +513,21 @@ pub(crate) use __export_task_impl as export;
 #[cfg(target_arch = "wasm32")]
 #[link_section = "component-type:wit-bindgen:0.24.0:task:encoded world"]
 #[doc(hidden)]
-pub static __WIT_BINDGEN_COMPONENT_TYPE: [u8; 761] = *b"\
-\0asm\x0d\0\x01\0\0\x19\x16wit-component-encoding\x04\0\x07\xfe\x04\x01A\x02\x01\
-A\x07\x01B\x17\x04\0\x0ctask-context\x03\x01\x01m\x02\x07success\x05error\x04\0\x0b\
-task-status\x03\0\x01\x04\0\x0btask-output\x03\x01\x04\0\x0atask-error\x03\x01\x01\
-h\0\x01@\x03\x04self\x05\x03keys\x05valuey\x01\0\x04\0\x18[method]task-context.s\
-et\x01\x06\x01@\x02\x04self\x05\x03keys\0y\x04\0\x18[method]task-context.get\x01\
-\x07\x01i\0\x01@\x01\x04self\x05\0\x08\x04\0\x1a[method]task-context.clone\x01\x09\
-\x01@\x02\x03fst\x05\x03snd\x05\0\x08\x04\0\x1a[static]task-context.marge\x01\x0a\
-\x01i\x03\x01@\0\0\x0b\x04\0\x18[constructor]task-output\x01\x0c\x01h\x03\x01@\x02\
-\x04self\x0d\x06status\x02\x01\0\x04\0\x1e[method]task-output.set-status\x01\x0e\
-\x01@\x01\x04self\x0d\0\x02\x04\0\x1e[method]task-output.get-status\x01\x0f\x03\x01\
-\x10faaas:task/types\x05\0\x02\x03\0\0\x0ctask-context\x02\x03\0\0\x0atask-error\
-\x02\x03\0\0\x0btask-output\x01B\x0c\x02\x03\x02\x01\x01\x04\0\x0ctask-context\x03\
-\0\0\x02\x03\x02\x01\x02\x04\0\x0atask-error\x03\0\x02\x02\x03\x02\x01\x03\x04\0\
-\x0btask-output\x03\0\x04\x01h\x01\x01i\x05\x01i\x03\x01j\x01\x07\x01\x08\x01@\x01\
-\x03ctx\x06\0\x09\x04\0\x04call\x01\x0a\x04\x01\x13faaas:task/callable\x05\x04\x04\
-\x01\x0ffaaas:task/task\x04\0\x0b\x0a\x01\0\x04task\x03\0\0\0G\x09producers\x01\x0c\
-processed-by\x02\x0dwit-component\x070.202.0\x10wit-bindgen-rust\x060.24.0";
+pub static __WIT_BINDGEN_COMPONENT_TYPE: [u8; 628] = *b"\
+\0asm\x0d\0\x01\0\0\x19\x16wit-component-encoding\x04\0\x07\xf9\x03\x01A\x02\x01\
+A\x06\x01B\x10\x04\0\x0ctask-context\x03\x01\x01m\x03\x07unknown\x07success\x05e\
+rror\x04\0\x0btask-status\x03\0\x01\x04\0\x0atask-error\x03\x01\x01h\0\x01i\0\x01\
+@\x01\x04self\x04\0\x05\x04\0\x1a[method]task-context.clone\x01\x06\x01@\x03\x04\
+self\x04\x03keys\x05valuey\x01\0\x04\0\x18[method]task-context.set\x01\x07\x01@\x02\
+\x04self\x04\x03keys\0y\x04\0\x18[method]task-context.get\x01\x08\x01@\x02\x04se\
+lf\x04\x06status\x02\x01\0\x04\0\x1f[method]task-context.set-status\x01\x09\x01@\
+\x01\x04self\x04\0\x02\x04\0\x1f[method]task-context.get-status\x01\x0a\x03\x01\x10\
+faaas:task/types\x05\0\x02\x03\0\0\x0ctask-context\x02\x03\0\0\x0atask-error\x01\
+B\x09\x02\x03\x02\x01\x01\x04\0\x0ctask-context\x03\0\0\x02\x03\x02\x01\x02\x04\0\
+\x0atask-error\x03\0\x02\x01i\x01\x01i\x03\x01j\x01\x04\x01\x05\x01@\x01\x03ctx\x04\
+\0\x06\x04\0\x04call\x01\x07\x04\x01\x13faaas:task/callable\x05\x03\x04\x01\x0ff\
+aaas:task/task\x04\0\x0b\x0a\x01\0\x04task\x03\0\0\0G\x09producers\x01\x0cproces\
+sed-by\x02\x0dwit-component\x070.202.0\x10wit-bindgen-rust\x060.24.0";
 
 #[inline(never)]
 #[doc(hidden)]

@@ -2,13 +2,13 @@
 mod bindings;
 
 use bindings::exports::faaas::task::callable::Guest;
-use bindings::faaas::task::types::{TaskContext, TaskError, TaskOutput};
+use bindings::faaas::task::types::{TaskContext, TaskError};
 
 struct Task {}
 
 impl Guest for Task {
-    fn call(_ctx: &TaskContext) -> Result<TaskOutput, TaskError> {
-        Ok(TaskOutput::new())
+    fn call(ctx: TaskContext) -> Result<TaskContext, TaskError> {
+        Ok(ctx)
     }
 }
 

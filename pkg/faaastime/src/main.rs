@@ -13,7 +13,7 @@ use hyper_util::rt::TokioIo;
 use tokio::net::TcpListener;
 
 use wasmtime::component::{Component, Linker};
-use wasmtime::{Config, Engine, Store};
+use wasmtime::{AsContext, AsContextMut, Config, Engine, Store};
 
 use wasmtime_wasi_http::{
     bindings::http::types as http_types, body::HyperOutgoingBody, hyper_response_error,
@@ -21,6 +21,7 @@ use wasmtime_wasi_http::{
 };
 
 use crate::handler::ProxyHandler;
+use crate::state::__with_name0::types::HostTaskContext;
 use crate::state::{FaaasTaskView, Faaastime, FaaastimeState};
 use crate::timed::TimedExt;
 
@@ -78,11 +79,19 @@ async fn handle(
 
         // Create Task Context
         let ctx = store_task.data_mut().new_task_ctx()?;
+
         let task_res = task
             .faaas_task_callable()
-            .call_call(store_task, ctx)
+            .call_call(store_task.as_context_mut(), ctx)
             .await?;
-        let task_resp = task_res.unwrap();
+
+        match task_res {
+            Ok(ctx) => {
+                let val = store_task.data_mut().get(ctx, "a".to_string()).unwrap();
+                println!("Value {}", val);
+            }
+            Err(_) => panic!("Something went wrong!"),
+        };
 
         if let Err(e) = proxy
             .wasi_http_incoming_handler()

@@ -4,11 +4,10 @@ use faaas:task/types;
 use faaas:task/callable;
 
 world linear {
-    use types.{task-context, task-output, task-error};
+    use types.{task-context, task-error};
 
-    import task-fst: func(ctx: borrow<task-context>) -> result<task-output, task-error>;
-    import task-snd: func(ctx: borrow<task-context>) -> result<task-output, task-error>;
+    import task-fst: func(ctx: task-context) -> result<task-context, task-error>;
+    import task-snd: func(ctx: task-context) -> result<task-context, task-error>;
 
-    // export call: func(input: task-input) -> result<task-output, task-error>;
     export callable;
 }

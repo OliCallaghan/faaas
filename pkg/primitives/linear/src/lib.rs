@@ -1,17 +1,14 @@
 #[allow(warnings)]
 mod bindings;
 
-// use bindings::{task_fst, task_snd, Guest, TaskError, TaskInput, TaskOutput};
-// use bindings::exports::faaas::task::callable::Guest;
 use bindings::exports::faaas::task::callable::Guest;
-use bindings::{task_fst, task_snd, TaskContext, TaskError, TaskOutput};
+use bindings::{task_fst, task_snd, TaskContext, TaskError};
 
 struct Linear {}
 
 impl Guest for Linear {
-    fn call(input: &TaskContext) -> Result<TaskOutput, TaskError> {
-        task_fst(input)?;
-        task_snd(input)
+    fn call(ctx: TaskContext) -> Result<TaskContext, TaskError> {
+        task_snd(task_fst(ctx)?)
     }
 }
 

@@ -2,30 +2,26 @@ package faaas:task;
 
 interface types {
     resource task-context {
+        clone: func() -> task-context;
         set: func(key: string, value: u32);
         get: func(key: string) -> u32;
-        clone: func() -> task-context;
-        merge: static func(fst: task-context, snd: task-context) -> task-context;
+        set-status: func(status: task-status);
+        get-status: func() -> task-status;
     }
 
     enum task-status {
+        unknown,
         success,
         error,
-    }
-
-    resource task-output {
-        constructor();
-        set-status: func(status: task-status);
-        get-status: func() -> task-status;
     }
 
     resource task-error {}
 }
 
 interface callable {
-    use types.{task-context, task-error, task-output};
+    use types.{task-context, task-error};
 
-    call: func(ctx: borrow<task-context>) -> result<task-output, task-error>;
+    call: func(ctx: task-context) -> result<task-context, task-error>;
 }
 
 world task {

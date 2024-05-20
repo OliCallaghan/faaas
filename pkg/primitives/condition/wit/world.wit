@@ -4,11 +4,11 @@ use faaas:task/types;
 use faaas:task/callable;
 
 world condition {
-    use types.{task-context, task-output, task-error};
+    use types.{task-context, task-error};
 
-    import task-condition: func(ctx: borrow<task-context>) -> result<task-output, task-error>;
-    import task-branch-true: func(ctx: borrow<task-context>) -> result<task-output, task-error>;
-    import task-branch-false: func(ctx: borrow<task-context>) -> result<task-output, task-error>;
+    import task-condition: func(ctx: task-context) -> result<task-context, task-error>;
+    import task-branch-true: func(ctx: task-context) -> result<task-context, task-error>;
+    import task-branch-false: func(ctx: task-context) -> result<task-context, task-error>;
 
     export callable;
 }
