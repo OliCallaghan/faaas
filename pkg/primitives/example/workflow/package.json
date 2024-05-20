@@ -12,7 +12,6 @@
   "dependencies": {
     "@faaas-example/universe": "workspace:^",
     "@faaas/faaasman": "workspace:^",
-    "@faaas/tsconfig": "workspace:^",
-    "@faaas/workflow": "workspace:^"
+    "@faaas/tsconfig": "workspace:^"
   }
 }

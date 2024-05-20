@@ -1,5 +1,5 @@
 import { resolve } from "node:path";
-import { type Workflow } from "@faaas/workflow";
+import { Context, type Workflow } from "@faaas/workflow";
 
 export async function deployWorkflow(
   workflowRelativePath: string,
@@ -10,5 +10,7 @@ export async function deployWorkflow(
 
   // Pass the workflow a Proxy context object, and
   // record when functions are called, and with what.
-  workflow({});
+  const ctx = Context.new();
+
+  workflow(ctx);
 }

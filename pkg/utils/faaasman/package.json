@@ -3,8 +3,10 @@
   "name": "@faaas/faaasman",
   "version": "1.0.0",
   "bin": {
-    "faaasman": "dist/faaasman.js"
+    "faaasman": "dist/cli.js"
   },
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
   "scripts": {
     "build": "pkgroll"
   },
@@ -12,13 +14,13 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@faaas/workflow": "workspace:^",
     "commander": "^12.1.0",
     "ts-node": "^10.9.2"
   },
   "devDependencies": {
     "@faaas/tsconfig": "workspace:^",
     "@faaas/universe": "workspace:^",
+    "@faaas/workflow": "workspace:^",
     "@types/node": "^20.12.5",
     "pkgroll": "^2.1.0",
     "typescript": "^5.4.4"

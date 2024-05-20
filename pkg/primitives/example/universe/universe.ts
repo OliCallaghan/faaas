@@ -1,4 +1,4 @@
-import { defineTask, defineUniverse } from "@faaas/universe";
+import { defineTask, defineUniverse } from "@faaas/faaasman";
 
 export const universe = defineUniverse([
   defineTask("task:auth" as const, "@faaas-example/task1"),

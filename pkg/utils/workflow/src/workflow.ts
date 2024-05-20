@@ -1,57 +1,47 @@
 import { Universe } from "@faaas/universe";
 
-export interface TaskContext {}
-export interface WorkflowContext extends TaskContext {}
-
-export interface TaskResult {
-  ctx(): TaskContext;
+class Task {
+  constructor(private readonly taskId: string) {}
 }
 
-export interface TaskInvocation {
-  result(): TaskResult;
+export class Context {
+  private constructor(
+    private readonly parent: Context | undefined,
+    private readonly taskId: Task | undefined,
+  ) {}
+
+  public static new() {
+    return new Context(undefined, undefined);
+  }
+
+  private sequential(task: Task): Context {
+    return new Context(this, task);
+  }
+
+  public call(taskId: string): Context {
+    const task = new Task(taskId);
+
+    return this.sequential(task);
+  }
 }
 
 export function registerCall<TaskIds extends string>(
-  universe: Universe<TaskIds>,
+  _universe: Universe<TaskIds>,
 ) {
-  return function call(taskId: TaskIds, ctx: TaskContext) {
+  return function call(taskId: TaskIds, ctx: Context): Context {
     console.log(`Calling ${taskId.toString()} with ${ctx}`);
 
-    return {
-      result: () => ({
-        ctx: () => ({}),
-      }),
-    };
-  };
-}
-
-export function caller<TaskIds>(
-  fn: keyof Universe<TaskIds>,
-  ctx: TaskContext,
-): TaskInvocation {
-  console.log(`Calling ${fn.toString()} with ${ctx}`);
-
-  return {
-    result: () => ({
-      ctx: () => ({}),
-    }),
+    return ctx.call(taskId);
   };
 }
 
 interface ConditionBranch {
   which: "true" | "false";
-  branch(): TaskInvocation;
+  branch(ctx: Context): Context;
 }
 
-export function cond(
-  res: TaskResult,
-  ...branches: ConditionBranch[]
-): TaskInvocation {
-  return {
-    result: () => ({
-      ctx: () => ({}),
-    }),
-  };
+export function cond(ctx: Context, ...branches: ConditionBranch[]): Context {
+  return ctx;
 }
 
 export function whenTrue(branch: ConditionBranch["branch"]): ConditionBranch {
@@ -68,14 +58,4 @@ export function whenFalse(branch: ConditionBranch["branch"]): ConditionBranch {
   };
 }
 
-type TI = TaskInvocation;
-type TR = TaskResult;
-export function wait(i1: TI): [TR];
-export function wait(i1: TI, i2: TI): [TR, TR];
-export function wait(i1: TI, i2: TI, i3: TI): [TR, TR, TR];
-export function wait(i1: TI, i2: TI, i3: TI, i4: TI): [TR, TR, TR, TR];
-export function wait(...invocations: TaskInvocation[]): TaskResult[] {
-  return invocations.map((i) => i.result());
-}
-
-export type Workflow = (ctx: WorkflowContext) => TaskResult;
+export type Workflow = (ctx: Context) => Context;

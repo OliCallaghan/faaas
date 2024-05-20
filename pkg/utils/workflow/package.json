@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "FaaAS workflow deployments",
   "main": "src/workflow.ts",
+  "types": "src/workflow.ts",
   "keywords": [],
   "author": "",
   "license": "ISC",

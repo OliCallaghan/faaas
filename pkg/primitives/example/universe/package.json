@@ -12,8 +12,7 @@
   "license": "ISC",
   "dependencies": {
     "@faaas-example/task1": "workspace:^",
-    "@faaas/faaasman": "workspace:^",
-    "@faaas/universe": "workspace:^"
+    "@faaas/faaasman": "workspace:^"
   },
   "devDependencies": {
     "@faaas/tsconfig": "workspace:^",

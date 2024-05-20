@@ -130,9 +130,6 @@ importers:
       '@faaas/faaasman':
         specifier: workspace:^
         version: link:../../../utils/faaasman
-      '@faaas/universe':
-        specifier: workspace:^
-        version: link:../../../utils/universe
     devDependencies:
       '@faaas/tsconfig':
         specifier: workspace:^
@@ -152,9 +149,6 @@ importers:
       '@faaas/tsconfig':
         specifier: workspace:^
         version: link:../../../utils/tsconfig
-      '@faaas/workflow':
-        specifier: workspace:^
-        version: link:../../../utils/workflow
 
   pkg/primitives/linear: {}
 
@@ -168,9 +162,6 @@ importers:
 
   pkg/utils/faaasman:
     dependencies:
-      '@faaas/workflow':
-        specifier: workspace:^
-        version: link:../workflow
       commander:
         specifier: ^12.1.0
         version: 12.1.0
@@ -184,6 +175,9 @@ importers:
       '@faaas/universe':
         specifier: workspace:^
         version: link:../universe
+      '@faaas/workflow':
+        specifier: workspace:^
+        version: link:../workflow
       '@types/node':
         specifier: ^20.12.5
         version: 20.12.5

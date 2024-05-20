@@ -4,7 +4,6 @@
   "description": "FaaAS universe deployments",
   "main": "src/universe.ts",
   "types": "src/universe.ts",
-  "scripts": {},
   "keywords": [],
   "author": "",
   "license": "ISC",
