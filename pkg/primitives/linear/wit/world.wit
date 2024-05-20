@@ -1,14 +1,14 @@
 package faaas:linear;
 
-interface linear-impl {
-    use faaas:task/types.{task-input, task-output, task-error};
-
-    task-fst: func(input: task-input) -> result<task-output, task-error>;
-    task-snd: func(input: task-input) -> result<task-output, task-error>;
-}
+use faaas:task/types;
+use faaas:task/callable;
 
 world linear {
-    include faaas:task/task;
+    use types.{task-context, task-output, task-error};
 
-    import linear-impl;
+    import task-fst: func(ctx: borrow<task-context>) -> result<task-output, task-error>;
+    import task-snd: func(ctx: borrow<task-context>) -> result<task-output, task-error>;
+
+    // export call: func(input: task-input) -> result<task-output, task-error>;
+    export callable;
 }

@@ -1,15 +1,14 @@
 package faaas:condition;
 
-interface condition-impl {
-    use faaas:task/types.{task-input, task-output, task-error};
-
-    task-condition: func(input: task-input) -> result<task-output, task-error>;
-    task-branch-true: func(input: task-input) -> result<task-output, task-error>;
-    task-branch-false: func(input: task-input) -> result<task-output, task-error>;
-}
+use faaas:task/types;
+use faaas:task/callable;
 
 world condition {
-    include faaas:task/task;
+    use types.{task-context, task-output, task-error};
 
-    import condition-impl;
+    import task-condition: func(ctx: borrow<task-context>) -> result<task-output, task-error>;
+    import task-branch-true: func(ctx: borrow<task-context>) -> result<task-output, task-error>;
+    import task-branch-false: func(ctx: borrow<task-context>) -> result<task-output, task-error>;
+
+    export callable;
 }

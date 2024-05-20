@@ -12,20 +12,34 @@ import {
 const call = registerCall(universe);
 
 export function workflow(ctx: WorkflowContext): TaskResult {
-  const invokeOne = call("task:1", ctx);
-  const invokeTwo = call("task:2", ctx);
+  const invokeAuth = call("task:auth", ctx);
 
-  const [one, two] = wait(invokeOne, invokeTwo);
+  const [auth] = wait(invokeAuth);
 
-  const [buz] = wait(call("task:3", one.ctx));
-
-  const invokeQuz = cond(
-    buz,
-    whenTrue(() => call("task:4", two.ctx)),
-    whenFalse(() => call("task:5", two.ctx)),
+  const [foo] = wait(
+    cond(
+      auth.ctx().get("authorised"),
+      whenTrue(() => call("task:get_pet", ctx)),
+      whenFalse(() => call("task:reject", auth.ctx().get("reason"))),
+    ),
   );
 
-  const [quz] = wait(invokeQuz);
+  const invokeGet = call("task:get_pet", ctx);
 
-  return quz;
+  // const invokeOne = call("task:auth", ctx);
+  // const invokeTwo = call("task:2", ctx);
+
+  // const [one, two] = wait(invokeOne, invokeTwo);
+
+  // const [buz] = wait(call("task:3", one.ctx));
+
+  // const invokeQuz = cond(
+  //   buz,
+  //   whenTrue(() => call("task:4", two.ctx)),
+  //   whenFalse(() => call("task:5", two.ctx)),
+  // );
+
+  // const [quz] = wait(invokeQuz);
+
+  // return quz;
 }

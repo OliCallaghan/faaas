@@ -1,54 +1,66 @@
-use std::{env, io::Read};
+use anyhow::Result;
+use wac_graph::{types::Package, CompositionGraph, EncodeOptions};
 
-use clap::Parser;
-use clio::{ClioPath, Input, Output};
-use swc_common::sync::Lrc;
-use swc_common::SourceMap;
-use swc_ecma_parser::{parse_file_as_module, Syntax, TsConfig};
+// const CONDITION_WASM: &[u8] =
+//     include_bytes!("../node_modules/@faaas/condition/target/wasm32-wasi/release/condition.wasm");
 
-#[derive(Parser, Debug)]
-#[command(name = "faaasc")]
-#[command(version, about, long_about = None)]
-struct FaaascArgs {
-    #[clap(value_parser, default_value = "-")]
-    input: Input,
+const LINEAR_WASM: &[u8] =
+    include_bytes!("../node_modules/@faaas/linear/target/wasm32-wasi/release/linear.wasm");
 
-    #[clap(long, short, value_parser, default_value = "-")]
-    output: Output,
+const TASK_WASM: &[u8] =
+    include_bytes!("../node_modules/@faaas-example/task1/target/wasm32-wasi/release/task1.wasm");
 
-    #[clap(long, short, value_parser = clap::value_parser!(ClioPath).exists().is_dir(), default_value = ".")]
-    log_dir: ClioPath,
-}
+fn main() -> Result<()> {
+    let mut graph = CompositionGraph::new();
 
-fn main() -> Result<(), std::io::Error> {
-    const DEFAULT_ENTRYPOINT_SIZE: u64 = 512;
+    let pkg = Package::from_bytes("faaas:linear", None, LINEAR_WASM, graph.types_mut())?;
+    let linear = graph.register_package(pkg)?;
 
-    let cwd = env::current_dir();
+    // let pkg = Package::from_bytes("faaas:condition", None, CONDITION_WASM, graph.types_mut())?;
+    // let condition = graph.register_package(pkg)?;
 
-    let mut args = FaaascArgs::parse();
+    let pkg = Package::from_bytes("faaas-example:task1", None, TASK_WASM, graph.types_mut())?;
+    let task1 = graph.register_package(pkg)?;
 
-    let entrypoint_size = args.input.len().unwrap_or(DEFAULT_ENTRYPOINT_SIZE);
-    let mut entrypoint = String::with_capacity(entrypoint_size as usize);
+    // Create 2 instances of linear.
+    let wf_l1 = graph.instantiate(linear);
+    let wf_l2 = graph.instantiate(linear);
 
-    args.input.read_to_string(&mut entrypoint)?;
+    // Create 3 instances of task 1.
+    let wf_t1 = graph.instantiate(task1);
+    let wf_t2 = graph.instantiate(task1);
+    let wf_t3 = graph.instantiate(task1);
 
-    let cm: Lrc<SourceMap> = Default::default();
-    let fm = cm.load_file(args.input.path())?;
-    let syntax = Syntax::Typescript(TsConfig::default());
+    // Get task call handle aliases.
+    let wf_t1_callable_export = graph.alias_instance_export(wf_t1, "faaas:task/callable")?;
+    let wf_t2_callable_export = graph.alias_instance_export(wf_t2, "faaas:task/callable")?;
+    let wf_t3_callable_export = graph.alias_instance_export(wf_t3, "faaas:task/callable")?;
 
-    let mut recovered_errors = vec![];
+    let wf_t1_call_export = graph.alias_instance_export(wf_t1_callable_export, "call")?;
+    let wf_t2_call_export = graph.alias_instance_export(wf_t2_callable_export, "call")?;
+    let wf_t3_call_export = graph.alias_instance_export(wf_t3_callable_export, "call")?;
 
-    let entrypoint_mod = parse_file_as_module(
-        &fm,
-        syntax,
-        swc_ecma_ast::EsVersion::Es2022,
-        None,
-        &mut recovered_errors,
-    )
-    .unwrap();
+    // Get linear call handle aliases.
+    let wf_l1_callable_export = graph.alias_instance_export(wf_l1, "faaas:task/callable")?;
+    let wf_l2_callable_export = graph.alias_instance_export(wf_l2, "faaas:task/callable")?;
 
-    println!("Compiling {}", cwd.unwrap().to_str().unwrap());
-    println!("AST: {:#?}", entrypoint_mod.body);
+    let wf_l1_call_export = graph.alias_instance_export(wf_l1_callable_export, "call")?;
+    let wf_l2_call_export = graph.alias_instance_export(wf_l2_callable_export, "call")?;
+
+    // Configure linear 1 to call task 1 and linear 2.
+    graph.set_instantiation_argument(wf_l1, "task-fst", wf_t1_call_export)?;
+    graph.set_instantiation_argument(wf_l1, "task-snd", wf_l2_call_export)?;
+
+    // Configure linear 2 to call tasks 2 and 3.
+    graph.set_instantiation_argument(wf_l2, "task-fst", wf_t2_call_export)?;
+    graph.set_instantiation_argument(wf_l2, "task-snd", wf_t3_call_export)?;
+
+    // Configure Composite Export
+    graph.export(wf_l1_callable_export, "faaas:task/callable")?;
+
+    let encoding = graph.encode(EncodeOptions::default())?;
+
+    std::fs::write("composition.wasm", encoding)?;
 
     Ok(())
 }

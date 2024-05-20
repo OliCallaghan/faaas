@@ -18,3 +18,11 @@ wasmtime-wasi = "20.0.2"
 wasmtime-wasi-http = "20.0.2"
 http = "1.1.0"
 pin-project = "1.1.5"
+bitmaps = "3.2.1"
+
+[build-dependencies]
+anyhow = "1.0.82"
+wit-deps = "0.3.1"
+
+[package.metadata.component.target.dependencies]
+"faaas:task" = { path = "../primitives/task/wit/world.wit" }

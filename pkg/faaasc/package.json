@@ -3,9 +3,14 @@
   "version": "1.0.0",
   "description": "SWC based JavaScript compiler",
   "scripts": {
-    "build": "echo hi"
+    "build": "cargo run"
   },
   "keywords": [],
   "author": "",
-  "license": "ISC"
+  "license": "ISC",
+  "dependencies": {
+    "@faaas-example/task1": "workspace:^",
+    "@faaas/condition": "workspace:^",
+    "@faaas/linear": "workspace:^"
+  }
 }

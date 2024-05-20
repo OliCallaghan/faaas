@@ -100,7 +100,17 @@ importers:
         specifier: workspace:^
         version: link:../benchmarks/perf-v8-event-loop-results
 
-  pkg/faaasc: {}
+  pkg/faaasc:
+    dependencies:
+      '@faaas-example/task1':
+        specifier: workspace:^
+        version: link:../primitives/example/task1
+      '@faaas/condition':
+        specifier: workspace:^
+        version: link:../primitives/condition
+      '@faaas/linear':
+        specifier: workspace:^
+        version: link:../primitives/linear
 
   pkg/faaastime:
     dependencies:

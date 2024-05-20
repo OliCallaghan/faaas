@@ -1,18 +1,19 @@
 #[allow(warnings)]
 mod bindings;
 
-use bindings::Guest;
+use bindings::exports::faaas::task::callable::Guest;
+use bindings::{
+    task_branch_false, task_branch_true, task_condition, TaskContext, TaskError, TaskOutput,
+};
 
 struct Condition {}
 
 impl Guest for Condition {
-    fn call(input: bindings::TaskInput) -> Result<bindings::TaskOutput, bindings::TaskError> {
-        let cond_output = bindings::faaas::condition::condition_impl::task_condition(input)?;
+    fn call(ctx: &TaskContext) -> Result<TaskOutput, TaskError> {
+        let cond_output = task_condition(ctx)?;
 
-        let _branch_true_output =
-            bindings::faaas::condition::condition_impl::task_branch_true(cond_output.as_input())?;
-        let branch_false_output =
-            bindings::faaas::condition::condition_impl::task_branch_false(cond_output.as_input())?;
+        let _branch_true_output = task_branch_true(ctx)?;
+        let branch_false_output = task_branch_false(ctx)?;
 
         Ok(branch_false_output)
     }

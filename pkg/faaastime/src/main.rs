@@ -1,161 +1,32 @@
-use anyhow::{bail, Result};
+mod handler;
+mod state;
+mod timed;
 
-use std::future::Future;
 use std::net::SocketAddr;
-use std::pin::Pin;
-use std::sync::Arc;
-use std::task::{Context, Poll};
-use std::time::{Duration, Instant};
 
-use pin_project::pin_project;
-
+use anyhow::{bail, Result};
+use hyper::body::Incoming;
 use hyper::server::conn::http1;
 use hyper::service::service_fn;
+use hyper::Request;
 use hyper_util::rt::TokioIo;
 use tokio::net::TcpListener;
 
-use wasmtime::component::{Component, InstancePre, Linker};
+use wasmtime::component::{Component, Linker};
 use wasmtime::{Config, Engine, Store};
-use wasmtime_wasi::{ResourceTable, WasiCtx, WasiCtxBuilder, WasiView};
 
 use wasmtime_wasi_http::{
     bindings::http::types as http_types, body::HyperOutgoingBody, hyper_response_error,
-    WasiHttpCtx, WasiHttpView,
+    WasiHttpView,
 };
 
-struct FaaastimeState {
-    ctx: WasiCtx,
-    ctx_http: WasiHttpCtx,
-    table: ResourceTable,
-}
-
-impl WasiView for FaaastimeState {
-    fn ctx(&mut self) -> &mut WasiCtx {
-        &mut self.ctx
-    }
-
-    fn table(&mut self) -> &mut ResourceTable {
-        &mut self.table
-    }
-}
-
-impl WasiHttpView for FaaastimeState {
-    fn ctx(&mut self) -> &mut WasiHttpCtx {
-        &mut self.ctx_http
-    }
-
-    fn table(&mut self) -> &mut ResourceTable {
-        &mut self.table
-    }
-}
-
-impl FaaastimeState {
-    fn new() -> Self {
-        let mut wasi = WasiCtxBuilder::new();
-
-        wasi.preopened_dir(
-            "js",
-            "js",
-            wasmtime_wasi::DirPerms::all(),
-            wasmtime_wasi::FilePerms::all(),
-        )
-        .expect("open js");
-
-        Self {
-            ctx: wasi.build(),
-            ctx_http: WasiHttpCtx {},
-            table: ResourceTable::new(),
-        }
-    }
-}
-
-#[derive(Clone)]
-struct FaaasHandler {
-    engine: Engine,
-    component_pre: InstancePre<FaaastimeState>,
-}
-
-impl FaaasHandler {
-    pub fn new(engine: &Engine, component_pre: &InstancePre<FaaastimeState>) -> Self {
-        Self {
-            engine: engine.clone(),
-            component_pre: component_pre.clone(),
-        }
-    }
-}
-
-#[pin_project]
-struct Timed<Fut, Func>
-where
-    Fut: Future,
-    Func: FnMut(&Fut::Output, Duration, Duration),
-{
-    #[pin]
-    inner: Fut,
-    f: Func,
-    start: Option<Instant>,
-    total: Duration,
-}
-
-impl<Fut, Func> Future for Timed<Fut, Func>
-where
-    Fut: Future,
-    Func: FnMut(&Fut::Output, Duration, Duration),
-{
-    type Output = Fut::Output;
-
-    fn poll(self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<Self::Output> {
-        let this = self.project();
-        let start_poll = Instant::now();
-        let start_fut = this.start.get_or_insert(start_poll);
-
-        match this.inner.poll(cx) {
-            Poll::Pending => {
-                let elapsed = start_poll.elapsed();
-                *this.total += elapsed;
-
-                Poll::Pending
-            }
-            Poll::Ready(v) => {
-                let total_fut = start_fut.elapsed();
-                (this.f)(&v, *this.total, total_fut);
-
-                Poll::Ready(v)
-            }
-        }
-    }
-}
-
-trait TimedExt: Sized + Future {
-    fn timed<F>(self, f: F) -> Timed<Self, F>
-    where
-        F: FnMut(&Self::Output, Duration, Duration),
-    {
-        Timed {
-            inner: self,
-            f,
-            total: Duration::new(0, 0),
-            start: None,
-        }
-    }
-}
-
-impl<F: Future> TimedExt for F {}
-
-type Request = hyper::Request<hyper::body::Incoming>;
-
-#[derive(Clone)]
-struct ProxyHandler(Arc<FaaasHandler>);
-
-impl ProxyHandler {
-    pub fn new(engine: &Engine, component_pre: &InstancePre<FaaastimeState>) -> Self {
-        Self(Arc::new(FaaasHandler::new(engine, component_pre)))
-    }
-}
+use crate::handler::ProxyHandler;
+use crate::state::{FaaasTaskView, Faaastime, FaaastimeState};
+use crate::timed::TimedExt;
 
 async fn handle(
     ProxyHandler(inner): ProxyHandler,
-    req: Request,
+    req: Request<Incoming>,
 ) -> Result<hyper::Response<HyperOutgoingBody>> {
     use http_body_util::BodyExt;
 
@@ -163,6 +34,9 @@ async fn handle(
 
     let task = tokio::task::spawn(async move {
         let mut store = Store::new(&inner.engine, FaaastimeState::new());
+        let mut store_task = Store::new(&inner.engine, FaaastimeState::new());
+
+        let (task, _inst) = Faaastime::instantiate_pre(&mut store_task, &inner.task_pre).await?;
 
         let (proxy, _inst) =
             wasmtime_wasi_http::proxy::Proxy::instantiate_pre(&mut store, &inner.component_pre)
@@ -198,15 +72,24 @@ async fn handle(
                 .map_err(|_| http_types::ErrorCode::HttpRequestUriInvalid)?
         };
 
-        let req = hyper::Request::from_parts(parts, body.map_err(hyper_response_error).boxed());
+        let req = Request::from_parts(parts, body.map_err(hyper_response_error).boxed());
         let req = store.data_mut().new_incoming_request(req)?;
         let res = store.data_mut().new_response_outparam(sender)?;
+
+        // Create Task Context
+        let ctx = store_task.data_mut().new_task_ctx()?;
+        let task_res = task
+            .faaas_task_callable()
+            .call_call(store_task, ctx)
+            .await?;
+        let task_resp = task_res.unwrap();
 
         if let Err(e) = proxy
             .wasi_http_incoming_handler()
             .call_handle(store, req, res)
             .await
         {
+            println!("Encountered an error executing the javascript! {:?}", e);
             return Err(e);
         }
 
@@ -252,11 +135,17 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
     wasmtime_wasi::add_to_linker_async(&mut linker)?;
     wasmtime_wasi_http::proxy::add_only_http_to_linker(&mut linker)?;
 
+    // Add task to linker
+    crate::state::add_to_linker(&mut linker)?;
+
     let runjs_component =
         Component::from_file(&engine, "../runjs/target/wasm32-wasi/release/runjs.wasm")?;
     let runjs_pre = linker.instantiate_pre(&runjs_component)?;
 
-    let handler = ProxyHandler::new(&engine, &runjs_pre);
+    let task_component = Component::from_file(&engine, "../faaasc/composition.wasm")?;
+    let task_pre = linker.instantiate_pre(&task_component)?;
+
+    let handler = ProxyHandler::new(&engine, &runjs_pre, &task_pre);
 
     loop {
         let (stream, _) = listener.accept().await?;
