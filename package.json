@@ -9,7 +9,7 @@
     "daemon:clean": "turbo daemon clean",
     "format": "prettier --write .",
     "preinstall": "npx only-allow pnpm",
-    "start:faaastime": "turbo run start --filter=faaastime",
+    "start": "turbo run start",
     "test": "turbo test"
   },
   "author": "Oli Callaghan",

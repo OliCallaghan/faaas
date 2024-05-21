@@ -11,6 +11,9 @@
     "db:push": {
       "cache": false
     },
+    "deploy": {
+      "cache": false
+    },
     "start": {
       "dependsOn": ["build"],
       "cache": false,

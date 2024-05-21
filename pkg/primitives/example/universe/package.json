@@ -5,7 +5,7 @@
   "main": "universe.ts",
   "types": "universe.ts",
   "scripts": {
-    "build": "faaasman universe deploy universe.ts"
+    "deploy": "faaasman universe deploy universe.ts"
   },
   "keywords": [],
   "author": "",

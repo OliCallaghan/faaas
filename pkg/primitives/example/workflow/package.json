@@ -4,7 +4,7 @@
   "description": "Example workflow using example tasks",
   "main": "workflow.ts",
   "scripts": {
-    "build": "faaasman workflow deploy workflow.ts"
+    "deploy": "faaasman workflow deploy workflow.ts"
   },
   "keywords": [],
   "author": "",
