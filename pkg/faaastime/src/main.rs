@@ -1,4 +1,5 @@
 mod handler;
+mod registry;
 mod state;
 mod timed;
 
@@ -21,6 +22,7 @@ use wasmtime_wasi_http::{
 };
 
 use crate::handler::ProxyHandler;
+use crate::registry::FaaasRegistry;
 use crate::state::__with_name0::types::HostTaskContext;
 use crate::state::{FaaasTaskView, Faaastime, FaaastimeState};
 use crate::timed::TimedExt;
@@ -140,30 +142,15 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
 
     println!("FaaAS listening on http://{}", addr);
 
-    // Configure engine and handler
-    let mut config = Config::new();
-    config.wasm_component_model(true);
-    config.async_support(true);
-
-    let engine = Engine::new(&config)?;
-    let mut linker = Linker::<FaaastimeState>::new(&engine);
-
-    wasmtime_wasi::add_to_linker_async(&mut linker)?;
-    wasmtime_wasi_http::proxy::add_only_http_to_linker(&mut linker)?;
-
-    // Add task to linker
-    crate::state::add_to_linker(&mut linker)?;
-
-    let runjs_component =
-        Component::from_file(&engine, "../runjs/target/wasm32-wasi/release/runjs.wasm")?;
-    let runjs_pre = linker.instantiate_pre(&runjs_component)?;
-
-    let task_component = Component::from_file(&engine, "../faaasc/composition.wasm")?;
-    let task_pre = linker.instantiate_pre(&task_component)?;
-
-    let handler = ProxyHandler::new(&engine, &runjs_pre, &task_pre);
+    let engine = FaaasRegistry::new_engine()?;
+    let mut registry = FaaasRegistry::new(&engine)?;
 
     loop {
+        let runjs_pre = registry.instantiate_pre("faaas:runjs")?;
+        let task_pre = registry.instantiate_pre("task:one")?;
+
+        let handler = ProxyHandler::new(&engine, &runjs_pre, &task_pre);
+
         let (stream, _) = listener.accept().await?;
         let io = TokioIo::new(stream);
 
