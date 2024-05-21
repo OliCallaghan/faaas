@@ -11,24 +11,24 @@ use hyper::server::conn::http1;
 use hyper::service::service_fn;
 use hyper::Request;
 use hyper_util::rt::TokioIo;
+use tokio::join;
 use tokio::net::TcpListener;
 
-use wasmtime::component::{Component, Linker};
-use wasmtime::{AsContextMut, Config, Engine, Store};
+use wasmtime::{AsContextMut, Store};
 
 use wasmtime_wasi_http::{
     bindings::http::types as http_types, body::HyperOutgoingBody, hyper_response_error,
     WasiHttpView,
 };
 
-use crate::handler::ProxyHandler;
+use crate::handler::FaaasInvocationHandler;
 use crate::registry::FaaasRegistry;
 use crate::state::__with_name0::types::HostTaskContext;
 use crate::state::{FaaasTaskView, Faaastime, FaaastimeState};
 use crate::timed::TimedExt;
 
 async fn handle(
-    ProxyHandler(inner): ProxyHandler,
+    FaaasInvocationHandler(registry, engine): FaaasInvocationHandler,
     req: Request<Incoming>,
 ) -> Result<hyper::Response<HyperOutgoingBody>> {
     use http_body_util::BodyExt;
@@ -36,15 +36,6 @@ async fn handle(
     let (sender, receiver) = tokio::sync::oneshot::channel();
 
     let task = tokio::task::spawn(async move {
-        let mut store = Store::new(&inner.engine, FaaastimeState::new());
-        let mut store_task = Store::new(&inner.engine, FaaastimeState::new());
-
-        let (task, _inst) = Faaastime::instantiate_pre(&mut store_task, &inner.task_pre).await?;
-
-        let (proxy, _inst) =
-            wasmtime_wasi_http::proxy::Proxy::instantiate_pre(&mut store, &inner.component_pre)
-                .await?;
-
         let (mut parts, body) = req.into_parts();
 
         parts.uri = {
@@ -74,6 +65,21 @@ async fn handle(
                 .build()
                 .map_err(|_| http_types::ErrorCode::HttpRequestUriInvalid)?
         };
+
+        let mut store = Store::new(&engine, FaaastimeState::new());
+        let mut store_task = Store::new(&engine, FaaastimeState::new());
+
+        let (task_pre, proxy_pre) = join!(
+            registry.instantiate_pre("task:one"),
+            registry.instantiate_pre("faaas:runjs")
+        );
+
+        let task_pre = task_pre?;
+        let proxy_pre = proxy_pre?;
+
+        let (task, _) = Faaastime::instantiate_pre(&mut store_task, &task_pre).await?;
+        let (proxy, _) =
+            wasmtime_wasi_http::proxy::Proxy::instantiate_pre(&mut store, &proxy_pre).await?;
 
         let req = Request::from_parts(parts, body.map_err(hyper_response_error).boxed());
         let req = store.data_mut().new_incoming_request(req)?;
@@ -143,14 +149,11 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
     println!("FaaAS listening on http://{}", addr);
 
     let engine = FaaasRegistry::new_engine()?;
-    let mut registry = FaaasRegistry::new(&engine)?;
+    let registry = FaaasRegistry::new(&engine)?;
+
+    let handler = FaaasInvocationHandler::new(registry, engine);
 
     loop {
-        let runjs_pre = registry.instantiate_pre("faaas:runjs")?;
-        let task_pre = registry.instantiate_pre("task:one")?;
-
-        let handler = ProxyHandler::new(&engine, &runjs_pre, &task_pre);
-
         let (stream, _) = listener.accept().await?;
         let io = TokioIo::new(stream);
 

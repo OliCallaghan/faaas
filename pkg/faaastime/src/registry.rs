@@ -1,6 +1,7 @@
-use std::{collections::HashMap, rc::Rc};
+use std::sync::Arc;
 
 use anyhow::Result;
+use moka::future::Cache;
 use wasmtime::{
     component::{Component, InstancePre, Linker},
     Config, Engine,
@@ -8,14 +9,13 @@ use wasmtime::{
 
 use crate::state::FaaastimeState;
 
-pub struct FaaasRegistry<'e> {
-    engine: &'e Engine,
+pub struct FaaasRegistry {
+    engine: Engine,
     linker: Linker<FaaastimeState>,
-    components_cache: HashMap<String, Component>,
-    instance_pre_cache: HashMap<String, Rc<InstancePre<FaaastimeState>>>,
+    cache: Cache<String, Arc<InstancePre<FaaastimeState>>>,
 }
 
-impl<'e> FaaasRegistry<'e> {
+impl FaaasRegistry {
     pub fn new_engine() -> Result<Engine> {
         let mut cfg = Config::new();
         cfg.wasm_component_model(true);
@@ -26,16 +26,15 @@ impl<'e> FaaasRegistry<'e> {
         Ok(engine)
     }
 
-    pub fn new(engine: &'e Engine) -> Result<Self> {
+    pub fn new(engine: &Engine) -> Result<Self> {
         let mut linker = Linker::new(&engine);
 
         Self::add_to_linker(&mut linker)?;
 
         Ok(Self {
-            engine,
+            engine: engine.clone(),
             linker,
-            components_cache: Default::default(),
-            instance_pre_cache: Default::default(),
+            cache: Cache::new(500),
         })
     }
 
@@ -50,50 +49,35 @@ impl<'e> FaaasRegistry<'e> {
     }
 
     // For caching instantiated modules for use later :)
-    pub fn instantiate_pre(
-        &mut self,
+    pub async fn instantiate_pre(
+        &self,
         component_id: &str,
-    ) -> Result<Rc<InstancePre<FaaastimeState>>> {
-        let component = self.load(component_id)?;
-        let instance_pre = self.link(component_id, &component)?;
+    ) -> Result<Arc<InstancePre<FaaastimeState>>> {
+        let cache = self.cache.clone();
 
-        Ok(instance_pre)
+        let component = cache
+            .get_with(component_id.to_string(), async move {
+                let component = self.load_component(component_id).await;
+                let instance = self.link_component(&component);
+
+                Arc::new(instance)
+            })
+            .await;
+
+        Ok(component)
     }
 
-    fn load(&mut self, component_id: &str) -> Result<Component> {
+    async fn load_component(&self, component_id: &str) -> Component {
         let filepath = match component_id {
             "faaas:runjs" => "../runjs/target/wasm32-wasi/release/runjs.wasm",
             "task:one" => "../faaasc/composition.wasm",
             _ => panic!("Unknown task"),
         };
 
-        let cached = self
-            .components_cache
-            .entry(component_id.to_string())
-            .or_insert_with(|| {
-                Component::from_file(&self.engine, filepath).expect("WASM to compile")
-            })
-            .to_owned();
-
-        Ok(cached)
+        Component::from_file(&self.engine, filepath).unwrap()
     }
 
-    fn link(
-        &mut self,
-        component_id: &str,
-        component: &Component,
-    ) -> Result<Rc<InstancePre<FaaastimeState>>> {
-        let cached = self
-            .instance_pre_cache
-            .entry(component_id.to_string())
-            .or_insert_with(|| {
-                Rc::new(
-                    self.linker
-                        .instantiate_pre(component)
-                        .expect("WASM to link"),
-                )
-            });
-
-        Ok(cached.clone())
+    fn link_component(&self, component: &Component) -> InstancePre<FaaastimeState> {
+        self.linker.instantiate_pre(component).unwrap()
     }
 }

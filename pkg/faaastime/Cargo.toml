@@ -19,6 +19,7 @@ wasmtime-wasi-http = "20.0.2"
 http = "1.1.0"
 pin-project = "1.1.5"
 bitmaps = "3.2.1"
+moka = { version = "0.12.7", features = ["future"] }
 
 [build-dependencies]
 anyhow = "1.0.82"
