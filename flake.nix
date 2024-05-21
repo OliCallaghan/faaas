@@ -24,6 +24,7 @@
             rustup
             cargo-watch
             wasmtime
+            minio
             texliveFull
             graphviz
             pythonPackages.venvShellHook

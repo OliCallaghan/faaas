@@ -1,3 +1,5 @@
+mod storage;
+
 use std::sync::Arc;
 
 use anyhow::Result;
@@ -9,10 +11,13 @@ use wasmtime::{
 
 use crate::state::FaaastimeState;
 
+use self::storage::Storage;
+
 pub struct FaaasRegistry {
     engine: Engine,
     linker: Linker<FaaastimeState>,
     cache: Cache<String, Arc<InstancePre<FaaastimeState>>>,
+    storage: Storage,
 }
 
 impl FaaasRegistry {
@@ -35,6 +40,7 @@ impl FaaasRegistry {
             engine: engine.clone(),
             linker,
             cache: Cache::new(500),
+            storage: Storage::new(),
         })
     }
 
@@ -68,13 +74,13 @@ impl FaaasRegistry {
     }
 
     async fn load_component(&self, component_id: &str) -> Component {
-        let filepath = match component_id {
-            "faaas:runjs" => "../runjs/target/wasm32-wasi/release/runjs.wasm",
-            "task:one" => "../faaasc/composition.wasm",
-            _ => panic!("Unknown task"),
-        };
+        let bytes = self
+            .storage
+            .get_component_bytes(component_id)
+            .await
+            .expect("component wasm bytes");
 
-        Component::from_file(&self.engine, filepath).unwrap()
+        Component::from_binary(&self.engine, &bytes).unwrap()
     }
 
     fn link_component(&self, component: &Component) -> InstancePre<FaaastimeState> {

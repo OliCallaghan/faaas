@@ -1,0 +1,11 @@
+{
+  "name": "@faaas/registry",
+  "version": "1.0.0",
+  "description": "FaaAS Registry",
+  "scripts": {
+    "db:start": "dotenvx run -- minio server --console-address :9001 ./data"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}

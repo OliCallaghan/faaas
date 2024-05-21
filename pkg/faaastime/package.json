@@ -5,7 +5,7 @@
   "scripts": {
     "build": "cargo build --release --quiet",
     "build:loud": "cargo build --release",
-    "start": "./target/release/faaastime",
+    "start": "dotenvx run -- ./target/release/faaastime",
     "watch:run": "cargo watch -x run",
     "watch:check": "cargo watch -x check"
   },
