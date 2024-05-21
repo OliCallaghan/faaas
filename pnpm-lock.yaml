@@ -114,6 +114,9 @@ importers:
 
   pkg/faaastime:
     dependencies:
+      '@faaas/faaasc':
+        specifier: workspace:^
+        version: link:../faaasc
       '@faaas/runjs':
         specifier: workspace:^
         version: link:../runjs

@@ -9,12 +9,18 @@ use self::bindings::faaas::task::types::HostTaskContext;
 use self::bindings::faaas::task::types::HostTaskError;
 
 use self::bindings::faaas::task::types::TaskContext;
+use self::bindings::faaas::task::types::Value;
 
 mod types {
+    use std::collections::HashMap;
+
     use super::bindings::faaas::task::types::TaskStatus;
+    use super::bindings::faaas::task::types::Value;
 
     #[derive(Clone)]
     pub struct TaskContext {
+        pub lenses: Vec<String>,
+        pub data: HashMap<String, Value>,
         pub value: u32,
         pub status: TaskStatus,
     }
@@ -22,6 +28,8 @@ mod types {
     impl TaskContext {
         pub fn new() -> Self {
             Self {
+                lenses: Vec::new(),
+                data: HashMap::new(),
                 value: 0,
                 status: TaskStatus::Success,
             }
@@ -78,9 +86,9 @@ impl<V: FaaasTaskView> HostTaskContext for V {
         &mut self,
         rep: wasmtime::component::Resource<TaskContext>,
         key: String,
-    ) -> wasmtime::Result<u32> {
+    ) -> wasmtime::Result<Option<Value>> {
         let ctx = self.table().get(&rep)?;
-        let val = ctx.value; // Need to change internal structure to get key
+        let val = ctx.data.get(&key).map(|v| v.to_owned());
 
         Ok(val)
     }
@@ -89,10 +97,10 @@ impl<V: FaaasTaskView> HostTaskContext for V {
         &mut self,
         rep: wasmtime::component::Resource<TaskContext>,
         key: String,
-        value: u32,
+        value: Value,
     ) -> wasmtime::Result<()> {
         let ctx = self.table().get_mut(&rep)?;
-        ctx.value = value; // Need to set key value to this.
+        ctx.data.insert(key, value);
 
         Ok(())
     }
@@ -131,6 +139,21 @@ impl<V: FaaasTaskView> HostTaskContext for V {
         out.status = status;
 
         Ok(())
+    }
+
+    fn lens(
+        &mut self,
+        rep: wasmtime::component::Resource<TaskContext>,
+        id: String,
+    ) -> wasmtime::Result<wasmtime::component::Resource<TaskContext>> {
+        let ctx = self.table().get_mut(&rep)?;
+        let mut ctx_with_lens = ctx.clone();
+
+        ctx_with_lens.lenses.push(id);
+
+        println!("Creating ctx with lens {:?}", ctx_with_lens.lenses);
+
+        Ok(self.table().push(ctx_with_lens)?)
     }
 }
 

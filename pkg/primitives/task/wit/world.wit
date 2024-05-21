@@ -1,12 +1,22 @@
 package faaas:task;
 
 interface types {
+    variant value {
+        bool-val(bool),
+        f64-val(f64),
+        s32-val(s32),
+        u32-val(u32),
+        str-val(string),
+        buf-val(list<u8>),
+    }
+
     resource task-context {
         clone: func() -> task-context;
-        set: func(key: string, value: u32);
-        get: func(key: string) -> u32;
+        set: func(key: string, value: value);
+        get: func(key: string) -> option<value>;
         set-status: func(status: task-status);
         get-status: func() -> task-status;
+        lens: func(id: string) -> task-context;
     }
 
     enum task-status {
@@ -24,6 +34,11 @@ interface callable {
     call: func(ctx: task-context) -> result<task-context, task-error>;
 }
 
+interface identifiable {
+    identify: func() -> string;
+}
+
 world task {
     export callable;
+    export identifiable;
 }

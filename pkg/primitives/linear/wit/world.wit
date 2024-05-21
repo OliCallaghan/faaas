@@ -1,13 +1,21 @@
 package faaas:linear;
 
-use faaas:task/types;
 use faaas:task/callable;
+use faaas:task/identifiable;
+use faaas:task/types;
 
 world linear {
     use types.{task-context, task-error};
 
+    // Callable handles to child nodes in control flow graph.
     import task-fst: func(ctx: task-context) -> result<task-context, task-error>;
     import task-snd: func(ctx: task-context) -> result<task-context, task-error>;
 
+    // Identify child nodes in control flow graph.
+    import identify-fst: func() -> string;
+    import identify-snd: func() -> string;
+
+    // Callable and identifiable handles to be consumed by parent.
     export callable;
+    export identifiable;
 }

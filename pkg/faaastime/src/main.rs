@@ -80,6 +80,13 @@ async fn handle(
         // Create Task Context
         let ctx = store_task.data_mut().new_task_ctx()?;
 
+        let v = task
+            .faaas_task_identifiable()
+            .call_identify(store_task.as_context_mut())
+            .await?;
+
+        println!("Identity of workflow: {}", v);
+
         let task_res = task
             .faaas_task_callable()
             .call_call(store_task.as_context_mut(), ctx)
@@ -88,7 +95,7 @@ async fn handle(
         match task_res {
             Ok(ctx) => {
                 let val = store_task.data_mut().get(ctx, "a".to_string()).unwrap();
-                println!("Value {}", val);
+                println!("Value {:?}", val);
             }
             Err(_) => panic!("Something went wrong!"),
         };
