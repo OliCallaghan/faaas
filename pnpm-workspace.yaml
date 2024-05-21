@@ -16,6 +16,7 @@ packages:
   - "pkg/primitives/example/universe"
   - "pkg/primitives/task"
   - "pkg/runjs"
+  - "pkg/storage"
   - "pkg/utils/faaasman"
   - "pkg/utils/tsconfig"
   - "pkg/utils/universe"
