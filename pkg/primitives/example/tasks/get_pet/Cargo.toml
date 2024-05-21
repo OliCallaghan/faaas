@@ -1,5 +1,5 @@
 [package]
-name = "task1"
+name = "get_pet"
 version = "0.1.0"
 edition = "2021"
 
@@ -7,10 +7,10 @@ edition = "2021"
 crate-type = ["cdylib"]
 
 [package.metadata.component]
-package = "component:task1"
+package = "component:get-pet"
 
 [package.metadata.component.target]
-"path" = "../../task/wit/world.wit"
+"path" = "../../../task/wit/world.wit"
 "world" = "task"
 
 [dependencies]

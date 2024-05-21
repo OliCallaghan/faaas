@@ -1,8 +1,8 @@
 {
-  "name": "@faaas-example/task1",
+  "name": "@faaas-example/get_pet",
   "version": "1.0.0",
-  "description": "FaaaS example task one",
-  "main": "target/wasm32-wasi/release/task1.wasm",
+  "description": "Get the pet from the PetStore!",
+  "main": "target/wasm32-wasi/release/get_pet.wasm",
   "scripts": {
     "build": "cargo component build --release"
   },

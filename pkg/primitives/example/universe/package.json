@@ -11,7 +11,11 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@faaas-example/task1": "workspace:^",
+    "@faaas-example/dec_pet": "workspace:^",
+    "@faaas-example/get_pet": "workspace:^",
+    "@faaas-example/has_permission": "workspace:^",
+    "@faaas-example/inc_pet": "workspace:^",
+    "@faaas-example/parse_auth": "workspace:^",
     "@faaas/faaasman": "workspace:^"
   },
   "devDependencies": {

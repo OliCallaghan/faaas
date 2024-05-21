@@ -1,0 +1,12 @@
+{
+  "name": "@faaas-example/has_permission",
+  "version": "1.0.0",
+  "description": "Check if caller has access to use the PetStore!",
+  "main": "target/wasm32-wasi/release/has_permission.wasm",
+  "scripts": {
+    "build": "cargo component build --release"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}

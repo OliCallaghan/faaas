@@ -102,9 +102,9 @@ importers:
 
   pkg/faaasc:
     dependencies:
-      '@faaas-example/task1':
+      '@faaas-example/get_pet':
         specifier: workspace:^
-        version: link:../primitives/example/task1
+        version: link:../primitives/example/tasks/get_pet
       '@faaas/condition':
         specifier: workspace:^
         version: link:../primitives/condition
@@ -114,6 +114,12 @@ importers:
 
   pkg/faaastime:
     dependencies:
+      '@faaas-example/universe':
+        specifier: workspace:^
+        version: link:../primitives/example/universe
+      '@faaas-example/workflow':
+        specifier: workspace:^
+        version: link:../primitives/example/workflow
       '@faaas/faaasc':
         specifier: workspace:^
         version: link:../faaasc
@@ -125,11 +131,33 @@ importers:
 
   pkg/primitives/example/task1: {}
 
+  pkg/primitives/example/tasks/dec_pet: {}
+
+  pkg/primitives/example/tasks/get_pet: {}
+
+  pkg/primitives/example/tasks/has_permission: {}
+
+  pkg/primitives/example/tasks/inc_pet: {}
+
+  pkg/primitives/example/tasks/parse_auth: {}
+
   pkg/primitives/example/universe:
     dependencies:
-      '@faaas-example/task1':
+      '@faaas-example/dec_pet':
         specifier: workspace:^
-        version: link:../task1
+        version: link:../tasks/dec_pet
+      '@faaas-example/get_pet':
+        specifier: workspace:^
+        version: link:../tasks/get_pet
+      '@faaas-example/has_permission':
+        specifier: workspace:^
+        version: link:../tasks/has_permission
+      '@faaas-example/inc_pet':
+        specifier: workspace:^
+        version: link:../tasks/inc_pet
+      '@faaas-example/parse_auth':
+        specifier: workspace:^
+        version: link:../tasks/parse_auth
       '@faaas/faaasman':
         specifier: workspace:^
         version: link:../../../utils/faaasman

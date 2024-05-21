@@ -6,8 +6,9 @@ use crate::{Primitive, Workflow};
 const LINEAR_WASM: &[u8] =
     include_bytes!("../../node_modules/@faaas/linear/target/wasm32-wasi/release/linear.wasm");
 
-const TASK_WASM: &[u8] =
-    include_bytes!("../../node_modules/@faaas-example/task1/target/wasm32-wasi/release/task1.wasm");
+const TASK_WASM: &[u8] = include_bytes!(
+    "../../node_modules/@faaas-example/get_pet/target/wasm32-wasi/release/get_pet.wasm"
+);
 
 pub trait Register {
     fn register(&self, g: &mut CompositionGraph) -> Result<()>;

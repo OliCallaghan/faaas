@@ -22,7 +22,7 @@ impl CallableGuest for Task {
 
 impl IdentifiableGuest for Task {
     fn identify() -> String {
-        "task:one".to_string()
+        "has_permission".to_string()
     }
 }
 

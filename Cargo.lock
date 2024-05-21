@@ -1348,6 +1348,13 @@ dependencies = [
 ]
 
 [[package]]
+name = "dec_pet"
+version = "0.1.0"
+dependencies = [
+ "wit-bindgen-rt",
+]
+
+[[package]]
 name = "der"
 version = "0.6.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1842,6 +1849,13 @@ dependencies = [
 ]
 
 [[package]]
+name = "get_pet"
+version = "0.1.0"
+dependencies = [
+ "wit-bindgen-rt",
+]
+
+[[package]]
 name = "getrandom"
 version = "0.2.14"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1928,6 +1942,13 @@ dependencies = [
  "tokio",
  "tokio-util",
  "tracing",
+]
+
+[[package]]
+name = "has_permission"
+version = "0.1.0"
+dependencies = [
+ "wit-bindgen-rt",
 ]
 
 [[package]]
@@ -2209,6 +2230,13 @@ checksum = "634d9b1461af396cad843f47fdba5597a4f9e6ddd4bfb6ff5d85028c25cb12f6"
 dependencies = [
  "unicode-bidi",
  "unicode-normalization",
+]
+
+[[package]]
+name = "inc_pet"
+version = "0.1.0"
+dependencies = [
+ "wit-bindgen-rt",
 ]
 
 [[package]]
@@ -2690,6 +2718,13 @@ dependencies = [
  "redox_syscall 0.5.1",
  "smallvec",
  "windows-targets 0.52.5",
+]
+
+[[package]]
+name = "parse_auth"
+version = "0.1.0"
+dependencies = [
+ "wit-bindgen-rt",
 ]
 
 [[package]]
@@ -3899,13 +3934,6 @@ checksum = "e1fc403891a21bcfb7c37834ba66a547a8f402146eba7265b5a6d88059c9ff2f"
 
 [[package]]
 name = "task"
-version = "0.1.0"
-dependencies = [
- "wit-bindgen-rt",
-]
-
-[[package]]
-name = "task1"
 version = "0.1.0"
 dependencies = [
  "wit-bindgen-rt",

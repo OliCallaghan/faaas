@@ -13,6 +13,8 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@faaas-example/universe": "workspace:^",
+    "@faaas-example/workflow": "workspace:^",
     "@faaas/faaasc": "workspace:^",
     "@faaas/runjs": "workspace:^"
   }

@@ -9,7 +9,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@faaas-example/task1": "workspace:^",
+    "@faaas-example/get_pet": "workspace:^",
     "@faaas/condition": "workspace:^",
     "@faaas/linear": "workspace:^"
   }

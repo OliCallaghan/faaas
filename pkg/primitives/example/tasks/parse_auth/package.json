@@ -1,0 +1,12 @@
+{
+  "name": "@faaas-example/parse_auth",
+  "version": "1.0.0",
+  "description": "Parse auth of the caller to the PetStore!",
+  "main": "target/wasm32-wasi/release/parse_auth.wasm",
+  "scripts": {
+    "build": "cargo component build --release"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}

@@ -1,0 +1,12 @@
+{
+  "name": "@faaas-example/inc_pet",
+  "version": "1.0.0",
+  "description": "Increment the number of pets in the PetStore!",
+  "main": "target/wasm32-wasi/release/inc_pet.wasm",
+  "scripts": {
+    "build": "cargo component build --release"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}
