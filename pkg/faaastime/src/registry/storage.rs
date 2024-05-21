@@ -90,8 +90,7 @@ impl Storage {
     fn get_component_uri(component_id: &str) -> &str {
         match component_id {
             "faaas:runjs" => "runjs.wasm",
-            "task:one" => "composition.wasm",
-            _ => panic!("Unknown task"),
+            s => s,
         }
     }
 }

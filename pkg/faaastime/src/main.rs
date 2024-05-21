@@ -69,8 +69,10 @@ async fn handle(
         let mut store = Store::new(&engine, FaaastimeState::new());
         let mut store_task = Store::new(&engine, FaaastimeState::new());
 
+        let task_id = parts.uri.path();
+
         let (task_pre, proxy_pre) = join!(
-            registry.instantiate_pre("task:one"),
+            registry.instantiate_pre(task_id),
             registry.instantiate_pre("faaas:runjs")
         );
 
