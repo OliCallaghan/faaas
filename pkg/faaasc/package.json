@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "SWC based JavaScript compiler",
   "scripts": {
-    "build": "cargo run"
+    "build": "cargo build --lib --release --quiet"
   },
   "keywords": [],
   "author": "",

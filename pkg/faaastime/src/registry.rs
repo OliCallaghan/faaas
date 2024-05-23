@@ -5,13 +5,13 @@ use std::sync::Arc;
 use anyhow::{Error, Result};
 use async_trait::async_trait;
 use bytes::Bytes;
+use faaasc::resolve::ComponentResolver;
+use faaasc::workflow::Workflow;
 use moka::future::Cache;
 use wasmtime::{
     component::{Component, InstancePre, Linker},
     Config, Engine,
 };
-
-use faaasc::workflow::{extract::ComponentResolver, primitives::Workflow};
 
 use crate::state::FaaastimeState;
 
@@ -89,8 +89,8 @@ impl FaaasRegistry {
             println!("Workflow");
             let workflow_str = self.storage.get_workflow_str(component_id).await?;
             let workflow = Workflow::from_str(&workflow_str)?;
-            let deps = workflow.extract_and_resolve(self).await?;
 
+            let deps = workflow.resolve_dependencies(self).await?;
             let workflow = workflow.compile(&deps)?;
 
             println!("Found workflow!");

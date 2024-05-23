@@ -1,26 +1,23 @@
-use std::{collections::HashMap, sync::Arc};
+use std::collections::HashMap;
 
 use anyhow::Result;
-use bytes::Bytes;
 use wac_graph::{types::Package, CompositionGraph};
 
-use crate::{Primitive, Workflow};
-
-const LINEAR_WASM: &[u8] =
-    include_bytes!("../../node_modules/@faaas/linear/target/wasm32-wasi/release/linear.wasm");
+use super::primitives::LINEAR_WASM;
+use super::{dependencies::Dependency, Primitive, Workflow};
 
 pub trait Register {
-    fn register(&self, g: &mut CompositionGraph, d: &HashMap<String, Arc<Bytes>>) -> Result<()>;
+    fn register(&self, g: &mut CompositionGraph, d: &HashMap<String, Dependency>) -> Result<()>;
 }
 
 impl Register for Workflow {
-    fn register(&self, g: &mut CompositionGraph, d: &HashMap<String, Arc<Bytes>>) -> Result<()> {
+    fn register(&self, g: &mut CompositionGraph, d: &HashMap<String, Dependency>) -> Result<()> {
         self.0.register(g, d)
     }
 }
 
 impl Register for Primitive {
-    fn register(&self, g: &mut CompositionGraph, d: &HashMap<String, Arc<Bytes>>) -> Result<()> {
+    fn register(&self, g: &mut CompositionGraph, d: &HashMap<String, Dependency>) -> Result<()> {
         match self {
             Primitive::Task(task_id) => {
                 if g.get_package_by_name(task_id, None).is_none() {

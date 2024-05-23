@@ -3,11 +3,6 @@ name = "faaasc"
 version = "0.1.0"
 edition = "2021"
 
-[[bin]]
-name = "faaasc"
-test = false
-bench = false
-
 [lib]
 crate-type = ["lib"]
 
