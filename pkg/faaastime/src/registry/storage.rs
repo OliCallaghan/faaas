@@ -1,3 +1,5 @@
+use std::sync::Arc;
+
 use anyhow::Result;
 use aws_config::retry::RetryConfig;
 use aws_config::Region;
@@ -69,7 +71,7 @@ impl Storage {
         Self { client }
     }
 
-    pub async fn get_component_bytes(&self, component_id: &str) -> Result<Bytes> {
+    pub async fn get_component_bytes(&self, component_id: &str) -> Result<Arc<Bytes>> {
         let key = Storage::get_component_uri(component_id);
 
         let bytes = self
@@ -84,7 +86,27 @@ impl Storage {
             .await?
             .into_bytes();
 
-        Ok(bytes)
+        Ok(Arc::new(bytes))
+    }
+
+    pub async fn get_workflow_str(&self, workflow_id: &str) -> Result<Arc<String>> {
+        let key = Storage::get_component_uri(workflow_id);
+
+        let bytes = self
+            .client
+            .get_object()
+            .bucket("universe")
+            .key(key)
+            .send()
+            .await?
+            .body
+            .collect()
+            .await?
+            .into_bytes();
+
+        let workflow_str = String::from_utf8(bytes.into())?;
+
+        Ok(Arc::new(workflow_str))
     }
 
     fn get_component_uri(component_id: &str) -> &str {

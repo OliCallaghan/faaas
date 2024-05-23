@@ -1,4 +1,7 @@
+use std::{collections::HashMap, sync::Arc};
+
 use anyhow::Result;
+use bytes::Bytes;
 use wac_graph::{types::Package, CompositionGraph};
 
 use crate::{Primitive, Workflow};
@@ -6,26 +9,27 @@ use crate::{Primitive, Workflow};
 const LINEAR_WASM: &[u8] =
     include_bytes!("../../node_modules/@faaas/linear/target/wasm32-wasi/release/linear.wasm");
 
-const TASK_WASM: &[u8] = include_bytes!(
-    "../../node_modules/@faaas-example/get_pet/target/wasm32-wasi/release/get_pet.wasm"
-);
-
 pub trait Register {
-    fn register(&self, g: &mut CompositionGraph) -> Result<()>;
+    fn register(&self, g: &mut CompositionGraph, d: &HashMap<String, Arc<Bytes>>) -> Result<()>;
 }
 
 impl Register for Workflow {
-    fn register(&self, g: &mut CompositionGraph) -> Result<()> {
-        self.0.register(g)
+    fn register(&self, g: &mut CompositionGraph, d: &HashMap<String, Arc<Bytes>>) -> Result<()> {
+        self.0.register(g, d)
     }
 }
 
 impl Register for Primitive {
-    fn register(&self, g: &mut CompositionGraph) -> Result<()> {
+    fn register(&self, g: &mut CompositionGraph, d: &HashMap<String, Arc<Bytes>>) -> Result<()> {
         match self {
             Primitive::Task(task_id) => {
                 if g.get_package_by_name(task_id, None).is_none() {
-                    let pkg = Package::from_bytes(task_id, None, TASK_WASM, g.types_mut())?;
+                    let pkg = Package::from_bytes(
+                        task_id,
+                        None,
+                        d.get(task_id).expect("task to be resolved").to_vec(),
+                        g.types_mut(),
+                    )?;
                     g.register_package(pkg)?;
                 }
                 Ok(())
@@ -37,8 +41,8 @@ impl Register for Primitive {
                     g.register_package(pkg)?;
                 }
 
-                p1.register(g)?;
-                p2.register(g)?;
+                p1.register(g, d)?;
+                p2.register(g, d)?;
 
                 Ok(())
             }

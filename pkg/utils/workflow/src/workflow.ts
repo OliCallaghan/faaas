@@ -1,27 +1,48 @@
 import { Universe } from "@faaas/universe";
 
+abstract class Node {
+  public abstract serialize(): object;
+}
+
+class Linear {
+  constructor(
+    private readonly t1: Node,
+    private readonly t2: Node,
+  ) {}
+
+  public serialize(): object {
+    return { linear: [this.t1.serialize(), this.t2.serialize()] };
+  }
+}
+
 class Task {
   constructor(private readonly taskId: string) {}
+
+  public serialize(): object {
+    return { task: this.taskId };
+  }
 }
 
 export class Context {
-  private constructor(
-    private readonly parent: Context | undefined,
-    private readonly taskId: Task | undefined,
-  ) {}
-
-  public static new() {
-    return new Context(undefined, undefined);
-  }
-
-  private sequential(task: Task): Context {
-    return new Context(this, task);
-  }
+  private readonly nodes: Node[] = [];
 
   public call(taskId: string): Context {
-    const task = new Task(taskId);
+    this.nodes.push(new Task(taskId));
 
-    return this.sequential(task);
+    return this;
+  }
+
+  public build(): object {
+    console.log(this.nodes);
+    let graph = this.nodes.shift();
+
+    if (!graph) return {};
+
+    for (const node of this.nodes) {
+      graph = new Linear(graph, node);
+    }
+
+    return graph.serialize();
   }
 }
 
@@ -31,7 +52,7 @@ export function registerCall<TaskIds extends string>(
   return function call(taskId: TaskIds, ctx: Context): Context {
     console.log(`Calling ${taskId.toString()} with ${ctx}`);
 
-    return ctx.call(taskId);
+    return ctx.call(`/tasks/${taskId}`);
   };
 }
 

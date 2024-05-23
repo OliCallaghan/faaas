@@ -23,6 +23,8 @@ moka = { version = "0.12.7", features = ["future"] }
 aws-sdk-s3 = { version = "1.29.0", features = ["behavior-version-latest"] }
 aws-config = { version = "1.4.0", features = ["behavior-version-latest"] }
 aws-credential-types = "1.2.0"
+faaasc = { version = "0.1.0", path = "../faaasc" }
+async-trait = "0.1.80"
 
 [build-dependencies]
 anyhow = "1.0.82"
