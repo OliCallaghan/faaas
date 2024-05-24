@@ -100,6 +100,8 @@ importers:
         specifier: workspace:^
         version: link:../benchmarks/perf-v8-event-loop-results
 
+  pkg/boss-faaas-engine: {}
+
   pkg/faaasc:
     dependencies:
       '@faaas-example/get_pet':

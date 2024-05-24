@@ -19,6 +19,15 @@
         devShell = pkgs.mkShell {
           nativeBuildInputs = [ pkgs.bashInteractive ];
           buildInputs = with pkgs; [
+            clang-tools
+            libcxxStdenv
+
+            cmake
+            cmake-format
+			cmake-language-server
+
+            racket
+
             corepack_20
             nodejs_20
             rustup

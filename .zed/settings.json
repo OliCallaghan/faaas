@@ -8,5 +8,10 @@
         }
       }
     }
+  },
+  "lsp": {
+    "clangd": {
+      "arguments": ["-background-index", "-compile-commands-dir=Build"]
+    }
   }
 }
