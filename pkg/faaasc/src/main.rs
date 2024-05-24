@@ -41,7 +41,7 @@ fn main() -> Result<()> {
         .map_err(|e| e.into_diagnostic(&handler).emit())
         .expect("Failed to parse module.");
 
-    _module.generate_split()?;
+    _module.generate_split(&mut None)?;
 
     Ok(())
 }

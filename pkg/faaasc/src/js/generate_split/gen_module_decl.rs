@@ -1,12 +1,12 @@
 use anyhow::Result;
 use swc_ecma_ast::ModuleDecl;
 
-use super::GenerateSplit;
+use super::{GenerateSplit, Generation};
 
 impl GenerateSplit for ModuleDecl {
-    fn generate_split(&self) -> Result<()> {
+    fn generate_split(&self, gen: &mut Option<Generation>) -> Result<()> {
         match self {
-            ModuleDecl::ExportDecl(decl) => decl.generate_split(),
+            ModuleDecl::ExportDecl(decl) => decl.generate_split(gen),
             _ => Ok(()),
         }
     }

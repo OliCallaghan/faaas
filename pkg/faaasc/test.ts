@@ -38,7 +38,10 @@ type State = Record<string, any>;
 
 async function sendToQueue(_cb: Function, state: State) {}
 
-export async function handler_one(ctx: InvocationContext, _state: State) {
+export async function generated_handler_one(
+  ctx: InvocationContext,
+  _state: State,
+) {
   const { userId } = ctx;
   const username = await getUsername(userId);
 
@@ -47,7 +50,7 @@ export async function handler_one(ctx: InvocationContext, _state: State) {
   // TO HERE
 }
 
-export async function handler_two(
+export async function generated_handler_two(
   ctx: InvocationContext,
   state: State,
   resolved: string[],

@@ -1,4 +1,5 @@
 use anyhow::Result;
+use swc_ecma_ast::Ident;
 
 pub mod gen_block_stmt;
 pub mod gen_decl;
@@ -14,6 +15,16 @@ pub mod gen_stmt;
 
 use super::eval_lit::EvalLit;
 
+pub struct Generation {
+    pub name: Ident,
+}
+
+impl Generation {
+    pub fn new(name: Ident) -> Self {
+        Self { name }
+    }
+}
+
 pub trait GenerateSplit {
-    fn generate_split(&self) -> Result<()>;
+    fn generate_split(&self, gen: &mut Option<Generation>) -> Result<()>;
 }
