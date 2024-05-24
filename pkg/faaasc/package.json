@@ -3,7 +3,8 @@
   "version": "1.0.0",
   "description": "SWC based JavaScript compiler",
   "scripts": {
-    "build": "cargo build --lib --release --quiet"
+    "build": "cargo build --release --quiet",
+    "start": "target/release/faaasc"
   },
   "keywords": [],
   "author": "",
