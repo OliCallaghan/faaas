@@ -11,7 +11,7 @@ use swc_ecma_parser::{lexer::Lexer, Capturing, Parser, StringInput, Syntax};
 
 mod js;
 
-use js::generate_split::GenerateSplit;
+use js::generate::Generate;
 
 fn main() -> Result<()> {
     let cm: Lrc<SourceMap> = Default::default();
@@ -36,12 +36,12 @@ fn main() -> Result<()> {
         e.into_diagnostic(&handler).emit();
     }
 
-    let _module = parser
+    let mut _module = parser
         .parse_typescript_module()
         .map_err(|e| e.into_diagnostic(&handler).emit())
         .expect("Failed to parse module.");
 
-    _module.generate_split(&mut None)?;
+    _module.generate()?;
 
     Ok(())
 }

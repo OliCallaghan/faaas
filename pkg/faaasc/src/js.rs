@@ -1,3 +1,4 @@
+mod capture_scope;
 mod eval_lit;
 
-pub mod generate_split;
+pub mod generate;

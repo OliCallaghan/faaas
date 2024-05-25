@@ -1,10 +1,10 @@
 use anyhow::Result;
 use swc_ecma_ast::Expr;
 
-use super::{GenerateSplit, Generation};
+use super::{GenerateHandler, Generation};
 
-impl GenerateSplit for Expr {
-    fn generate_split(&self, gen: &mut Option<Generation>) -> Result<()> {
+impl GenerateHandler for Expr {
+    fn generate_split(&self, gen: &mut Generation) -> Result<()> {
         match self {
             // Expr::Fn(fn_decl) => fn_decl.split(),
             _ => Ok(()),
