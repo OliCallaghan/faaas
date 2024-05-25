@@ -1,4 +1,8 @@
 use anyhow::Result;
+use graphviz_rust::{
+    cmd::Format,
+    dot_structures::{Graph, NodeId, Subgraph},
+};
 use swc_ecma_ast::{Ident, Stmt};
 
 pub mod gen_block_stmt;
@@ -12,6 +16,7 @@ pub mod gen_module;
 pub mod gen_module_decl;
 pub mod gen_module_item;
 pub mod gen_stmt;
+pub mod gen_var_decl;
 
 use super::eval_lit::EvalLit;
 
@@ -70,4 +75,12 @@ pub trait GenerateHandlers {
 
 pub trait Generate {
     fn generate(&mut self) -> Result<()>;
+}
+
+pub trait ToGraphvizGraph {
+    fn to_graph(&self) -> Graph;
+}
+
+pub trait ToGraphvizSubgraph {
+    fn to_subgraph(&self, parent: &str) -> Option<Subgraph>;
 }

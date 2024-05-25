@@ -4,7 +4,8 @@
   "description": "SWC based JavaScript compiler",
   "scripts": {
     "build": "cargo build --release --quiet",
-    "start": "target/release/faaasc"
+    "start": "target/release/faaasc",
+    "test": "cargo run"
   },
   "keywords": [],
   "author": "",

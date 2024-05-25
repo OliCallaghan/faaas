@@ -1,2 +1,5 @@
 composition.json
 composition.wasm
+
+assets/*
+!assets/.gitkeep

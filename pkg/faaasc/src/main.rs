@@ -2,6 +2,11 @@ use std::path::Path;
 
 use anyhow::Result;
 
+use graphviz_rust::{
+    cmd::{CommandArg, Format},
+    exec,
+    printer::PrinterContext,
+};
 use swc_common::{
     errors::{ColorConfig, Handler},
     sync::Lrc,
@@ -11,7 +16,7 @@ use swc_ecma_parser::{lexer::Lexer, Capturing, Parser, StringInput, Syntax};
 
 mod js;
 
-use js::generate::Generate;
+use js::generate::{Generate, ToGraphvizGraph};
 
 fn main() -> Result<()> {
     let cm: Lrc<SourceMap> = Default::default();
@@ -40,6 +45,24 @@ fn main() -> Result<()> {
         .parse_typescript_module()
         .map_err(|e| e.into_diagnostic(&handler).emit())
         .expect("Failed to parse module.");
+
+    exec(
+        _module.to_graph(),
+        &mut PrinterContext::default(),
+        vec![
+            Format::Pdf.into(),
+            CommandArg::Output("assets/module.pdf".to_string()),
+        ],
+    )?;
+
+    exec(
+        _module.to_graph(),
+        &mut PrinterContext::default(),
+        vec![
+            Format::Png.into(),
+            CommandArg::Output("assets/module.png".to_string()),
+        ],
+    )?;
 
     _module.generate()?;
 
