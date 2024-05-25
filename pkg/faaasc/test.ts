@@ -26,6 +26,51 @@ export async function handler(ctx: InvocationContext) {
   ("use async");
   const pets = await sql(listUserPets(userId));
 
+  let x = 0;
+  do {
+    x += 1;
+  } while (x < 5);
+
+  for (let i = 0; i++; i < 5) {
+    console.log("I");
+  }
+
+  for (const x in {}) {
+    console.log("why");
+  }
+
+  if (x == 0) {
+    console.log("happy");
+  } else {
+    console.log("sad");
+  }
+
+  let foo = "";
+  switch (foo) {
+    case "hello":
+      console.log("Hi");
+    case "bar":
+      console.log("Buz");
+    default:
+      console.log("Quz");
+  }
+
+  if (foo == "never") {
+    throw new Error("OH NO!");
+  }
+
+  try {
+    throw new Error("expected");
+  } catch (err) {
+    console.log("Phew that was close");
+  } finally {
+    console.log("Cleanup");
+  }
+
+  while (foo == "not foo") {
+    console.log("Hello world");
+  }
+
   return {
     message: `Hello ${username}`,
     petNames: pets,

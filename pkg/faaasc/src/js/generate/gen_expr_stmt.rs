@@ -3,6 +3,7 @@ use graphviz_rust::dot_generator::*;
 use graphviz_rust::dot_structures::*;
 use swc_ecma_ast::ExprStmt;
 
+use super::construct_id;
 use super::EvalLit;
 use super::GenerateHandler;
 use super::Generation;
@@ -33,17 +34,14 @@ impl GenerateHandler for ExprStmt {
 impl ToGraphvizSubgraph for ExprStmt {
     fn to_subgraph(&self, parent: &str) -> Option<Subgraph> {
         if self.is_str_lit_stmt("use async") {
-            let n_id = format!("{}_expr_stmt", parent);
-            let sg_id = format!("sg_{}", n_id);
+            let (node_id, sg_id) = construct_id!(parent, "expr_stmt");
 
             Some(subgraph!(&sg_id;
-                node!(&n_id; attr!("label", r#""use async""#), attr!("color", "red"), attr!("fontcolor", "red")),
-                edge!(node_id!(&n_id) => node_id!(parent))
+                node!(&node_id; attr!("label", r#""use async""#), attr!("color", "red"), attr!("fontcolor", "red")),
+                edge!(node_id!(&node_id) => node_id!(parent))
             ))
         } else {
             None
         }
     }
 }
-
-// graphviz_rust::attributes::fillcolor;

@@ -1,22 +1,30 @@
 use anyhow::Result;
-use graphviz_rust::{
-    cmd::Format,
-    dot_structures::{Graph, NodeId, Subgraph},
-};
+use graphviz_rust::dot_structures::{Graph, Subgraph};
 use swc_ecma_ast::{Ident, Stmt};
 
 pub mod gen_block_stmt;
 pub mod gen_decl;
+pub mod gen_do_while_stmt;
 pub mod gen_export_decl;
 pub mod gen_expr;
 pub mod gen_expr_stmt;
 pub mod gen_fn_decl;
+pub mod gen_for_in_stmt;
+pub mod gen_for_of_stmt;
+pub mod gen_for_stmt;
 pub mod gen_function;
+pub mod gen_if_stmt;
 pub mod gen_module;
 pub mod gen_module_decl;
 pub mod gen_module_item;
+pub mod gen_ret_stmt;
 pub mod gen_stmt;
+pub mod gen_switch_case;
+pub mod gen_switch_stmt;
+pub mod gen_throw_stmt;
+pub mod gen_try_stmt;
 pub mod gen_var_decl;
+pub mod gen_while_stmt;
 
 use super::eval_lit::EvalLit;
 
@@ -83,4 +91,35 @@ pub trait ToGraphvizGraph {
 
 pub trait ToGraphvizSubgraph {
     fn to_subgraph(&self, parent: &str) -> Option<Subgraph>;
+}
+
+macro_rules! construct_id {
+    ($parent:expr, $unique_id:expr, $node_type:expr) => {
+        (
+            format!("{}_{}_{}", $parent, $unique_id, $node_type),
+            format!("sg_{}_{}_{}", $parent, $unique_id, $node_type),
+        )
+    };
+    ($parent:expr, $node_type:expr) => {
+        (
+            format!("{}_{}", $parent, $node_type),
+            format!("sg_{}_{}", $parent, $node_type),
+        )
+    };
+}
+
+use construct_id;
+
+pub mod util {
+    use graphviz_rust::dot_generator::*;
+    use graphviz_rust::dot_structures::*;
+
+    pub fn empty_node(parent: &str, unique_id: &str) -> Subgraph {
+        let (node_id, sg_id) = construct_id!(parent, unique_id, "body");
+
+        subgraph!(&sg_id;
+            node!(node_id; attr!("label", unique_id)),
+            edge!(node_id!(node_id) => node_id!(parent))
+        )
+    }
 }

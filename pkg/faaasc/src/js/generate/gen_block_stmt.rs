@@ -3,7 +3,7 @@ use graphviz_rust::dot_generator::*;
 use graphviz_rust::dot_structures::*;
 use swc_ecma_ast::BlockStmt;
 
-use super::{GenerateHandler, Generation, ToGraphvizSubgraph};
+use super::{construct_id, GenerateHandler, Generation, ToGraphvizSubgraph};
 
 impl GenerateHandler for BlockStmt {
     fn generate_split(&self, gen: &mut Generation) -> Result<()> {
@@ -22,30 +22,33 @@ impl GenerateHandler for BlockStmt {
 
 impl ToGraphvizSubgraph for BlockStmt {
     fn to_subgraph(&self, parent: &str) -> Option<Subgraph> {
-        let n_id = format!("{}_block", parent);
-        let sg_id = format!("sg_{}", n_id);
+        let (node_id, sg_id) = construct_id!(parent, "block_stmt");
 
         let stmts = self
             .stmts
             .iter()
-            .scan(n_id.clone(), |parent, _stmt| {
-                let n_id = format!("{}_stmt", parent);
-                let n = node!(&n_id; attr!("label", "stmt"));
-                let e = edge!(node_id!(n_id) => node_id!(parent); attr!("label", "next"));
+            .scan(node_id.clone(), |parent, stmt| {
+                let (node_id, _) = construct_id!(parent, "stmt");
+                let node = node!(&node_id; attr!("label", "stmt"));
+                let edge = edge!(node_id!(node_id) => node_id!(parent); attr!("label", "next"));
 
-                let stmt_sg = _stmt.to_subgraph(&n_id);
+                let stmt_sg = stmt.to_subgraph(&node_id);
 
-                *parent = n_id;
+                *parent = node_id;
 
-                Some([Some(stmt!(n)), Some(stmt!(e)), stmt_sg.map(|g| stmt!(g))])
+                Some([
+                    Some(stmt!(node)),
+                    Some(stmt!(edge)),
+                    stmt_sg.map(|g| stmt!(g)),
+                ])
             })
             .flatten()
             .flatten();
 
         let stmts = stmts
             .chain([
-                stmt!(node!(&n_id; attr!("label", "blk_stmt"))),
-                stmt!(edge!(node_id!(&n_id) => node_id!(parent))),
+                stmt!(node!(&node_id; attr!("label", "blk_stmt"))),
+                stmt!(edge!(node_id!(&node_id) => node_id!(parent))),
             ])
             .collect::<Vec<Stmt>>();
 
