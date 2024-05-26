@@ -22,6 +22,7 @@ pub mod cap_try_stmt;
 pub mod cap_var_decl;
 pub mod cap_while_stmt;
 
+#[derive(Clone)]
 pub struct FreeVariables {
     decl: HashSet<Id>,
     free: HashSet<Id>,

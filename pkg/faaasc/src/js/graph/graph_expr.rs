@@ -1,18 +1,8 @@
-use anyhow::Result;
 use graphviz_rust::dot_generator::*;
 use graphviz_rust::dot_structures::*;
 use swc_ecma_ast::Expr;
 
-use super::{construct_id, GenerateHandler, Generation, ToGraphvizSubgraph};
-
-impl GenerateHandler for Expr {
-    fn generate_split(&self, gen: &mut Generation) -> Result<()> {
-        match self {
-            // Expr::Fn(fn_decl) => fn_decl.split(),
-            _ => Ok(()),
-        }
-    }
-}
+use super::{construct_id, ToGraphvizSubgraph};
 
 impl ToGraphvizSubgraph for Expr {
     fn to_subgraph(&self, parent: &str) -> Option<Subgraph> {

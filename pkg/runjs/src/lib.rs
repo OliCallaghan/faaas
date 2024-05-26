@@ -14,9 +14,7 @@ use bindings::wasi::http::types::{
 };
 use rquickjs::function::Args;
 use rquickjs::loader::{BuiltinResolver, ModuleLoader};
-use rquickjs::{
-    CatchResultExt, Class, Context, Error, FromJs, Function, Module, Promise, Runtime, Value,
-};
+use rquickjs::{CatchResultExt, Class, Context, Error, FromJs, Function, Module, Runtime, Value};
 
 use crate::bindings::wasi::filesystem::types::{DescriptorFlags, OpenFlags, PathFlags};
 use crate::buffer::js_buffer_mod;

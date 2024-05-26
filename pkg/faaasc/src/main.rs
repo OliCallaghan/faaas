@@ -12,11 +12,13 @@ use swc_common::{
     sync::Lrc,
     SourceMap,
 };
+use swc_ecma_codegen::{text_writer::JsWriter, Emitter};
 use swc_ecma_parser::{lexer::Lexer, Capturing, Parser, StringInput, Syntax};
 
 mod js;
 
-use js::generate::{Generate, ToGraphvizGraph};
+use js::generate::Generate;
+use js::graph::ToGraphvizGraph;
 
 fn main() -> Result<()> {
     let cm: Lrc<SourceMap> = Default::default();
@@ -41,13 +43,13 @@ fn main() -> Result<()> {
         e.into_diagnostic(&handler).emit();
     }
 
-    let mut _module = parser
+    let mut m = parser
         .parse_typescript_module()
         .map_err(|e| e.into_diagnostic(&handler).emit())
         .expect("Failed to parse module.");
 
     exec(
-        _module.to_graph(),
+        m.to_graph(),
         &mut PrinterContext::default(),
         vec![
             Format::Pdf.into(),
@@ -56,7 +58,7 @@ fn main() -> Result<()> {
     )?;
 
     exec(
-        _module.to_graph(),
+        m.to_graph(),
         &mut PrinterContext::default(),
         vec![
             Format::Png.into(),
@@ -64,7 +66,22 @@ fn main() -> Result<()> {
         ],
     )?;
 
-    _module.generate()?;
+    m.generate()?;
+
+    let mut buf = vec![];
+
+    let mut emitter = Emitter {
+        cfg: Default::default(),
+        cm: cm.clone(),
+        comments: None,
+        wr: JsWriter::new(cm, "\n", &mut buf, None),
+    };
+
+    emitter.emit_module(&m)?;
+
+    let code = String::from_utf8_lossy(&buf).to_string();
+
+    std::fs::write("test-gen.ts", code)?;
 
     Ok(())
 }

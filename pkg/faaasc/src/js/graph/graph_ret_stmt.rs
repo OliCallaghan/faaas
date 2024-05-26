@@ -2,8 +2,7 @@ use graphviz_rust::dot_generator::*;
 use graphviz_rust::dot_structures::*;
 use swc_ecma_ast::ReturnStmt;
 
-use super::util;
-use super::{construct_id, ToGraphvizSubgraph};
+use super::{construct_id, util, ToGraphvizSubgraph};
 
 impl ToGraphvizSubgraph for ReturnStmt {
     fn to_subgraph(&self, parent: &str) -> Option<Subgraph> {
