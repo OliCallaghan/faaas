@@ -1,3 +1,4 @@
+type ContinuationState = Record<string, any>;
 interface InvocationContext {
     userId: string;
 }
@@ -24,18 +25,32 @@ export async function handler(ctx: InvocationContext) {
         catNames: cats
     };
 }
-export async function handler_0() {
+export async function handler_0(ctx: InvocationContext, state: ContinuationState) {
+    const {} = state;
     const { userId } = ctx;
     const username = await getUsername(userId);
-}
-export async function handler_1() {
     const dogs = await sql(listUserPets(userId, "dog"));
+    return {
+        dogs,
+        userId,
+        username
+    };
 }
-export async function handler_2() {
+export async function handler_1(ctx: InvocationContext, state: ContinuationState) {
+    const { dogs, userId, username } = state;
     const cats = await sql(listUserPets(userId, "cat"));
+    return {
+        username,
+        cats,
+        dogs
+    };
+}
+export async function handler_2(ctx: InvocationContext, state: ContinuationState) {
+    const { username, cats, dogs } = state;
     return {
         message: `Hello ${username}`,
         dogNames: dogs,
         catNames: cats
     };
+    return {};
 }

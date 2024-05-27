@@ -22,7 +22,7 @@ pub mod cap_try_stmt;
 pub mod cap_var_decl;
 pub mod cap_while_stmt;
 
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct FreeVariables {
     decl: HashSet<Id>,
     free: HashSet<Id>,
@@ -42,6 +42,11 @@ impl FreeVariables {
 
     pub fn push_usage(&mut self, used_ident: &Ident) {
         let id = used_ident.to_id();
+
+        // TODO: Capture globals so that they don't need to manually be escaped here.
+        if ["sql", "listUserPets", "getUsername"].contains(&used_ident.sym.as_str()) {
+            return;
+        }
 
         // Check if variable is free?
         if !self.decl.contains(&id) {

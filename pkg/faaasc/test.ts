@@ -1,3 +1,4 @@
+type ContinuationState = Record<string, any>;
 interface InvocationContext {
   userId: string;
 }

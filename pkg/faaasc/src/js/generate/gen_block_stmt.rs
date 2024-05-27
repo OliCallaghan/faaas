@@ -11,6 +11,7 @@ use super::{GenerateWithTargetAndIdent, Generation};
 impl GenerateWithTargetAndIdent for BlockStmt {
     fn generate(&self, gen_target: &mut Vec<Generation>, id: Ident) -> Result<()> {
         let mut gen = Generation::new(id);
+        let mut skip = false;
 
         for (i, stmt) in self.stmts.iter().enumerate() {
             // Is statement a 'use async' directive?
@@ -23,15 +24,20 @@ impl GenerateWithTargetAndIdent for BlockStmt {
                     stmt.capture_free_vars(&mut free_vars);
                 }
 
-                // Compute split
-                println!("FV: {:?}", free_vars.get());
+                gen.push_stmt(self.stmts[i + 1].clone());
+                gen.add_continuation_vars(free_vars);
+                skip = true;
 
                 let old_gen = gen;
                 gen = old_gen.next();
 
                 gen_target.push(old_gen);
             } else {
-                gen.push_stmt(stmt.clone())
+                if !skip {
+                    gen.push_stmt(stmt.clone())
+                } else {
+                    skip = false;
+                }
             }
         }
 
