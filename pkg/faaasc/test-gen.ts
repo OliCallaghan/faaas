@@ -31,22 +31,22 @@ export async function handler_0(ctx: InvocationContext, state: ContinuationState
     const username = await getUsername(userId);
     const dogs = await sql(listUserPets(userId, "dog"));
     return {
-        dogs,
-        userId,
-        username
-    };
-}
-export async function handler_1(ctx: InvocationContext, state: ContinuationState) {
-    const { dogs, userId, username } = state;
-    const cats = await sql(listUserPets(userId, "cat"));
-    return {
         username,
-        cats,
+        userId,
         dogs
     };
 }
+export async function handler_1(ctx: InvocationContext, state: ContinuationState) {
+    const { username, userId, dogs } = state;
+    const cats = await sql(listUserPets(userId, "cat"));
+    return {
+        username,
+        dogs,
+        cats
+    };
+}
 export async function handler_2(ctx: InvocationContext, state: ContinuationState) {
-    const { username, cats, dogs } = state;
+    const { username, dogs, cats } = state;
     return {
         message: `Hello ${username}`,
         dogNames: dogs,

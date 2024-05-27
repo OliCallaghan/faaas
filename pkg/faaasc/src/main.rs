@@ -1,7 +1,12 @@
-use std::path::Path;
+use std::{
+    io::{Read, Write},
+    path::Path,
+};
 
 use anyhow::Result;
 
+use clap::Parser as ClapParser;
+use clio::{Input, Output};
 use graphviz_rust::{
     cmd::{CommandArg, Format},
     exec,
@@ -20,13 +25,25 @@ mod js;
 use js::generate::Generate;
 use js::graph::ToGraphvizGraph;
 
+#[derive(ClapParser)]
+#[clap(name = "faaasc")]
+struct Args {
+    #[clap(value_parser, default_value = "-")]
+    input: Input,
+
+    #[clap(value_parser, default_value = "-")]
+    output: Output,
+}
+
 fn main() -> Result<()> {
+    let mut args = Args::parse();
+
     let cm: Lrc<SourceMap> = Default::default();
     let handler = Handler::with_tty_emitter(ColorConfig::Auto, true, false, Some(cm.clone()));
 
     let fm = cm
-        .load_file(Path::new("test.ts"))
-        .expect("failed to load test.ts");
+        .load_file(args.input.path())
+        .expect("failed to load file");
 
     let lexer = Lexer::new(
         Syntax::Typescript(Default::default()),
@@ -79,9 +96,7 @@ fn main() -> Result<()> {
 
     emitter.emit_module(&m)?;
 
-    let code = String::from_utf8_lossy(&buf).to_string();
-
-    std::fs::write("test-gen.ts", code)?;
+    args.output.write_all(&buf)?;
 
     Ok(())
 }
