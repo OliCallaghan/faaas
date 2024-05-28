@@ -1,4 +1,4 @@
-use std::env;
+use std::{any::Any, collections::HashMap, env};
 
 use amqprs::{
     callbacks::{DefaultChannelCallback, DefaultConnectionCallback},
@@ -13,7 +13,7 @@ use amqprs::{
 use anyhow::{Error, Result};
 use faaastime::state::{bindings::faaas::task::types::Value, types::TaskContext};
 use tokio::sync::Notify;
-use tokio_postgres::{Client, Config, NoTls};
+use tokio_postgres::{Client, Config, NoTls, SimpleQueryMessage};
 use uuid::Uuid;
 
 struct Consumer(pub Client);
@@ -47,10 +47,36 @@ async fn execute_query(client: &Client, ctx: &TaskContext) -> Result<TaskContext
     let error = anyhow::Error::msg("Missing query");
     let query = ctx.args.get(0).ok_or(error)?;
 
-    if let Value::StrVal(str) = query {
+    if let Value::StrVal(query_str) = query {
+        let query_res = client.simple_query(query_str).await.unwrap();
+
+        let query_data = query_res
+            .iter()
+            .map(|msg| match msg {
+                SimpleQueryMessage::Row(row) => row
+                    .columns()
+                    .into_iter()
+                    .enumerate()
+                    .map(|(col_index, col)| {
+                        (
+                            col.name().to_string(),
+                            Value::StrVal(row.get(col_index).unwrap().into()),
+                        )
+                    })
+                    .collect::<HashMap<String, Value>>(),
+                SimpleQueryMessage::CommandComplete(changed) => {
+                    HashMap::from([("changed".into(), Value::U32Val(*changed as u32))])
+                }
+                _ => HashMap::new(),
+            })
+            .collect::<Vec<HashMap<_, _>>>();
+
+        let query_data_serial = serde_json::to_string(&query_data).unwrap();
+        let query_data_val = Value::StrVal(query_data_serial);
+
         let mut ctx = ctx.clone();
 
-        ctx.data.insert("sql".into(), Value::StrVal(str.into()));
+        ctx.data.insert("sql".into(), query_data_val);
 
         Ok(ctx)
     } else {
