@@ -1,0 +1,12 @@
+{
+  "name": "@faaas/postgres",
+  "version": "1.0.0",
+  "description": "",
+  "scripts": {
+    "infra:start": "docker run --rm --name faaas-pg -e POSTGRES_PASSWORD=password -d postgres",
+    "infra:teardown": "docker kill faaas-pg"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}

@@ -20,6 +20,12 @@
       "dependsOn": ["build"],
       "cache": false,
       "persistent": true
+    },
+    "infra:start": {
+      "cache": false
+    },
+    "infra:teardown": {
+      "cache": false
     }
   },
   "experimentalUI": true

@@ -4,7 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "docker run --rm --hostname rabbitmq -p 5672:5672 --name rabbitmq rabbitmq:3"
+    "infra:start": "docker run --rm --hostname rabbitmq -p 5672:5672 --name faaas-mq -d rabbitmq:3",
+    "infra:teardown": "docker kill faaas-mq"
   },
   "keywords": [],
   "author": "",

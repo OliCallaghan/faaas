@@ -12,6 +12,7 @@ packages:
   - "pkg/faaastime"
   - "pkg/gateway"
   - "pkg/mq"
+  - "pkg/postgres"
   - "pkg/primitives/condition"
   - "pkg/primitives/linear"
   - "pkg/primitives/example/task1"

@@ -3,7 +3,8 @@
   "version": "1.0.0",
   "description": "FaaAS Registry",
   "scripts": {
-    "start": "dotenvx run -- minio server --console-address :9001 ./data"
+    "infra:start": "docker run --rm --name faaas-minio -p 9000:9000 -p 9001:9001 --env-file=./.env -v ./data:/data -d quay.io/minio/minio server /data --console-address :9001",
+    "infra:teardown": "docker kill faaas-minio"
   },
   "keywords": [],
   "author": "",

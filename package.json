@@ -8,6 +8,8 @@
     "clean": "turbo clean",
     "daemon:clean": "turbo daemon clean",
     "format": "prettier --write .",
+    "infra:start": "turbo infra:start",
+    "infra:teardown": "turbo infra:teardown",
     "preinstall": "npx only-allow pnpm",
     "start": "turbo run start",
     "test": "turbo test"

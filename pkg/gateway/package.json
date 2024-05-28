@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "",
   "scripts": {
-    "build": "cargo build --release",
+    "build": "cargo build --release --quiet",
     "start": "dotenvx run -- target/release/gateway"
   },
   "keywords": [],
