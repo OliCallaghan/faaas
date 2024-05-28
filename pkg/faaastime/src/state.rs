@@ -1,4 +1,3 @@
-use wasmtime::component::bindgen;
 use wasmtime::component::Resource;
 use wasmtime::component::ResourceTable;
 use wasmtime_wasi::{WasiCtx, WasiCtxBuilder, WasiView};
@@ -14,10 +13,13 @@ use self::bindings::faaas::task::types::Value;
 mod types {
     use std::collections::HashMap;
 
+    use serde::Deserialize;
+    use serde::Serialize;
+
     use super::bindings::faaas::task::types::TaskStatus;
     use super::bindings::faaas::task::types::Value;
 
-    #[derive(Clone)]
+    #[derive(Clone, Serialize, Deserialize)]
     pub struct TaskContext {
         pub lenses: Vec<String>,
         pub data: HashMap<String, Value>,
@@ -34,6 +36,10 @@ mod types {
                 status: TaskStatus::Success,
             }
         }
+
+        pub fn to_bytes(&self) -> Vec<u8> {
+            serde_json::to_string(&self.data).unwrap().into_bytes()
+        }
     }
 }
 
@@ -44,13 +50,18 @@ pub mod bindings {
             import faaas:task/types;
         ",
         async: false,
+        trappable_imports: true,
         with: {
             "faaas:task/types/task-context": super::types::TaskContext,
-        }
+        },
+        additional_derives: [
+            serde::Deserialize,
+            serde::Serialize,
+        ]
     });
 }
 
-bindgen!({
+wasmtime::component::bindgen!({
     world: "faaas:faaastime/faaastime",
     async: true,
     with: {
@@ -58,11 +69,20 @@ bindgen!({
     },
 });
 
+fn type_annotate_faaas_task<T, F>(val: F) -> F
+where
+    F: Fn(&mut T) -> &mut dyn FaaasTaskView,
+{
+    val
+}
+
 pub fn add_to_linker<T>(l: &mut wasmtime::component::Linker<T>) -> anyhow::Result<()>
 where
-    T: FaaasTaskView + self::bindings::faaas::task::types::Host,
+    T: FaaasTaskView,
 {
-    self::bindings::faaas::task::types::add_to_linker(l, |t| t)?;
+    let closure = type_annotate_faaas_task::<T, _>(|t| t);
+
+    self::bindings::faaas::task::types::add_to_linker_get_host(l, closure)?;
 
     Ok(())
 }
@@ -81,7 +101,7 @@ pub trait FaaasTaskView: Send {
     }
 }
 
-impl<V: FaaasTaskView> HostTaskContext for V {
+impl HostTaskContext for dyn FaaasTaskView + '_ {
     fn get(
         &mut self,
         rep: wasmtime::component::Resource<TaskContext>,
@@ -157,7 +177,7 @@ impl<V: FaaasTaskView> HostTaskContext for V {
     }
 }
 
-impl<V: FaaasTaskView> HostTaskError for V {
+impl HostTaskError for dyn FaaasTaskView + '_ {
     fn drop(
         &mut self,
         rep: wasmtime::component::Resource<bindings::faaas::task::types::TaskError>,
@@ -205,7 +225,7 @@ impl WasiHttpView for FaaastimeState {
     }
 }
 
-impl Host for FaaastimeState {}
+impl Host for dyn FaaasTaskView + '_ {}
 
 impl FaaastimeState {
     pub fn new() -> Self {
@@ -221,7 +241,7 @@ impl FaaastimeState {
 
         Self {
             ctx: wasi.build(),
-            ctx_http: WasiHttpCtx {},
+            ctx_http: WasiHttpCtx::new(),
             ctx_task: FaaasTaskCtx::default(),
             table: ResourceTable::new(),
         }

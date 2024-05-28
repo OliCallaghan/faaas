@@ -12,10 +12,10 @@ hyper = { version = "1", features = ["full"] }
 tokio = { version = "1", features = ["full"] }
 http-body-util = "0.1"
 hyper-util = { version = "0.1", features = ["full"] }
-wasmtime = { version = "20.0.2", features = ["async", "component-model"] }
+wasmtime = { version = "21.0.1", features = ["async", "component-model"] }
 bytes = "1.6.0"
-wasmtime-wasi = "20.0.2"
-wasmtime-wasi-http = "20.0.2"
+wasmtime-wasi = "21.0.1"
+wasmtime-wasi-http = "21.0.1"
 http = "1.1.0"
 pin-project = "1.1.5"
 bitmaps = "3.2.1"
@@ -25,6 +25,10 @@ aws-config = { version = "1.4.0", features = ["behavior-version-latest"] }
 aws-credential-types = "1.2.0"
 faaasc = { version = "0.1.0", path = "../faaasc" }
 async-trait = "0.1.80"
+amqprs = "1.6.1"
+uuid = { version = "1.8.0", features = ["v4"] }
+serde = { version = "1.0.202", features = ["derive"] }
+serde_json = "1.0.117"
 
 [build-dependencies]
 anyhow = "1.0.82"

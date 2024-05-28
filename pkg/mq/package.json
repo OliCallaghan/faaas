@@ -1,0 +1,12 @@
+{
+  "name": "@faaas/mq",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "docker run --rm --hostname rabbitmq -p 5672:5672 --name rabbitmq rabbitmq:3"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}

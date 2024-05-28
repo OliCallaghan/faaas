@@ -74,7 +74,7 @@ impl FaaasRegistry {
                 self.resolve_and_instantiate_component(component_id),
             )
             .await
-            .map_err(|_| Error::msg("fdsfds"))?;
+            .map_err(|e| Error::msg(e.to_string()))?;
 
         Ok(instance_pre)
     }

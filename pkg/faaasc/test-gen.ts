@@ -32,21 +32,21 @@ export async function handler_0(ctx: InvocationContext, state: ContinuationState
     const dogs = await sql(listUserPets(userId, "dog"));
     return {
         username,
-        userId,
-        dogs
+        dogs,
+        userId
     };
 }
 export async function handler_1(ctx: InvocationContext, state: ContinuationState) {
-    const { username, userId, dogs } = state;
+    const { username, dogs, userId } = state;
     const cats = await sql(listUserPets(userId, "cat"));
     return {
-        username,
         dogs,
-        cats
+        cats,
+        username
     };
 }
 export async function handler_2(ctx: InvocationContext, state: ContinuationState) {
-    const { username, dogs, cats } = state;
+    const { dogs, cats, username } = state;
     return {
         message: `Hello ${username}`,
         dogNames: dogs,

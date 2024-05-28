@@ -129,9 +129,11 @@ importers:
         specifier: workspace:^
         version: link:../runjs
 
-  pkg/primitives/condition: {}
+  pkg/gateway: {}
 
-  pkg/primitives/example/task1: {}
+  pkg/mq: {}
+
+  pkg/primitives/condition: {}
 
   pkg/primitives/example/tasks/dec_pet: {}
 
@@ -194,6 +196,8 @@ importers:
         version: link:../../benchmarks/perf-v8-event-loop
 
   pkg/storage: {}
+
+  pkg/utils/async: {}
 
   pkg/utils/faaasman:
     dependencies:

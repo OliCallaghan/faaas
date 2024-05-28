@@ -28,6 +28,7 @@
 
             racket
 
+            aws-sam-cli
             corepack_20
             nodejs_20
             rustup

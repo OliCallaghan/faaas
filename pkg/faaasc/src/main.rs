@@ -1,7 +1,4 @@
-use std::{
-    io::{Read, Write},
-    path::Path,
-};
+use std::io::Write;
 
 use anyhow::Result;
 
@@ -85,18 +82,14 @@ fn main() -> Result<()> {
 
     m.generate()?;
 
-    let mut buf = vec![];
-
     let mut emitter = Emitter {
         cfg: Default::default(),
         cm: cm.clone(),
         comments: None,
-        wr: JsWriter::new(cm, "\n", &mut buf, None),
+        wr: JsWriter::new(cm, "\n", &mut args.output, None),
     };
 
     emitter.emit_module(&m)?;
-
-    args.output.write_all(&buf)?;
 
     Ok(())
 }
