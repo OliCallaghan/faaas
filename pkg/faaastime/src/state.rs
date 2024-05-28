@@ -23,7 +23,6 @@ mod types {
     pub struct TaskContext {
         pub lenses: Vec<String>,
         pub data: HashMap<String, Value>,
-        pub value: u32,
         pub status: TaskStatus,
     }
 
@@ -31,8 +30,7 @@ mod types {
         pub fn new() -> Self {
             Self {
                 lenses: Vec::new(),
-                data: HashMap::new(),
-                value: 0,
+                data: Default::default(),
                 status: TaskStatus::Success,
             }
         }

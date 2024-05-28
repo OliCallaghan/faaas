@@ -1,9 +1,9 @@
 mod handler;
 mod registry;
 mod state;
+mod task;
 mod timed;
 
-use serde::{Deserialize, Serialize};
 use std::env;
 use tokio::sync::Notify;
 
@@ -23,10 +23,8 @@ use wasmtime::{AsContextMut, Store};
 
 use crate::handler::FaaasInvocationHandler;
 use crate::registry::FaaasRegistry;
-use crate::state::{
-    bindings::faaas::task::types::{GetHost, Host, HostTaskContext, TaskContext},
-    FaaasTaskView, Faaastime, FaaastimeState,
-};
+use crate::state::{FaaasTaskView, Faaastime, FaaastimeState};
+use crate::task::TaskInvocation;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
@@ -108,12 +106,6 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
     Ok(())
 }
 
-#[derive(Serialize, Deserialize)]
-struct Invocation {
-    fn_id: String,
-    invoc_id: String,
-}
-
 struct Consumer(pub FaaasInvocationHandler);
 
 #[async_trait]
@@ -125,35 +117,43 @@ impl AsyncConsumer for Consumer {
         _basic_properties: BasicProperties,
         content: Vec<u8>,
     ) {
-        let invocation = serde_json::from_slice::<Invocation>(&content).unwrap();
+        let invocation = serde_json::from_slice::<TaskInvocation>(&content).unwrap();
 
         let handler = &self.0;
 
-        let res = invoke(handler, &invocation.fn_id).await;
+        let res = invoke(handler, &invocation.task_id).await;
 
         match res {
-            Ok(_) => {
-                let mq_routing_key = format!("mq.gateway.invocations.{}", invocation.invoc_id);
-                let mq_exchange_name = "amq.direct";
-                let args = BasicPublishArguments::new(mq_exchange_name, &mq_routing_key);
-
-                mq_chann
-                    .basic_publish(BasicProperties::default(), b"success!".into(), args)
-                    .await
-                    .unwrap();
-            }
-            Err(_) => {
-                let mq_routing_key = format!("mq.gateway.invocations.{}", invocation.invoc_id);
-                let mq_exchange_name = "amq.direct";
-                let args = BasicPublishArguments::new(mq_exchange_name, &mq_routing_key);
-
-                mq_chann
-                    .basic_publish(BasicProperties::default(), b"failed!".into(), args)
-                    .await
-                    .unwrap();
-            }
+            Ok(val) => publish_response(mq_chann, &invocation.id, &val).await,
+            Err(_) => publish_error(mq_chann, &invocation.id).await,
         }
     }
+}
+
+async fn publish_response(mq_chann: &Channel, invocation_id: &str, data: &[u8]) {
+    let mq_routing_key = format!("mq.gateway.invocations.{}", invocation_id);
+    let mq_exchange_name = "amq.direct";
+    let args = BasicPublishArguments::new(mq_exchange_name, &mq_routing_key);
+
+    mq_chann
+        .basic_publish(BasicProperties::default(), data.into(), args)
+        .await
+        .unwrap();
+}
+
+async fn publish_error(mq_chann: &Channel, invocation_id: &str) {
+    let mq_routing_key = format!("mq.gateway.invocations.{}", invocation_id);
+    let mq_exchange_name = "amq.direct";
+    let args = BasicPublishArguments::new(mq_exchange_name, &mq_routing_key);
+
+    mq_chann
+        .basic_publish(
+            BasicProperties::default(),
+            b"failed to exec fn".into(),
+            args,
+        )
+        .await
+        .unwrap();
 }
 
 async fn invoke(handler: &FaaasInvocationHandler, task_id: &str) -> Result<Vec<u8>> {
@@ -190,6 +190,6 @@ async fn invoke(handler: &FaaasInvocationHandler, task_id: &str) -> Result<Vec<u
 
             Ok(r.to_bytes())
         }
-        Err(_) => panic!("Something went wrong!"),
+        Err(_) => Err(anyhow::Error::msg("Function invocation failed.")),
     }
 }

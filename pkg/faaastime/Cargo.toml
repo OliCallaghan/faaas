@@ -6,6 +6,9 @@ edition = "2021"
 [[bin]]
 name = "faaastime"
 
+[lib]
+crate-type = ["lib"]
+
 [dependencies]
 anyhow = "1.0.82"
 hyper = { version = "1", features = ["full"] }

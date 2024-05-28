@@ -13,13 +13,13 @@ use amqprs::consumer::AsyncConsumer;
 use amqprs::{BasicProperties, Deliver};
 use anyhow::Result;
 use async_trait::async_trait;
+use faaastime::task::TaskInvocation;
 use http_body_util::Full;
 use hyper::body::Bytes;
 use hyper::server::conn::http1;
 use hyper::service::service_fn;
 use hyper::{Request, Response, StatusCode};
 use hyper_util::rt::TokioIo;
-use serde::{Deserialize, Serialize};
 use tokio::net::TcpListener;
 use tokio::sync::oneshot::{self, Receiver};
 use url::form_urlencoded;
@@ -91,26 +91,11 @@ async fn consume_resp(mq_chann: &Channel, invoc_id: &str) -> Receiver<Vec<u8>> {
     rx
 }
 
-#[derive(Serialize, Deserialize)]
-struct Invocation {
-    fn_id: String,
-    invoc_id: String,
-}
-
-impl Invocation {
-    pub fn new(fn_id: &str, invoc_id: &str) -> Self {
-        Self {
-            fn_id: fn_id.to_owned(),
-            invoc_id: invoc_id.to_owned(),
-        }
-    }
-}
-
-async fn publish_invoke(mq_chann: &Channel, funct_id: &str, invoc_id: &str) -> Result<()> {
+async fn publish_invoke(mq_chann: &Channel, id: &str, task_id: &str) -> Result<()> {
     let mq_routing_key = "mq.invocations";
     let mq_exchange_name = "amq.direct";
 
-    let invoc = Invocation::new(funct_id, invoc_id);
+    let invoc = TaskInvocation::new(id, task_id);
     let invoc = serde_json::to_string(&invoc).unwrap().into_bytes();
 
     // create arguments for basic_publish
@@ -124,7 +109,7 @@ async fn publish_invoke(mq_chann: &Channel, funct_id: &str, invoc_id: &str) -> R
     Ok(())
 }
 
-async fn invoke(mq_conn: Connection, fn_id: &str) -> Result<Response<Full<Bytes>>, Infallible> {
+async fn invoke(mq_conn: Connection, task_id: &str) -> Result<Response<Full<Bytes>>, Infallible> {
     let mq_chann = mq_conn.open_channel(None).await.unwrap();
 
     mq_chann
@@ -132,12 +117,12 @@ async fn invoke(mq_conn: Connection, fn_id: &str) -> Result<Response<Full<Bytes>
         .await
         .unwrap();
 
-    let funct_id = fn_id.to_string();
-    let invoc_id = Uuid::new_v4().to_string();
+    let id = Uuid::new_v4().to_string();
+    let task_id = task_id.to_string();
 
-    let resp = consume_resp(&mq_chann, &invoc_id).await;
+    let resp = consume_resp(&mq_chann, &id).await;
 
-    publish_invoke(&mq_chann, &funct_id, &invoc_id)
+    publish_invoke(&mq_chann, &id, &task_id)
         .await
         .expect("to publish invoke");
 
@@ -160,9 +145,9 @@ async fn handle_invocation_req(
         .map(|p| p.collect::<HashMap<_, _>>())
         .unwrap_or_default();
 
-    match url_query.get("fn_id") {
+    match url_query.get("task_id") {
         // Invoke function by pushing to message queue.
-        Some(fn_id) => invoke(mq_conn, fn_id).await,
+        Some(task_id) => invoke(mq_conn, task_id).await,
         // No function ID specified.
         None => Ok(Response::builder()
             .status(StatusCode::NOT_FOUND)
