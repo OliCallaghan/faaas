@@ -13,7 +13,7 @@ use amqprs::consumer::AsyncConsumer;
 use amqprs::{BasicProperties, Deliver};
 use anyhow::Result;
 use async_trait::async_trait;
-use faaastime::task::TaskInvocation;
+use faaastime::state::types::TaskContext;
 use http_body_util::Full;
 use hyper::body::Bytes;
 use hyper::server::conn::http1;
@@ -92,11 +92,11 @@ async fn consume_resp(mq_chann: &Channel, invoc_id: &str) -> Receiver<Vec<u8>> {
 }
 
 async fn publish_invoke(mq_chann: &Channel, id: &str, task_id: &str) -> Result<()> {
-    let mq_routing_key = "mq.invocations";
+    let mq_routing_key = "mq.invocations.tasks";
     let mq_exchange_name = "amq.direct";
 
-    let invoc = TaskInvocation::new(id, task_id);
-    let invoc = serde_json::to_string(&invoc).unwrap().into_bytes();
+    let invoc = TaskContext::new(id, task_id);
+    let invoc = serde_json::to_vec(&invoc).unwrap();
 
     // create arguments for basic_publish
     let args = BasicPublishArguments::new(mq_exchange_name, mq_routing_key);

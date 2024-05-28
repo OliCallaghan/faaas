@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "",
   "scripts": {
-    "build": "cargo build --releaase --quiet",
+    "build": "cargo build --release --quiet",
     "start": "dotenvx run -- target/release/postgres-faaas-engine"
   },
   "keywords": [],

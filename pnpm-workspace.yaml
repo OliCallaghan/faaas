@@ -13,6 +13,7 @@ packages:
   - "pkg/gateway"
   - "pkg/mq"
   - "pkg/postgres"
+  - "pkg/postgres-faaas-engine"
   - "pkg/primitives/condition"
   - "pkg/primitives/linear"
   - "pkg/primitives/example/task1"

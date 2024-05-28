@@ -1,25 +1,36 @@
-type Value = boolean | number | string;
-type InvocationContext = Record<string, Value>;
-
-type Handler = (ctx: InvocationContext) => InvocationContext;
-type ContinuationHandler = (
-  ctx: InvocationContext,
-  cont: Continuation,
-) => Continuation;
+type Value = string | number | boolean;
+type TaskContext = Record<string, Value>;
 
 type Continuation = {
-  fn: string;
-  state: Record<string, Value>;
+  status: "continuation";
+  taskId: string;
+  args: Value[];
+  ctx: TaskContext;
 };
 
-export function execute(handler: ContinuationHandler): Handler {
-  return function handle(ctx: InvocationContext) {
-    const prev = {};
-    const { fn, state: next } = handler(ctx, prev);
+type Complete = {
+  status: "complete";
+  ctx: TaskContext;
+};
 
-    if (fn) {
-    }
+type Result = Continuation | Complete;
 
-    return { fn, state: next };
+export function continuation(
+  taskId: string,
+  args: Value[],
+  ctx: TaskContext,
+): Result {
+  return {
+    status: "continuation",
+    taskId,
+    args,
+    ctx,
+  };
+}
+
+export function result(ctx: TaskContext) {
+  return {
+    status: "complete",
+    ctx,
   };
 }

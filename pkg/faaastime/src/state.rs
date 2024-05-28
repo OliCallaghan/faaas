@@ -10,33 +10,66 @@ use self::bindings::faaas::task::types::HostTaskError;
 use self::bindings::faaas::task::types::TaskContext;
 use self::bindings::faaas::task::types::Value;
 
-mod types {
+pub mod types {
     use std::collections::HashMap;
 
     use serde::Deserialize;
     use serde::Serialize;
 
-    use super::bindings::faaas::task::types::TaskStatus;
     use super::bindings::faaas::task::types::Value;
 
     #[derive(Clone, Serialize, Deserialize)]
     pub struct TaskContext {
-        pub lenses: Vec<String>,
+        pub id: String,
+        pub task_id: String,
+        pub args: Vec<Value>,
         pub data: HashMap<String, Value>,
-        pub status: TaskStatus,
+        pub continuation: Option<String>,
+        pub continuation_args: Vec<Value>,
+    }
+
+    pub enum TaskStatus {
+        Continuation(TaskContext),
+        Done(TaskContext),
     }
 
     impl TaskContext {
-        pub fn new() -> Self {
+        pub fn new(id: &str, task_id: &str) -> Self {
             Self {
-                lenses: Vec::new(),
+                id: id.to_owned(),
+                task_id: task_id.to_owned(),
+                args: Vec::new(),
                 data: Default::default(),
-                status: TaskStatus::Success,
+                continuation: None,
+                continuation_args: Vec::new(),
             }
         }
 
-        pub fn to_bytes(&self) -> Vec<u8> {
-            serde_json::to_string(&self.data).unwrap().into_bytes()
+        pub fn into_continuation(self) -> TaskStatus {
+            match self.continuation {
+                Some(continuation) => TaskStatus::Continuation(Self {
+                    id: self.id,
+                    task_id: continuation,
+                    args: self.continuation_args,
+                    data: self.data,
+                    continuation: None,
+                    continuation_args: vec![],
+                }),
+                None => TaskStatus::Done(self),
+            }
+        }
+
+        pub fn continuation(&mut self) {
+            if let Some(continuation) = self.continuation.take() {
+                self.task_id = continuation;
+                self.args = self.continuation_args.clone();
+                self.continuation_args = vec![]
+            }
+        }
+
+        pub fn set_continuation(&mut self, task_id: &str, args: Vec<Value>) {
+            self.continuation = Some(task_id.to_owned());
+            self.continuation_args = args;
         }
     }
 }
@@ -92,9 +125,7 @@ pub trait FaaasTaskView: Send {
     fn ctx(&mut self) -> &mut FaaasTaskCtx;
     fn table(&mut self) -> &mut ResourceTable;
 
-    fn new_task_ctx(&mut self) -> wasmtime::Result<Resource<TaskContext>> {
-        let task_ctx = TaskContext::new();
-
+    fn new_task_ctx(&mut self, task_ctx: TaskContext) -> wasmtime::Result<Resource<TaskContext>> {
         Ok(self.table().push(task_ctx)?)
     }
 }
@@ -139,22 +170,25 @@ impl HostTaskContext for dyn FaaasTaskView + '_ {
         Ok(self.table().push(ctx_clone)?)
     }
 
-    fn get_status(
+    fn set_continuation_id(
         &mut self,
         rep: wasmtime::component::Resource<TaskContext>,
-    ) -> wasmtime::Result<bindings::faaas::task::types::TaskStatus> {
-        let out = self.table().get(&rep)?;
+        task_id: String,
+    ) -> wasmtime::Result<()> {
+        let ctx = self.table().get_mut(&rep)?;
 
-        Ok(out.status)
+        println!("Setting continuation id {}", task_id);
+        ctx.continuation = Some(task_id);
+
+        Ok(())
     }
 
-    fn set_status(
+    fn set_continuation_args(
         &mut self,
         rep: wasmtime::component::Resource<TaskContext>,
-        status: bindings::faaas::task::types::TaskStatus,
+        args: Vec<Value>,
     ) -> wasmtime::Result<()> {
-        let out = self.table().get_mut(&rep)?;
-        out.status = status;
+        self.table().get_mut(&rep)?.continuation_args = args;
 
         Ok(())
     }
@@ -165,11 +199,9 @@ impl HostTaskContext for dyn FaaasTaskView + '_ {
         id: String,
     ) -> wasmtime::Result<wasmtime::component::Resource<TaskContext>> {
         let ctx = self.table().get_mut(&rep)?;
-        let mut ctx_with_lens = ctx.clone();
+        let ctx_with_lens = ctx.clone();
 
-        ctx_with_lens.lenses.push(id);
-
-        println!("Creating ctx with lens {:?}", ctx_with_lens.lenses);
+        println!("TODO: {}", id);
 
         Ok(self.table().push(ctx_with_lens)?)
     }

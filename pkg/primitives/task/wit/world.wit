@@ -14,15 +14,9 @@ interface types {
         clone: func() -> task-context;
         set: func(key: string, value: value);
         get: func(key: string) -> option<value>;
-        set-status: func(status: task-status);
-        get-status: func() -> task-status;
+        set-continuation-id: func(task-id: string);
+        set-continuation-args: func(args: list<value>);
         lens: func(id: string) -> task-context;
-    }
-
-    enum task-status {
-        unknown,
-        success,
-        error,
     }
 
     resource task-error {}

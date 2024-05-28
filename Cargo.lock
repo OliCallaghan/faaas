@@ -3144,11 +3144,13 @@ version = "0.1.0"
 dependencies = [
  "amqprs",
  "anyhow",
+ "async-trait",
  "faaastime",
  "serde",
  "serde_json",
  "tokio",
  "tokio-postgres",
+ "uuid",
 ]
 
 [[package]]

@@ -133,6 +133,10 @@ importers:
 
   pkg/mq: {}
 
+  pkg/postgres: {}
+
+  pkg/postgres-faaas-engine: {}
+
   pkg/primitives/condition: {}
 
   pkg/primitives/example/tasks/dec_pet: {}

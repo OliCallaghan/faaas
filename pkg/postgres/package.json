@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "",
   "scripts": {
-    "infra:start": "docker run --rm --name faaas-pg -e POSTGRES_PASSWORD=password -d postgres",
+    "infra:start": "docker run --rm --name faaas-pg -e POSTGRES_PASSWORD=password -p 5432:5432 -d postgres",
     "infra:teardown": "docker kill faaas-pg"
   },
   "keywords": [],

@@ -1,9 +1,10 @@
 mod handler;
 mod registry;
 mod state;
-mod task;
 mod timed;
 
+use state::exports::faaas::task::callable::TaskContext;
+use state::types::TaskStatus;
 use std::env;
 use tokio::sync::Notify;
 
@@ -15,7 +16,7 @@ use amqprs::channel::{
 use amqprs::connection::{Connection, OpenConnectionArguments};
 use amqprs::consumer::AsyncConsumer;
 use amqprs::{BasicProperties, Deliver};
-use anyhow::Result;
+use anyhow::{Error, Result};
 use async_trait::async_trait;
 
 use uuid::Uuid;
@@ -24,7 +25,6 @@ use wasmtime::{AsContextMut, Store};
 use crate::handler::FaaasInvocationHandler;
 use crate::registry::FaaasRegistry;
 use crate::state::{FaaasTaskView, Faaastime, FaaastimeState};
-use crate::task::TaskInvocation;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
@@ -67,10 +67,11 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
 
     // Connect to RabbitMQ invocation queue
     let mq_node_id = Uuid::new_v4().to_string();
-    let mq_routing_key = "mq.invocations";
+    let mq_routing_key = "mq.invocations.tasks";
     let mq_exchange_name = "amq.direct";
 
-    let mq_queue_decl_args = QueueDeclareArguments::durable_client_named("invocations").finish();
+    let mq_queue_decl_args =
+        QueueDeclareArguments::durable_client_named("task_invocations").finish();
 
     let (resp_queue_name, _, _) = mq_chann
         .queue_declare(mq_queue_decl_args)
@@ -117,56 +118,79 @@ impl AsyncConsumer for Consumer {
         _basic_properties: BasicProperties,
         content: Vec<u8>,
     ) {
-        let invocation = serde_json::from_slice::<TaskInvocation>(&content).unwrap();
-
         let handler = &self.0;
+        let ctx = serde_json::from_slice::<TaskContext>(&content).unwrap();
 
-        let res = invoke(handler, &invocation.task_id).await;
+        let id = ctx.id.clone();
+
+        let res = invoke(handler, ctx).await;
 
         match res {
-            Ok(val) => publish_response(mq_chann, &invocation.id, &val).await,
-            Err(_) => publish_error(mq_chann, &invocation.id).await,
+            Ok(ctx) => match ctx.into_continuation() {
+                TaskStatus::Continuation(ctx) => publish_continuation(mq_chann, ctx).await,
+                TaskStatus::Done(ctx) => publish_response(mq_chann, ctx).await,
+            },
+            Err(err) => publish_error(mq_chann, &id, err).await,
         }
     }
 }
 
-async fn publish_response(mq_chann: &Channel, invocation_id: &str, data: &[u8]) {
-    let mq_routing_key = format!("mq.gateway.invocations.{}", invocation_id);
+async fn publish_continuation(mq_chann: &Channel, ctx: TaskContext) {
+    println!("Need to use next_task_id");
+
+    let mq_routing_key = "mq.invocations.io.pg";
     let mq_exchange_name = "amq.direct";
+
     let args = BasicPublishArguments::new(mq_exchange_name, &mq_routing_key);
+    let data = serde_json::to_vec(&ctx).unwrap();
 
     mq_chann
-        .basic_publish(BasicProperties::default(), data.into(), args)
+        .basic_publish(BasicProperties::default(), data, args)
         .await
         .unwrap();
 }
 
-async fn publish_error(mq_chann: &Channel, invocation_id: &str) {
+async fn publish_response(mq_chann: &Channel, ctx: TaskContext) {
+    let mq_routing_key = format!("mq.gateway.invocations.{}", ctx.id);
+    let mq_exchange_name = "amq.direct";
+
+    let args = BasicPublishArguments::new(mq_exchange_name, &mq_routing_key);
+    let data = serde_json::to_vec(&ctx).unwrap();
+
+    mq_chann
+        .basic_publish(BasicProperties::default(), data, args)
+        .await
+        .unwrap();
+}
+
+async fn publish_error(mq_chann: &Channel, invocation_id: &str, err: Error) {
     let mq_routing_key = format!("mq.gateway.invocations.{}", invocation_id);
     let mq_exchange_name = "amq.direct";
     let args = BasicPublishArguments::new(mq_exchange_name, &mq_routing_key);
 
+    println!("Failed to execute function");
+
     mq_chann
         .basic_publish(
             BasicProperties::default(),
-            b"failed to exec fn".into(),
+            err.to_string().into_bytes(),
             args,
         )
         .await
         .unwrap();
 }
 
-async fn invoke(handler: &FaaasInvocationHandler, task_id: &str) -> Result<Vec<u8>> {
+async fn invoke(handler: &FaaasInvocationHandler, ctx: TaskContext) -> Result<TaskContext> {
     let FaaasInvocationHandler(registry, engine) = handler;
 
     let mut store_task = Store::new(&engine, FaaastimeState::new());
 
-    let task_pre = registry.instantiate_pre(task_id).await?;
+    let task_pre = registry.instantiate_pre(&ctx.task_id).await?;
 
     let (task, _) = Faaastime::instantiate_pre(&mut store_task, &task_pre).await?;
 
     // Create Task Context
-    let ctx = store_task.data_mut().new_task_ctx()?;
+    let ctx = store_task.data_mut().new_task_ctx(ctx)?;
 
     let task_shape = task
         .faaas_task_identifiable()
@@ -180,6 +204,8 @@ async fn invoke(handler: &FaaasInvocationHandler, task_id: &str) -> Result<Vec<u
         .call_call(store_task.as_context_mut(), ctx)
         .await?;
 
+    println!("Reached");
+
     match task_res {
         Ok(ctx) => {
             let r = store_task
@@ -188,8 +214,8 @@ async fn invoke(handler: &FaaasInvocationHandler, task_id: &str) -> Result<Vec<u
                 .get(&ctx)
                 .expect("context to exist");
 
-            Ok(r.to_bytes())
+            Ok(r.clone())
         }
-        Err(_) => Err(anyhow::Error::msg("Function invocation failed.")),
+        Err(err) => Err(anyhow::Error::msg(format!("Error: {:?}", err))),
     }
 }
