@@ -5,6 +5,7 @@ use swc_ecma_ast::Ident;
 use crate::js::capture::CaptureFreeVariables;
 use crate::js::capture::FreeVariables;
 use crate::js::directive::Directive;
+use crate::js::generate::GenerateContinuation;
 
 use super::{GenerateWithTargetAndIdent, Generation};
 
@@ -24,11 +25,16 @@ impl GenerateWithTargetAndIdent for BlockStmt {
                     stmt.capture_free_vars(&mut free_vars);
                 }
 
-                gen.push_stmt(self.stmts[i + 1].clone());
+                let (cont_task_ident, cont_task_args_ident, stmt) =
+                    self.stmts[i + 1].generate_continuation();
+
+                gen.push_stmt(stmt);
                 gen.add_continuation_vars(free_vars);
+                gen.add_continuation_task_ident(cont_task_ident.expect("task ident"));
+                gen.add_continuation_task_args_ident(cont_task_args_ident.expect("task args"));
                 skip = true;
 
-                let old_gen = gen;
+                let mut old_gen = gen;
                 gen = old_gen.next();
 
                 gen_target.push(old_gen);

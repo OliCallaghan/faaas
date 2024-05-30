@@ -1,5 +1,6 @@
 type Value = string | number | boolean;
 type TaskContext = Record<string, any>;
+type TaskContextState = TaskContext;
 
 type Continuation = {
   what: "continuation";
@@ -8,18 +9,16 @@ type Continuation = {
   ctx: TaskContext;
 };
 
-type Complete = {
+type Result = {
   what: "complete";
   ctx: TaskContext;
 };
 
-type Result = Continuation | Complete;
-
-export function continuation(
+function continuation(
   taskId: string,
   args: Value[],
   ctx: TaskContext,
-): Result {
+): Continuation {
   return {
     what: "continuation",
     taskId,
@@ -28,7 +27,7 @@ export function continuation(
   };
 }
 
-export function result(ctx: TaskContext) {
+function result(ctx: TaskContext): Result {
   return {
     what: "complete",
     ctx,
@@ -40,6 +39,8 @@ async function sql(query: string): Promise<string[]> {
 
   return [];
 }
+
+sql.continuation = "io/sql/pg";
 
 function listUserPets(ownerId: string, petType: string): string {
   return `SELECT name FROM pets WHERE type == ${petType} AND owner == ${ownerId}`;
