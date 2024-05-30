@@ -30,8 +30,10 @@ impl GenerateWithTargetAndIdent for BlockStmt {
 
                 gen.push_stmt(stmt);
                 gen.add_continuation_vars(free_vars);
-                gen.add_continuation_task_ident(cont_task_ident.expect("task ident"));
-                gen.add_continuation_task_args_ident(cont_task_args_ident.expect("task args"));
+                gen.add_continuation_task(
+                    cont_task_ident.expect("task ident"),
+                    cont_task_args_ident.expect("task args ident"),
+                );
                 skip = true;
 
                 let mut old_gen = gen;

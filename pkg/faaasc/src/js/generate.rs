@@ -42,8 +42,7 @@ pub struct Generation {
     stmts: Vec<Stmt>,
     free_vars: Option<FreeVariables>,
     continuation_vars: Option<FreeVariables>,
-    continuation_task_ident: Option<Atom>,
-    continuation_task_args_ident: Option<Atom>,
+    continuation_task: Option<(Atom, Atom)>,
 }
 
 impl Generation {
@@ -55,8 +54,7 @@ impl Generation {
             stmts: vec![],
             free_vars: None,
             continuation_vars: None,
-            continuation_task_ident: None,
-            continuation_task_args_ident: None,
+            continuation_task: None,
         }
     }
 
@@ -68,12 +66,8 @@ impl Generation {
         self.continuation_vars = Some(continuation_vars)
     }
 
-    pub fn add_continuation_task_ident(&mut self, task_ident: Atom) {
-        self.continuation_task_ident = Some(task_ident);
-    }
-
-    pub fn add_continuation_task_args_ident(&mut self, task_args_ident: Atom) {
-        self.continuation_task_args_ident = Some(task_args_ident);
+    pub fn add_continuation_task(&mut self, task_ident: Atom, task_args_ident: Atom) {
+        self.continuation_task = Some((task_ident, task_args_ident));
     }
 
     pub fn next(&mut self) -> Self {
@@ -86,8 +80,7 @@ impl Generation {
             stmts: vec![],
             free_vars: self.continuation_vars.clone(),
             continuation_vars: None,
-            continuation_task_ident: None,
-            continuation_task_args_ident: None,
+            continuation_task: None,
         }
     }
 
@@ -177,107 +170,12 @@ impl Generation {
             }],
         })));
 
-        let cv_obj_lit_props = self
-            .continuation_vars
-            .as_ref()
-            .map(|cv| cv.get())
-            .unwrap_or_default()
-            .into_iter()
-            .map(|(cv_atom, _)| Ident::new(cv_atom, Default::default()))
-            .map(|cv_ident| PropOrSpread::Prop(Box::new(Prop::Shorthand(cv_ident))))
-            .collect::<Vec<PropOrSpread>>();
-
-        let continuation_fn_ident =
-            Ident::new(swc_atoms::atom!("continuation"), Default::default());
-
-        let continuation_fn_cap_scope = ExprOrSpread {
-            spread: None,
-            expr: Box::new(Expr::Object(ObjectLit {
-                span: Default::default(),
-                props: cv_obj_lit_props,
-            })),
-        };
-        let continuation_fn_task_ident = ExprOrSpread {
-            spread: None,
-            expr: Box::new(Expr::Member(MemberExpr {
-                span: Default::default(),
-                obj: Box::new(Expr::Ident(Ident::new(
-                    self.continuation_task_ident
-                        .as_ref()
-                        .unwrap_or(&swc_atoms::atom!("undefined"))
-                        .clone(),
-                    Default::default(),
-                ))),
-                prop: MemberProp::Ident(Ident::new(
-                    swc_atoms::atom!("continuation"),
-                    Default::default(),
-                )),
-            })),
-        };
-
-        let (handler_next_ident, handler_next_split_id) = self
-            .handler_next
-            .clone()
-            .unwrap_or_else(|| (fn_ident.clone(), 0));
-        let handler_next_atom = format!(
-            "{}_{}",
-            handler_next_ident.sym.as_str(),
-            handler_next_split_id
-        );
-
-        let continuation_fn_args = ExprOrSpread {
-            spread: None,
-            expr: Box::new(Expr::Array(ArrayLit {
-                span: Default::default(),
-                elems: vec![
-                    Some(ExprOrSpread {
-                        spread: None,
-                        expr: Box::new(Expr::Lit(Lit::Str(handler_next_atom.into()))),
-                    }),
-                    Some(ExprOrSpread {
-                        spread: None,
-                        expr: Box::new(Expr::Lit(Lit::Str(
-                            self.continuation_task_args_ident
-                                .as_ref()
-                                .unwrap_or(&swc_atoms::atom!("undefined"))
-                                .clone()
-                                .into(),
-                        ))),
-                    }),
-                    Some(ExprOrSpread {
-                        spread: Some(Default::default()),
-                        expr: Box::new(Expr::Ident(Ident::new(
-                            self.continuation_task_args_ident
-                                .as_ref()
-                                .unwrap_or(&swc_atoms::atom!("undefined"))
-                                .clone(),
-                            Default::default(),
-                        ))),
-                    }),
-                ],
-            })),
-        };
-
-        let fn_ret_call_cont_state = Expr::Call(CallExpr {
-            span: Default::default(),
-            callee: Callee::Expr(Box::new(Expr::Ident(continuation_fn_ident))),
-            args: vec![
-                continuation_fn_task_ident,
-                continuation_fn_args,
-                continuation_fn_cap_scope,
-            ],
-            type_args: None,
-        });
-
-        let fn_ret_cont_state = Stmt::Return(ReturnStmt {
-            span: Default::default(),
-            arg: Some(Box::new(fn_ret_call_cont_state)),
-        });
+        let fn_ret_cont_state = self.generate_return_stmt();
 
         let stmts = [fn_stmt_define_state]
             .into_iter()
             .chain(self.stmts.clone().into_iter())
-            .chain([fn_ret_cont_state])
+            .chain(fn_ret_cont_state)
             .collect();
 
         let function = Function {
@@ -302,5 +200,101 @@ impl Generation {
                 declare: false,
             }),
         }))
+    }
+
+    fn generate_return_stmt(&self) -> Option<Stmt> {
+        match &self.continuation_task {
+            Some((task_ident, task_args_ident)) => {
+                if self.handler_next.is_none() {
+                    return None;
+                }
+
+                let cv_obj_lit_props = self
+                    .continuation_vars
+                    .as_ref()
+                    .map(|cv| cv.get())
+                    .unwrap_or_default()
+                    .into_iter()
+                    .map(|(cv_atom, _)| Ident::new(cv_atom, Default::default()))
+                    .map(|cv_ident| PropOrSpread::Prop(Box::new(Prop::Shorthand(cv_ident))))
+                    .collect::<Vec<PropOrSpread>>();
+
+                let continuation_fn_ident =
+                    Ident::new(swc_atoms::atom!("continuation"), Default::default());
+
+                let continuation_fn_cap_scope = ExprOrSpread {
+                    spread: None,
+                    expr: Box::new(Expr::Object(ObjectLit {
+                        span: Default::default(),
+                        props: cv_obj_lit_props,
+                    })),
+                };
+                let continuation_fn_task_ident = ExprOrSpread {
+                    spread: None,
+                    expr: Box::new(Expr::Member(MemberExpr {
+                        span: Default::default(),
+                        obj: Box::new(Expr::Ident(Ident::new(
+                            task_ident.clone(),
+                            Default::default(),
+                        ))),
+                        prop: MemberProp::Ident(Ident::new(
+                            swc_atoms::atom!("continuation"),
+                            Default::default(),
+                        )),
+                    })),
+                };
+
+                let (handler_next_ident, handler_next_split_id) =
+                    self.handler_next.clone().unwrap();
+                let handler_next_atom = format!(
+                    "{}_{}",
+                    handler_next_ident.sym.as_str(),
+                    handler_next_split_id
+                );
+
+                let continuation_fn_args = ExprOrSpread {
+                    spread: None,
+                    expr: Box::new(Expr::Array(ArrayLit {
+                        span: Default::default(),
+                        elems: vec![
+                            Some(ExprOrSpread {
+                                spread: None,
+                                expr: Box::new(Expr::Lit(Lit::Str(handler_next_atom.into()))),
+                            }),
+                            Some(ExprOrSpread {
+                                spread: None,
+                                expr: Box::new(Expr::Lit(Lit::Str(task_args_ident.clone().into()))),
+                            }),
+                            Some(ExprOrSpread {
+                                spread: Some(Default::default()),
+                                expr: Box::new(Expr::Ident(Ident::new(
+                                    task_args_ident.clone(),
+                                    Default::default(),
+                                ))),
+                            }),
+                        ],
+                    })),
+                };
+
+                let fn_ret_call_cont_state = Expr::Call(CallExpr {
+                    span: Default::default(),
+                    callee: Callee::Expr(Box::new(Expr::Ident(continuation_fn_ident))),
+                    args: vec![
+                        continuation_fn_task_ident,
+                        continuation_fn_args,
+                        continuation_fn_cap_scope,
+                    ],
+                    type_args: None,
+                });
+
+                let fn_ret_cont_state = Stmt::Return(ReturnStmt {
+                    span: Default::default(),
+                    arg: Some(Box::new(fn_ret_call_cont_state)),
+                });
+
+                Some(fn_ret_cont_state)
+            }
+            None => None,
+        }
     }
 }
