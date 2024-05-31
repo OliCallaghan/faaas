@@ -2,9 +2,12 @@
   "name": "@faaas/faaasc",
   "version": "1.0.0",
   "description": "SWC based JavaScript compiler",
+  "bin": {
+    "faaasc": "target/release/faaasc"
+  },
+  "main": "vendor/index.ts",
   "scripts": {
-    "build": "cargo build --release --quiet",
-    "test": "cargo run -- test.ts test-gen.ts"
+    "build": "cargo build --release --quiet"
   },
   "keywords": [],
   "author": "",

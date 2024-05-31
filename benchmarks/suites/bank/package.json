@@ -1,0 +1,17 @@
+{
+  "name": "@faaas-bench/bank",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "build": "faaasc src/onHttpPostTransaction.trigger.ts build/onHttpPostTransaction.trigger.ts"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@faaas/faaasc": "workspace:^",
+    "@faaas/handler": "workspace:^",
+    "@faaas/sql": "workspace:^"
+  }
+}
