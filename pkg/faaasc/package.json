@@ -5,7 +5,7 @@
   "bin": {
     "faaasc": "target/release/faaasc"
   },
-  "main": "vendor/index.ts",
+  "main": "lib/index.ts",
   "scripts": {
     "build": "cargo build --release --quiet"
   },
