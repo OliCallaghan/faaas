@@ -3,12 +3,13 @@ mpl.use("pgf")
 
 from json import load
 from matplotlib.pyplot import figure, savefig
-from pandas import DataFrame, concat, read_csv
+from pandas import DataFrame, concat, read_csv, read_table, to_numeric
 from seaborn.objects import Plot, Bar, Stack
 
 def node_module(module_name: str):
     return f"node_modules/{module_name}"
 
+col_width = 2.96289 # 3.27791
 experiment = node_module('@faaas/perf-v8-event-loop-experiment')
 
 def read_time(fn_name: str):
@@ -16,6 +17,23 @@ def read_time(fn_name: str):
     time_df["fn"] = [fn_name]
 
     return time_df
+
+def read_strace(fn_name: str):
+    strace_cols = ["time", "seconds", "usecs/call", "calls", "errors", "syscall"]
+    strace_df = read_csv(f"{experiment}/results/local_io/{fn_name}/strace.log", sep="\s+", skiprows=2, skipfooter=2, names=strace_cols)
+
+    strace_df["syscall"] = strace_df["syscall"].fillna(strace_df["errors"])
+    strace_df["errors"] = to_numeric(strace_df["errors"], errors="coerce")
+    strace_df["errors"] = strace_df["errors"].fillna(0)
+
+    strace_df["time"] = to_numeric(strace_df["time"], errors="coerce")
+    strace_df["seconds"] = to_numeric(strace_df["seconds"], errors="coerce")
+    strace_df["usecs/call"] = to_numeric(strace_df["usecs/call"], errors="coerce")
+    strace_df["calls"] = to_numeric(strace_df["calls"], errors="coerce")
+
+    strace_df.set_index("syscall", inplace=True)
+
+    return strace_df
 
 def read_artillery(name: str):
     with open(f"{experiment}/results/local_{name}/reports/report.json")as artillery_file:
@@ -78,7 +96,7 @@ mpl.rcParams.update({
     'pgf.rcfonts': False,
 })
 
-fig = figure(figsize=(3.27791,3.27791 * 2))
+fig = figure(figsize=(col_width,col_width * 2))
 
 Plot(on_http_time_df_melt, x="fn", y="value", color="measure") \
     .add(Bar(), Stack()) \
@@ -94,3 +112,57 @@ legend.set_loc("upper right")
 legend.set_bbox_to_anchor((0.95,0.93))
 
 savefig("assets/faas-profile-waiting-on-io.pgf", bbox_inches="tight")
+
+# Strace Visualisation
+on_http_delete_pet_strace_df = read_strace("onHttpDeletePet")
+on_http_get_pet_strace_df = read_strace("onHttpGetPet")
+on_http_get_pets_strace_df = read_strace("onHttpGetPets")
+on_http_put_pet_strace_df = read_strace("onHttpPutPet")
+
+strace_df_cols = on_http_delete_pet_strace_df.columns
+
+on_http_delete_pet_strace_df = on_http_delete_pet_strace_df.add_suffix("_del")
+on_http_get_pet_strace_df = on_http_get_pet_strace_df.add_suffix("_get_one")
+on_http_get_pets_strace_df = on_http_get_pets_strace_df.add_suffix("_get_all")
+on_http_put_pet_strace_df = on_http_put_pet_strace_df.add_suffix("_put")
+
+on_http_strace_df = on_http_delete_pet_strace_df \
+    .join(on_http_get_pet_strace_df, how="outer") \
+    .join(on_http_get_pets_strace_df, how="outer") \
+    .join(on_http_put_pet_strace_df, how="outer")
+
+for col in strace_df_cols:
+    on_http_strace_df[col] = on_http_strace_df[col + "_del"] \
+        + on_http_strace_df[col + "_get_one"] \
+        + on_http_strace_df[col + "_get_all"] \
+        + on_http_strace_df[col + "_put"]
+
+    print(f"Column: {col}")
+
+fig = figure(figsize=(col_width, col_width))
+
+Plot(on_http_strace_df.sort_values(by="calls", ascending=False).head(10), x="syscall", y="calls") \
+    .add(Bar(), Stack()) \
+    .label(title="Petstore Total Syscall Frequency", x="Syscall Name", y="Calls (n)") \
+    .layout(engine="tight", size=(3.27791 * 2,3.27791)) \
+    .on(fig) \
+    .plot()
+
+ax = fig.axes[0]
+ax.tick_params(axis='x', labelrotation=90)
+
+savefig("assets/faas-profile-strace-calls.pgf", bbox_inches="tight")
+
+fig = figure(figsize=(col_width, col_width))
+
+Plot(on_http_strace_df.sort_values(by="time", ascending=False).head(10), x="syscall", y="time") \
+    .add(Bar(), Stack()) \
+    .label(title="Petstore Total Syscall Time", x="Syscall Name", y="Time (% of total time)") \
+    .layout(engine="tight", size=(3.27791 * 2,3.27791)) \
+    .on(fig) \
+    .plot()
+
+ax = fig.axes[0]
+ax.tick_params(axis='x', labelrotation=90)
+
+savefig("assets/faas-profile-strace-time.pgf", bbox_inches="tight")

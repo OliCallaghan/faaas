@@ -4,7 +4,7 @@
 \newcommand{\reporttitle}{Cost-opportunistic data processing in serverless environments}
 \newcommand{\reportauthor}{Oli Callaghan (oe119@ic.ac.uk) [01508136]}
 \newcommand{\supervisor}{Dr Holger Pirk}
-\newcommand{\reporttype}{MEng Final Year Project}
+\newcommand{\reporttype}{MEng Individual Project}
 \newcommand{\degreetype}{MEng Computing (Artifical Intelligence and Machine Learning)}
 
 % Define commonly used terms
@@ -13,14 +13,14 @@
 \newcommand{\faasxlong}{\faaslong{} (\faas{})}
 
 % load required packages
-\input{includes}
+\input{includes/includes.tex}
 
 % load references for bibliography
 \addbibresource{references.bib}
 
 % load the title page
 \begin{document}
-\input{titlepage}
+\input{includes/titlepage.tex}
 
 % page numbering etc.
 \pagenumbering{roman}
@@ -54,6 +54,6 @@
 
 \printbibliography
 
-%\printinunitsof{in}\prntlen{\columnwidth}
+Column Width: \printinunitsof{in}\prntlen{\columnwidth}
 
 \end{document}
