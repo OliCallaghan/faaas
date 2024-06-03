@@ -1,0 +1,97 @@
+\usepackage[a4paper,hmargin=2.8cm,vmargin=2.0cm,includeheadfoot]{geometry}
+\usepackage{textpos} % positioning
+\usepackage{biblatex} % bibliography
+\usepackage{tabularx,longtable,multirow,subfigure,caption} % hangcaption
+\usepackage{fncylab} % formatting of labels
+\usepackage{fancyhdr} % page layout
+\usepackage{url} % URLs
+\usepackage[english]{babel} % for internalisation
+\usepackage{amsmath} % for mathematical formulae
+\usepackage{dsfont} % for mathematical symbols
+\usepackage{epstopdf} % automatically replace .eps with .pdf in graphics
+\usepackage{array} % tables
+\usepackage{latexsym} % symbols
+\usepackage[pdftex,hypertexnames=false,colorlinks]{hyperref} % provide links in pdf
+
+\usepackage{csquotes} % Not sure what this is for
+\usepackage{siunitx} % For SI units
+
+% For generated diagrams and plots
+\usepackage{graphicx}
+\usepackage{layouts}
+\usepackage{lmodern}
+\usepackage{tikz}
+\usepackage{tikz-cd}
+\usepackage{pgfplots}
+
+\hypersetup{pdftitle={},
+  pdfsubject={},
+  pdfauthor={},
+  pdfkeywords={},
+  pdfstartview=FitH,
+  pdfpagemode={UseOutlines},% None, FullScreen, UseOutlines
+  bookmarksnumbered=true, bookmarksopen=true, colorlinks,
+    citecolor=black,%
+    filecolor=black,%
+    linkcolor=black,%
+    urlcolor=black}
+
+\usepackage[all]{hypcap}
+
+%%% Default fonts
+\renewcommand*{\rmdefault}{bch}
+\renewcommand*{\ttdefault}{cmtt}
+
+%%% Default settings (page layout)
+\setlength{\parindent}{0em} % indentation of paragraph
+
+\setlength{\parindent}{0em} % indentation of paragraph
+
+\setlength{\headheight}{14.5pt}
+\pagestyle{fancy}
+\renewcommand{\chaptermark}[1]{\markboth{\chaptername\ \thechapter.\ #1}{}}
+
+\fancyfoot[ER,OL]{\thepage} % page no. in the left on odd pages and on right on even pages
+\fancyfoot[OC,EC]{\sffamily }
+\renewcommand{\headrulewidth}{0.1pt}
+\renewcommand{\footrulewidth}{0.1pt}
+\captionsetup{margin=10pt,font=small,labelfont=bf}
+
+%--- chapter heading
+\def\@makechapterhead#1{%
+  \vspace*{10\p@}%
+  {\parindent \z@ \raggedright \sffamily
+    \interlinepenalty\@M
+    \Huge\bfseries \thechapter \space\space #1\par\nobreak
+    \vskip 30\p@
+  }}
+
+%--- chapter heading
+\def\@makechapterhead#1{%
+  \vspace*{10\p@}%
+  {\parindent \z@ \raggedright \sffamily
+        %{\Large \MakeUppercase{\@chapapp} \space \thechapter}
+        %\\
+        %\hrulefill
+        %\par\nobreak
+        %\vskip 10\p@
+    \interlinepenalty\@M
+    \Huge\bfseries \thechapter \space\space #1\par\nobreak
+    \vskip 30\p@
+  }}
+
+%---chapter heading for \chapter*
+\def\@makeschapterhead#1{%
+  \vspace*{10\p@}%
+  {\parindent \z@ \raggedright
+    \sffamily
+    \interlinepenalty\@M
+    \Huge \bfseries  #1\par\nobreak
+    \vskip 30\p@
+  }}
+\allowdisplaybreaks
+
+% Matplotlib required preamble
+\def\mathdefault#1{#1}
+\everymath=\expandafter{\the\everymath\displaystyle}
+\makeatletter\@ifpackageloaded{underscore}{}{\usepackage[strings]{underscore}}\makeatother

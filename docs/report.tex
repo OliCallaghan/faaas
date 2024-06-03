@@ -1,108 +1,59 @@
-\documentclass[a4paper,twocolumn]{article}
+\documentclass[a4paper,twocolumn]{report}
 
-\usepackage[left=2cm,right=2cm,top=3cm,bottom=3cm]{geometry}
-\usepackage[utf8]{inputenc}
-\usepackage[english]{babel}
-
-\setlength{\marginparwidth}{1.5cm} % Increase margin width, s.t. TODO notes display correctly.
-
-\usepackage{biblatex} % For bibliography
-\usepackage{csquotes} % Not sure what this is for
-\usepackage{siunitx} % For SI units
-
-% For generated diagrams and plots
-\usepackage{graphicx}
-\usepackage{layouts}
-\usepackage{lmodern}
-\usepackage{tikz}
-\usepackage{tikz-cd}
-\usepackage{pgfplots}
-
-% Matplotlib required preamble
-\def\mathdefault#1{#1}
-\everymath=\expandafter{\the\everymath\displaystyle}
-\makeatletter\@ifpackageloaded{underscore}{}{\usepackage[strings]{underscore}}\makeatother
-
-\addbibresource{references.bib}
-
-\title{\textbf{FaaAS: Introducing asynchronicity as a first class citizen for serverless functions}}
-\author{Oli Callaghan (oe119@ic.ac.uk) [01508136]}
-
-\begin{document}
+% some definitions for the title page
+\newcommand{\reporttitle}{Cost-opportunistic data processing in serverless environments}
+\newcommand{\reportauthor}{Oli Callaghan (oe119@ic.ac.uk) [01508136]}
+\newcommand{\supervisor}{Dr Holger Pirk}
+\newcommand{\reporttype}{MEng Final Year Project}
+\newcommand{\degreetype}{MEng Computing (Artifical Intelligence and Machine Learning)}
 
 % Define commonly used terms
 \newcommand{\faas}{FaaS}
 \newcommand{\faaslong}{Functions-as-a-Service}
 \newcommand{\faasxlong}{\faaslong{} (\faas{})}
 
-\maketitle
+% load required packages
+\input{includes}
 
-\begin{abstract}
-    This research aims to address a critical billing inefficiency in \faasxlong{} environments, whereby \faas{} functions are charged for allocated resources and execution time whilst awaiting I/O operations, such as network requests. Through developing a novel serverless runtime, this research intends to allow function invocations to release unused allocated resources back to the runtime such to be reallocated to other functions, and more accurately billing \faas{} functions for their actual usage.
-\end{abstract}
+% load references for bibliography
+\addbibresource{references.bib}
 
+% load the title page
+\begin{document}
+\input{titlepage}
+
+% page numbering etc.
+\pagenumbering{roman}
+\clearpage{\pagestyle{empty}\cleardoublepage}
+\setcounter{page}{1}
+\pagestyle{fancy}
+
+\include{chapters/abstract/abstract.tex}
+
+\cleardoublepage
+\include{chapters/acks/acks.tex}
+
+\clearpage{\pagestyle{empty}\cleardoublepage}
+
+% Table of Contents
+\fancyhead[RE,LO]{\sffamily {Table of Contents}}
 \tableofcontents
 
-% Introduction
-\section{Introduction}
+\clearpage{\pagestyle{empty}\cleardoublepage}
+\pagenumbering{arabic}
+\setcounter{page}{1}
+\fancyhead[LE,RO]{\slshape \rightmark}
+\fancyhead[LO,RE]{\slshape \leftmark}
 
-\faasxlong{} provides an abstraction over application development, decomposing programs into isolated units called `functions', which are invoked by events such as HTTP requests, or messages received from a message bus.
-
-In these environments, `functions' are commonly implemented as containers running on top of a runtime; when these containers are awaiting I/O such as network requests, resources are still allocated, used to determine whether execution can continue.
-
-This research aims to yield control back to the runtime from these `functions' whilst awaiting asynchronous operations to complete, allowing useful work to be scheduled by the runtime.
-
-% Motivation
-\subsection{Motivation}
-\begin{figure}
-    \begin{center}
-        \input{node_modules/@faaas/perf-v8-event-loop-results/assets/faas-profile-waiting-on-io.pgf}
-    \end{center}
-    \caption{\faas{} function execution profile}
-\end{figure}
-
-\faaslong{} has become increasingly more common amongst system architectures since the introduction of AWS Lambda\cite{aws-lambda} in 2014, with developers citing cost, scalability, and ease of development as the most important factors\cite{review-of-serverless-use-cases-and-characteristics}.
-
-Typical \faas{} workloads can be characterised as `glue', most commonly handling HTTP requests and interacting with a form of persistent storage --- in fact, around 50\% of all serverless functions fall into this category\cite{review-of-serverless-use-cases-and-characteristics}.
-
-\faas{} architectures generally tend to decrease costs, achieving this by using a fine-grained billing model, charging per invocation, and for compute and memory allocations in subsecond increments over the duration of execution, ensuring wasted resources are released back to the cloud provider once a function terminates.
-
-The resolution of the billing model however extends only to the level of granularity of functions, whereby resources are allocated for the entire lifetime of the function's execution. This is particularly important when considering that the serverless suffers from additional latency when accessing persistent storage, for example, the average latency between AWS Lambda and DynamoDB is usually \qtyrange{60}{90}{\ms}\cite{caching-techniques-improve-latency-serverless}.
-
-Since the median execution time for serverless functions lies between milliseconds and a second\cite{review-of-serverless-use-cases-and-characteristics}, this latency accounts for a significant proportion of time when resources are allocated and unused during function execution time. Developers are charged for this time, and cannot temporarily yield resources back to the host until the asynchronous action completes.
-
-%\printinunitsof{in}\prntlen{\columnwidth}
-
-\section{Background}
-
-\subsection{AWS Lambda}
-
-AWS Lambda is by far the most popular \faas{} platform used by developers to deploy code.
-
-\subsubsection{System architecture}
-
-The AWS Lambda system architecture is centered around the concept of Firecracker MicroVMs\cite{firecracker-microvm}.
-
-\begin{figure*}[t]
-    \includegraphics[width=\linewidth]{node_modules/@faaas/aws-lambda-exec-env/assets/aws-lambda-exec-env.pdf}
-    \caption{AWS Lambda Execution Environment}
-    \label{fig:aws-lambda-exec-env}
-\end{figure*}
-
-\subsubsection{Concurrent executions}
-
-Each invocation of a lambda function executes independently inside of it's own Firecracker MicroVM, in what is known as a slot.
-
-Each MicroVM provides a slot which can handle a single invocation, however once this invocation completes, the slot can be used by another invocation.
-
-\subsubsection{Pricing structure}
-
-Billed for execution time from start to finish, since a MicroVM is provisioned the entire time.
-
-\section{Proposed Solution}
-
-In order to better utilise the resources of the MicroVM, the execution environment is to be augmented such that a MicroVM executes WASM programs. Whilst the WASM program is executing, any 'async' calls are registered with an event loop executtors
+\include{chapters/intro/intro.tex}
+\include{chapters/ethics/ethics.tex}
+\include{chapters/background/background.tex}
+\include{chapters/design/design.tex}
+\include{chapters/impl/impl.tex}
+\include{chapters/eval/eval.tex}
 
 \printbibliography
+
+%\printinunitsof{in}\prntlen{\columnwidth}
 
 \end{document}

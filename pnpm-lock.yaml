@@ -99,6 +99,18 @@ importers:
         specifier: workspace:^
         version: link:../../../pkg/utils/sql
 
+  benchmarks/suites/hello-seq:
+    dependencies:
+      '@faaas/faaasc':
+        specifier: workspace:^
+        version: link:../../../pkg/faaasc
+      '@faaas/handler':
+        specifier: workspace:^
+        version: link:../../../pkg/utils/handler
+      '@faaas/sql':
+        specifier: workspace:^
+        version: link:../../../pkg/utils/sql
+
   diagrams/aws-lambda-exec-env: {}
 
   diagrams/aws-lambda-slot-placement: {}

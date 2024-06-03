@@ -1,5 +1,5 @@
 {
-  "name": "boss-faaas-engine",
+  "name": "@faaas/boss-faaas-engine",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",

@@ -1,0 +1,17 @@
+{
+  "name": "@faaas-bench/hello-seq",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "build": "faaasc src/onHttpGetHello.trigger.ts build/onHttpGetHello.trigger.ts"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@faaas/faaasc": "workspace:^",
+    "@faaas/handler": "workspace:^",
+    "@faaas/sql": "workspace:^"
+  }
+}
