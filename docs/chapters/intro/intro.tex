@@ -3,7 +3,11 @@
 
 \faasxlong{} provides an abstraction over application development, decomposing programs into isolated units called `functions', which are invoked by events such as HTTP requests, or messages received from a message bus.
 
-In these environments, `functions' are commonly implemented as containers running on top of a runtime; when these containers are awaiting I/O such as network requests, resources are still allocated, used to determine whether execution can continue.
+This abstraction simplifies application development, allowing developers to focus on the business logic of their system, rather than managing and scaling underlying infrastructure. Typically, developers design serverless functions to be stateless, enabling horizontal scaling, communicating with persistent storage to persist state between function invocations.
+
+In these execution environments, whilst `functions' are running, they are allocated and guaranteed resources such as CPU and memory throughout the lifecycle of its invocation. Whilst in theory this seems beneficial, in practice, this leads to wasted resources, as the function may be awaiting an asynchronous operation to complete, such as a network request.
+
+In these environments, `functions' are typically implemented either as containers or as virtual machines running atop a serverless `runtime'; whilst these containers are awaiting I/O such as network requests, resources are still allocated, used to determine whether execution can continue.
 
 This research aims to yield control back to the runtime from these `functions' whilst awaiting asynchronous operations to complete, allowing useful work to be scheduled by the runtime.
 
@@ -41,7 +45,6 @@ This research aims to yield control back to the runtime from these `functions' w
     \end{center}
     \caption{\faas{} petstore PutPet pprof sample}
 \end{figure*}
-
 
 \faaslong{} has become increasingly more common amongst system architectures since the introduction of AWS Lambda\cite{aws-lambda} in 2014, with developers citing cost, scalability, and ease of development as the most important factors\cite{review-of-serverless-use-cases-and-characteristics}.
 
