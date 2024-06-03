@@ -87,6 +87,12 @@ importers:
         specifier: ^5.0.5
         version: 5.0.5
 
+  benchmarks/perf-v8-event-loop-results-pprof:
+    dependencies:
+      '@faaas/perf-v8-event-loop-experiment':
+        specifier: workspace:^
+        version: link:../perf-v8-event-loop-experiment
+
   benchmarks/suites/bank:
     dependencies:
       '@faaas/faaasc':
@@ -123,6 +129,9 @@ importers:
       '@faaas/perf-v8-event-loop-results':
         specifier: workspace:^
         version: link:../benchmarks/perf-v8-event-loop-results
+      '@faaas/perf-v8-event-loop-results-pprof':
+        specifier: workspace:^
+        version: link:../benchmarks/perf-v8-event-loop-results-pprof
 
   pkg/boss-faaas-engine: {}
 

@@ -139,7 +139,7 @@ for col in strace_df_cols:
 
     print(f"Column: {col}")
 
-fig = figure(figsize=(col_width, col_width))
+fig = figure(figsize=(col_width, col_width * 1.3))
 
 Plot(on_http_strace_df.sort_values(by="calls", ascending=False).head(10), x="syscall", y="calls") \
     .add(Bar(), Stack()) \
@@ -153,7 +153,7 @@ ax.tick_params(axis='x', labelrotation=90)
 
 savefig("assets/faas-profile-strace-calls.pgf", bbox_inches="tight")
 
-fig = figure(figsize=(col_width, col_width))
+fig = figure(figsize=(col_width, col_width * 1.3))
 
 Plot(on_http_strace_df.sort_values(by="time", ascending=False).head(10), x="syscall", y="time") \
     .add(Bar(), Stack()) \

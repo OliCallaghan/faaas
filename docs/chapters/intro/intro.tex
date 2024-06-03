@@ -32,6 +32,17 @@ This research aims to yield control back to the runtime from these `functions' w
     \caption{\faas{} petstore syscall time profile}
 \end{figure}
 
+% PProf Sample from PetStore PutPet Function
+\begin{figure*}
+    \begin{center}
+        \begin{tikzpicture}[scale = 0.75, every node/.style={scale=0.75}]
+            \input{node_modules/@faaas/perf-v8-event-loop-results-pprof/assets/faas-profile-pprof-put-pet.pgf}
+        \end{tikzpicture}
+    \end{center}
+    \caption{\faas{} petstore PutPet pprof sample}
+\end{figure*}
+
+
 \faaslong{} has become increasingly more common amongst system architectures since the introduction of AWS Lambda\cite{aws-lambda} in 2014, with developers citing cost, scalability, and ease of development as the most important factors\cite{review-of-serverless-use-cases-and-characteristics}.
 
 Typical \faas{} workloads can be characterised as `glue', most commonly handling HTTP requests and interacting with a form of persistent storage --- in fact, around 50\% of all serverless functions fall into this category\cite{review-of-serverless-use-cases-and-characteristics}.

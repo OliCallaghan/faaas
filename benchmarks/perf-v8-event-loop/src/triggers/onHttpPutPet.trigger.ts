@@ -1,20 +1,24 @@
-import express from "express";
+import express, { Request, Response } from "express";
 
-import { db } from "../database";
+import { db, sql } from "../database";
 
 const app = express();
 
 app.use(express.json());
 
-app.put("/", async (_req, res) => {
-  const pet = await db.pet.create({
-    data: {
-      name: String(_req.body.name),
-      tag: String(_req.body.tag),
-    },
-  });
+async function handlePutPet(req: Request, res: Response) {
+  const pet = await sql(() =>
+    db.pet.create({
+      data: {
+        name: String(req.body.name),
+        tag: String(req.body.tag),
+      },
+    }),
+  );
 
   return void res.json(pet);
-});
+}
+
+app.put("/", handlePutPet);
 
 app.listen(3000, () => console.log("onHttpPutPet listening on PORT=3000"));

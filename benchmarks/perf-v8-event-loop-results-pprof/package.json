@@ -1,0 +1,16 @@
+{
+  "name": "@faaas/perf-v8-event-loop-results-pprof",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "build": "poetry run python src/generate.py",
+    "generate": "./generate-pprof-graphs.sh"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@faaas/perf-v8-event-loop-experiment": "workspace:^"
+  }
+}

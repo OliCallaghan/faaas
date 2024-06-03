@@ -1,19 +1,26 @@
-import express from "express";
+import express, { Request, Response } from "express";
 
-import { db } from "../database";
+import { db, sql } from "../database";
 
 const app = express();
 
 app.use(express.json());
 
-app.get("/:petId", async (_req, res) => {
-  const pet = await db.pet.findUnique({
-    where: {
-      id: _req.params.petId,
-    },
-  });
+interface GetPetParams {
+  petId: string;
+}
+async function handleGetPet(req: Request<GetPetParams>, res: Response) {
+  const pet = await sql(() =>
+    db.pet.findUnique({
+      where: {
+        id: req.params.petId,
+      },
+    }),
+  );
 
   return void res.json(pet);
-});
+}
+
+app.get("/:petId", handleGetPet);
 
 app.listen(3000, () => console.log("onHttpGetPet listening on PORT=3000"));

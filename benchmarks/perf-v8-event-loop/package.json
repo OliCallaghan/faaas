@@ -4,7 +4,7 @@
   "description": "Performance profiling of the V8 event loop.",
   "main": "index.js",
   "scripts": {
-    "build": "esbuild src/triggers/*.trigger.ts --platform=node --bundle --minify --outdir=dist",
+    "build": "esbuild src/triggers/*.trigger.ts --platform=node --bundle --outdir=dist",
     "clean": "rm -rf ./dist/"
   },
   "keywords": [],
