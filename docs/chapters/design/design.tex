@@ -3,7 +3,7 @@
 \section{Developer Considerations}
 In alignment with the ethos of \faas{} whereby developer time is spent focusing on the business logic of their application rather than the infrastructure, the design of \faaasc{} should be such that it is easy to use and requires minimal developer effort to leverage the benefits of function splitting.
 
-Since the primary code target of \faaasc{} is JavaScript (and by extension TypeScript) serverless functions, specifically ES6 syntax, \faaasc{} should be designed such that it integrates with existing tooling to deploy to \awslambda{}, specifically Serverless\cite{serverless-cli}.
+Since the primary code target of \faaasc{} is JavaScript (and by extension TypeScript) serverless functions, specifically ES6 syntax, \faaasc{} should be designed such that it integrates with existing tooling to deploy to \awslambda{}, specifically Serverless\cite{serverlessServerlessZeroFrictionServerless2024}.
 
 \section{High-level Design}
 The core principal underpinning the design of \faaas{} is to decompose each \faas{} invocation into as a set of function continuations. Similarly to how event driven runtimes such as \js{} handle continuations of asynchronous code with an event loop as described in Section \ref{sec:js-event-loop}, \faaas{} takes advantage of function splitting (via code generation) and message passing to register continuations to be executed with a continuation context.

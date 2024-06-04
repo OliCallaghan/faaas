@@ -2,11 +2,11 @@
 
 \section{AWS Lambda}
 
-AWS Lambda is by far the most popular\cite{} \faas{} platform used by developers to deploy serverless applications.
+AWS Lambda is by far the most popular\cite{eismannReviewServerlessUse2020,StateServerlessDatadog} \faas{} platform used by developers to deploy serverless applications.
 
 \subsubsection{System architecture}
 
-The AWS Lambda system architecture is centered around the concept of Firecracker MicroVMs\cite{firecracker-microvm}.
+The AWS Lambda system architecture is centered around the concept of Firecracker MicroVMs\cite{agacheFirecrackerLightweightVirtualization2020}.
 
 \begin{figure*}[t]
     \includegraphics[width=\linewidth]{node_modules/@faaas/aws-lambda-exec-env/assets/aws-lambda-exec-env.pdf}
@@ -29,5 +29,5 @@ Billed for execution time from start to finish, since a MicroVM is provisioned t
 
 \todo[inline]{Outline the ins and outs of how event loops work. Also need to discuss re: function continuations.}
 
-\section{Function Continuations and Continuation Passing Style}
-A function continuation is a concept in programming\cite{sussman1975interpreter}, reified as a datastructure encapsulating an execution state, and a function pointer that can be called to resume execution. They are used extensively across many languages, for example, they form the underpinnings of Rust's Futures API.
+\section{Continuations and Continuation Passing Style}
+A function continuation is a concept in programming\cite{sussmanSCHEMEInterpreterExtended1975}, reified as a datastructure encapsulating an execution state, and a function pointer that can be called to resume execution. They are used extensively across many languages, for example, they form the underpinnings of Rust's Futures API.
