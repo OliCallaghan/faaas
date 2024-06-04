@@ -64,11 +64,34 @@
   url = {https://www.primevideotech.com/video-streaming/scaling-up-the-prime-video-audio-video-monitoring-service-and-reducing-costs-by-90}
 }
 
+@online{AmazonWebServices2014,
+  title = {Amazon {{Web Services Announces AWS Lambda}}},
+  date = {2014-11-13T18:30:00},
+  url = {https://press.aboutamazon.com/2014/11/amazon-web-services-announces-aws-lambda},
+  urldate = {2024-06-04},
+  abstract = {New compute service runs developers’ code in response to events, and makes it even faster and easier for developers to build dynamic applications on the AWS Cloud},
+  langid = {english},
+  organization = {Press Center},
+  file = {/Users/oli/Zotero/storage/QW3KUUDC/amazon-web-services-announces-aws-lambda.html}
+}
+
 @online{apacheOpenWhisk2024,
   title = {{{OpenWhisk}}},
   author = {{Apache}},
   date = {2024},
   url = {https://github.com/apache/openwhisk}
+}
+
+@online{azureAnnouncingGeneralAvailability2016,
+  title = {Announcing General Availability of {{Azure Functions}}},
+  author = {Azure, Microsoft},
+  date = {2016-11-15T00:00:00+00:00},
+  url = {https://azure.microsoft.com/en-us/blog/announcing-general-availability-of-azure-functions/},
+  urldate = {2024-06-04},
+  abstract = {Today organizations are turning to the cloud not only to accelerate – but to transform – their business. Part of the Azure PaaS portfolio, Azure Functions, offers a serverless compute experience for rapid application development and operational agility.},
+  langid = {american},
+  organization = {Microsoft Azure Blog},
+  file = {/Users/oli/Zotero/storage/LSTIFZZ7/announcing-general-availability-of-azure-functions.html}
 }
 
 @online{azureAzureFunctions2024,
@@ -108,6 +131,22 @@
   file = {/Users/oli/Zotero/storage/75JKJXNQ/ec2-origins.html}
 }
 
+@inproceedings{bortoliniInvestigatingPerformanceCost2020,
+  title = {Investigating {{Performance}} and {{Cost}} in {{Function-as-a-Service Platforms}}},
+  booktitle = {Advances on {{P2P}}, {{Parallel}}, {{Grid}}, {{Cloud}} and {{Internet Computing}}},
+  author = {Bortolini, Diogo and Obelheiro, Rafael R.},
+  editor = {Barolli, Leonard and Hellinckx, Peter and Natwichai, Juggapong},
+  date = {2020},
+  pages = {174--185},
+  publisher = {Springer International Publishing},
+  location = {Cham},
+  doi = {10.1007/978-3-030-33509-0_16},
+  abstract = {The function-as-a-service (FaaS) service model has been gaining adoption at a fast pace. In this service model, cloud applications are structured as self-contained code modules called functions that are instantiated on-demand, and billing is based on the number of function invocations and on function execution time. Developers are attracted to FaaS because it promises to remove two drawbacks of the traditional IaaS and PaaS service models, the need to provision and manage infrastructure, and the need to pay for unused resources. In practice, however, things are a little less rosy: developers still have to choose the amount of memory allocated to functions, and costs are less predictable, especially because they are tied to function performance. This work investigates performance and cost variations within and across FaaS providers. Our results show that performance and cost can be significantly affected by the choice of memory allocation, FaaS provider, and programming language: we observed differences of up~to \$\$8.5\textbackslash times \$\$in performance and 67\$\$\textbackslash times \$\$in cost between providers (with the same language and memory size), and \$\$16.8\textbackslash times \$\$in performance and \$\$67.2\textbackslash times \$\$in cost between programming languages (with the same provider and memory).},
+  isbn = {978-3-030-33509-0},
+  langid = {english},
+  file = {/Users/oli/Zotero/storage/44R9YTFG/Bortolini and Obelheiro - 2020 - Investigating Performance and Cost in Function-as-.pdf}
+}
+
 @article{burckhardtDurableFunctionsSemantics2021,
   title = {Durable Functions: Semantics for Stateful Serverless},
   author = {Burckhardt, Sebastian and Gillum, Chris and Justo, David and Kallas, Konstantinos and McMahon, Connor and Meiklejohn, Christopher S.},
@@ -138,6 +177,17 @@
   abstract = {Serverless is a popular choice for cloud service architects because it can provide scalability and load-based billing with minimal developer effort. Functions-as-a-service (FaaS) are originally stateless, but emerging frameworks add stateful abstractions. For instance, the widely used Durable Functions (DF) allow developers to write advanced serverless applications, including reliable workflows and actors, in a programming language of choice. DF implicitly and continuosly persists the state and progress of applications, which greatly simplifies development, but can create an IOps bottleneck.To improve efficiency, we introduce Netherite, a novel architecture for executing serverless workflows on an elastic cluster. Netherite groups the numerous application objects into a smaller number of partitions, and pipelines the state persistence of each partition. This improves latency and throughput, as it enables workflow steps to group commit, even if causally dependent. Moreover, Netherite leverages FASTER's hybrid log approach to support larger-than-memory application state, and to enable efficient partition movement between compute hosts.Our evaluation shows that (a) Netherite achieves lower latency and higher throughput than the original DF engine, by more than an order of magnitude in some cases, and (b) that Netherite has lower latency than some commonly used alternatives, like AWS Step Functions or cloud storage triggers.}
 }
 
+@software{BytecodeallianceLucet2024,
+  title = {Bytecodealliance/Lucet},
+  date = {2024-05-30T21:34:22Z},
+  origdate = {2018-12-07T21:27:18Z},
+  url = {https://github.com/bytecodealliance/lucet},
+  urldate = {2024-06-04},
+  abstract = {Lucet, the Sandboxing WebAssembly Compiler.},
+  organization = {Bytecode Alliance},
+  keywords = {assemblyscript,rust,wasi,wasm,webassembly}
+}
+
 @inproceedings{caoPolarDBServerlessCloud2021,
   title = {{{PolarDB Serverless}}: {{A Cloud Native Database}} for {{Disaggregated Data Centers}}},
   booktitle = {Proceedings of the 2021 {{International Conference}} on {{Management}} of {{Data}}},
@@ -164,6 +214,24 @@
   eprint = {1908.04907},
   eprinttype = {arxiv},
   url = {http://arxiv.org/abs/1908.04907}
+}
+
+@online{CloudComputingContainers2018,
+  title = {Cloud {{Computing}} without {{Containers}}},
+  date = {2018-11-09T14:57:05.000+00:00},
+  url = {https://blog.cloudflare.com/cloud-computing-without-containers},
+  urldate = {2024-06-04},
+  abstract = {We have a cloud computing platform called Workers. Unlike essentially every other cloud computing platform I know of, it doesn’t use containers or virtual machines. We believe that is the future of Serverless and cloud computing in general, and I’ll try to convince you why.},
+  langid = {english},
+  organization = {The Cloudflare Blog},
+  file = {/Users/oli/Zotero/storage/MQG34T4K/cloud-computing-without-containers.html}
+}
+
+@online{CloudhypervisorCloudhypervisorVirtual,
+  title = {Cloud-Hypervisor/Cloud-Hypervisor: {{A Virtual Machine Monitor}} for Modern {{Cloud}} Workloads. {{Features}} Include {{CPU}}, Memory and Device Hotplug, Support for Running {{Windows}} and {{Linux}} Guests, Device Offload with Vhost-User and a Minimal Compact Footprint. {{Written}} in {{Rust}} with a Strong Focus on Security.},
+  url = {https://github.com/cloud-hypervisor/cloud-hypervisor},
+  urldate = {2024-06-04},
+  file = {/Users/oli/Zotero/storage/W2AC6E2M/cloud-hypervisor.html}
 }
 
 @inproceedings{copikSeBSServerlessBenchmark2021,
@@ -199,6 +267,16 @@
   keywords = {Just-in-time scheduling,Serverless workflows,Speculative deployment}
 }
 
+@online{DemystifyingContainerVs,
+  title = {Demystifying Container vs {{VM-based}} Security: {{Security}} in Plaintext},
+  shorttitle = {Demystifying Container vs {{VM-based}} Security},
+  url = {https://cloud.google.com/blog/products/gcp/demystifying-container-vs-vm-based-security-security-in-plaintext},
+  urldate = {2024-06-04},
+  langid = {english},
+  organization = {Google Cloud Blog},
+  file = {/Users/oli/Zotero/storage/DG3SLZF5/demystifying-container-vs-vm-based-security-security-in-plaintext.html}
+}
+
 @inproceedings{duCatalyzerSubmillisecondStartup2020,
   title = {Catalyzer: {{Sub-millisecond Startup}} for {{Serverless Computing}} with {{Initialization-less Booting}}},
   booktitle = {Proceedings of the {{Twenty-Fifth International Conference}} on {{Architectural Support}} for {{Programming Languages}} and {{Operating Systems}}},
@@ -214,6 +292,24 @@
   isbn = {978-1-4503-7102-5},
   venue = {Lausanne, Switzerland},
   keywords = {checkpoint and restore,operating system,serverless computing,startup latency}
+}
+
+@online{EdgeCloudPlatform,
+  title = {Edge {{Cloud Platform}}},
+  url = {https://www.fastly.com/edge-cloud-network/serverless},
+  urldate = {2024-06-04},
+  abstract = {Fastly’s edge cloud platform helps the world’s most popular digital businesses keep pace with their customer expectations by delivering fast, secure, and scalable online experiences.},
+  langid = {american},
+  file = {/Users/oli/Zotero/storage/QZLDA57J/serverless.html}
+}
+
+@online{EdgeRuntime,
+  title = {Edge {{Runtime}}},
+  url = {https://vercel.com/docs/functions/runtimes/edge-runtime},
+  urldate = {2024-06-04},
+  abstract = {Learn about the Edge runtime, the environment in which Edge Functions run.},
+  langid = {english},
+  file = {/Users/oli/Zotero/storage/B73C7LYX/edge-runtime.html}
 }
 
 @article{eismannReviewServerlessUse2020,
@@ -239,7 +335,8 @@
   url = {https://cloud.google.com/eventarc/docs/overview},
   urldate = {2024-06-04},
   langid = {english},
-  organization = {Google Cloud}
+  organization = {Google Cloud},
+  file = {/Users/oli/Zotero/storage/VRTV2C67/overview.html}
 }
 
 @online{EventListenerAmazon,
@@ -350,6 +447,30 @@
   url = {https://github.com/gwsystems/aWsm}
 }
 
+@online{GVisor,
+  title = {{{gVisor}}},
+  url = {https://gvisor.dev/},
+  urldate = {2024-06-04},
+  langid = {english},
+  file = {/Users/oli/Zotero/storage/UBAVLVH2/gvisor.dev.html}
+}
+
+@inproceedings{haasBringingWebSpeed2017,
+  title = {Bringing the Web up to Speed with {{WebAssembly}}},
+  booktitle = {Proceedings of the 38th {{ACM SIGPLAN Conference}} on {{Programming Language Design}} and {{Implementation}}},
+  author = {Haas, Andreas and Rossberg, Andreas and Schuff, Derek L. and Titzer, Ben L. and Holman, Michael and Gohman, Dan and Wagner, Luke and Zakai, Alon and Bastien, Jf},
+  date = {2017-06-14},
+  pages = {185--200},
+  publisher = {ACM},
+  location = {Barcelona Spain},
+  doi = {10.1145/3062341.3062363},
+  url = {https://dl.acm.org/doi/10.1145/3062341.3062363},
+  urldate = {2024-06-04},
+  eventtitle = {{{PLDI}} '17: {{ACM SIGPLAN Conference}} on {{Programming Language Design}} and {{Implementation}}},
+  isbn = {978-1-4503-4988-8},
+  langid = {english}
+}
+
 @article{hellersteinServerlessComputingOne2018,
   title = {Serverless {{Computing}}: {{One Step Forward}}, {{Two Steps Back}}},
   author = {Hellerstein, Joseph M. and Faleiro, Jose M. and Gonzalez, Joseph E. and Schleier-Smith, Johann and Sreekanti, Vikram and Tumanov, Alexey and Wu, Chenggang},
@@ -408,6 +529,17 @@
   url = {https://deno.com/}
 }
 
+@software{IntelNemu2024,
+  title = {Intel/Nemu},
+  date = {2024-04-24T07:59:09Z},
+  origdate = {2018-05-21T23:15:04Z},
+  url = {https://github.com/intel/nemu},
+  urldate = {2024-06-04},
+  abstract = {ARCHIVED: Modern Hypervisor for the Cloud. See https://github.com/cloud-hypervisor/cloud-hypervisor instead},
+  organization = {Intel Corporation},
+  keywords = {hardware-acceleration,qemu,virtualization,vmm}
+}
+
 @online{IntroducingGoogleApp,
   title = {Introducing {{Google App Engine}} + Our New Blog},
   url = {https://cloudplatform.googleblog.com/2008/04/introducing-google-app-engine-our-new.html},
@@ -427,6 +559,23 @@
   eprint = {2005.12821},
   eprinttype = {arxiv},
   url = {https://arxiv.org/abs/2005.12821}
+}
+
+@inproceedings{jithinVirtualMachineIsolation2014,
+  title = {Virtual {{Machine Isolation}}},
+  booktitle = {Recent {{Trends}} in {{Computer Networks}} and {{Distributed Systems Security}}},
+  author = {Jithin, R. and Chandran, Priya},
+  editor = {Martínez Pérez, Gregorio and Thampi, Sabu M. and Ko, Ryan and Shu, Lei},
+  date = {2014},
+  pages = {91--102},
+  publisher = {Springer},
+  location = {Berlin, Heidelberg},
+  doi = {10.1007/978-3-642-54525-2_8},
+  abstract = {The popularity and widespread adoption of cloud computing has resulted in extensified and intensive use of virtualization technology. Virtualization technology allows the sharing of the same physical resources among several users. This enables the consolidation of servers and a multitude of user machines into a very small set of physical servers, by replacing the physical machines with virtual machines, running on the same physical servers. Consequently, several users work on and store their data in the same physical platform. A software layer is used to enable the sharing of hardware between the different users. Understandably, this leads to apprehensions about the security of their data and working environment for the users, as these are situated only one software layer apart from those belonging to the other users. Centralized storage and centralized computing thus naturally raise the question of security of user’s data, and motivate studies on how data security could possibly be compromised. This article surveys the security concerns in virtualization technology. It includes a study of different attacks in the context of virtualization, and logically organizes them in different categories. Where available, the patches to the attacks are also included in the survey. A special focus of the survey is on hardware limitations to support virtualization, and the conclusion drawn is that hardware limitations of different types are the root cause of most of the security issues.},
+  isbn = {978-3-642-54525-2},
+  langid = {english},
+  keywords = {Virtual Machines,Virtualization Security,Virtualization technology},
+  file = {/Users/oli/Zotero/storage/GA6B4LJ2/Jithin and Chandran - 2014 - Virtual Machine Isolation.pdf}
 }
 
 @article{jonasCloudProgrammingSimplified2019,
@@ -455,6 +604,15 @@
   keywords = {AWS lambda,distributed computing,PyWren,serverless}
 }
 
+@online{KataContainersOpen,
+  title = {Kata {{Containers}} - {{Open Source Container Runtime Software}}},
+  url = {https://katacontainers.io/},
+  urldate = {2024-06-04},
+  abstract = {Kata Containers is an open source container runtime, building lightweight virtual machines that seamlessly plug into the containers ecosystem.},
+  langid = {english},
+  file = {/Users/oli/Zotero/storage/SGH53WCF/katacontainers.io.html}
+}
+
 @inproceedings{kotniFaastlaneAcceleratingFunctionasaService2021,
   title = {Faastlane: {{Accelerating Function-as-a-Service Workflows}}},
   booktitle = {2021 {{USENIX Annual Technical Conference}} ({{USENIX ATC}} 21)},
@@ -464,6 +622,47 @@
   publisher = {USENIX Association},
   url = {https://www.usenix.org/conference/atc21/presentation/kotni},
   isbn = {978-1-939133-23-6}
+}
+
+@online{KVM,
+  title = {{{KVM}}},
+  url = {https://linux-kvm.org/page/Main_Page},
+  urldate = {2024-06-04},
+  file = {/Users/oli/Zotero/storage/XNPDHFR7/Main_Page.html}
+}
+
+@inproceedings{linMeasurementStudyLinux2018,
+  title = {A {{Measurement Study}} on {{Linux Container Security}}: {{Attacks}} and {{Countermeasures}}},
+  shorttitle = {A {{Measurement Study}} on {{Linux Container Security}}},
+  booktitle = {Proceedings of the 34th {{Annual Computer Security Applications Conference}}},
+  author = {Lin, Xin and Lei, Lingguang and Wang, Yuewu and Jing, Jiwu and Sun, Kun and Zhou, Quan},
+  date = {2018-12-03},
+  pages = {418--429},
+  publisher = {ACM},
+  location = {San Juan PR USA},
+  doi = {10.1145/3274694.3274720},
+  url = {https://dl.acm.org/doi/10.1145/3274694.3274720},
+  urldate = {2024-06-04},
+  eventtitle = {{{ACSAC}} '18: 2018 {{Annual Computer Security Applications Conference}}},
+  isbn = {978-1-4503-6569-7},
+  langid = {english}
+}
+
+@online{liPagurusEliminatingCold2021,
+  title = {Pagurus: {{Eliminating Cold Startup}} in {{Serverless Computing}} with {{Inter-Action Container Sharing}}},
+  shorttitle = {Pagurus},
+  author = {Li, Zijun and Chen, Quan and Guo, Minyi},
+  date = {2021-08-25},
+  eprint = {2108.11240},
+  eprinttype = {arxiv},
+  eprintclass = {cs},
+  url = {http://arxiv.org/abs/2108.11240},
+  urldate = {2024-06-04},
+  abstract = {Serverless computing provides fine-grain resource sharing between Cloud tenants through containers. Each function invocation (action) runs in an individual container. When there is not an already started container for a user function, a new container has to be created for it. However, the long cold startup time of a container results in the long response latency of the action. Our investigation shows that the containers for some user actions share most of the software packages. If an action that requires a new container can “borrow” a similar warm container from other actions, the long cold startup can be eliminated. Based on the above finding, we propose Pagurus, a runtime container management system for eliminating the cold startup in serverless computing. Pagurus is comprised of an inter-action container scheduler and an intra-action container scheduler for each action. The inter-action container scheduler schedules shared containers among actions. The intra-action container scheduler deals with the management of the container lifecycle. Our experimental results show that Pagurus effectively eliminates the time-consuming container cold startup. An action may start to run in 10ms with Pagurus, even if there is not warm container for it.},
+  langid = {english},
+  pubstate = {preprint},
+  keywords = {Computer Science - Distributed Parallel and Cluster Computing},
+  file = {/Users/oli/Zotero/storage/H9VAYK4D/Li et al. - 2021 - Pagurus Eliminating Cold Startup in Serverless Co.pdf}
 }
 
 @inproceedings{mahmoudiOptimizingServerlessComputing2019,
@@ -526,6 +725,20 @@
   keywords = {cache,cloud computing,functions as a service (FaaS),latency,serverless}
 }
 
+@inproceedings{narayanSwivelHardeningWebAssembly2021,
+  title = {Swivel: {{Hardening}} \{\vphantom\}{{WebAssembly}}\vphantom\{\} against {{Spectre}}},
+  shorttitle = {Swivel},
+  author = {Narayan, Shravan and Disselkoen, Craig and Moghimi, Daniel and Cauligi, Sunjay and Johnson, Evan and Gang, Zhao and Vahldiek-Oberwagner, Anjo and Sahita, Ravi and Shacham, Hovav and Tullsen, Dean and Stefan, Deian},
+  date = {2021},
+  pages = {1433--1450},
+  url = {https://www.usenix.org/conference/usenixsecurity21/presentation/narayan},
+  urldate = {2024-06-04},
+  eventtitle = {30th {{USENIX Security Symposium}} ({{USENIX Security}} 21)},
+  isbn = {978-1-939133-24-3},
+  langid = {english},
+  file = {/Users/oli/Zotero/storage/W2E89RTK/Narayan et al. - 2021 - Swivel Hardening WebAssembly against Spectre.pdf}
+}
+
 @inproceedings{oakesSOCKRapidTask2018,
   title = {{{SOCK}}: {{Rapid Task Provisioning}} with {{Serverless-Optimized Containers}}},
   booktitle = {2018 {{USENIX Annual Technical Conference}} ({{USENIX ATC}} 18)},
@@ -567,6 +780,29 @@
   isbn = {978-1-66543-559-8}
 }
 
+@online{QEMU,
+  title = {{{QEMU}}},
+  url = {https://www.qemu.org/},
+  urldate = {2024-06-04},
+  file = {/Users/oli/Zotero/storage/VHWQTJNN/www.qemu.org.html}
+}
+
+@inproceedings{razaviPrebakedUVMsScalable2015,
+  title = {Prebaked {{µVMs}}: {{Scalable}}, {{Instant VM Startup}} for {{IaaS Clouds}}},
+  shorttitle = {Prebaked {{µVMs}}},
+  booktitle = {2015 {{IEEE}} 35th {{International Conference}} on {{Distributed Computing Systems}}},
+  author = {Razavi, Kaveh and Van Der Kolk, Gerrit and Kielmann, Thilo},
+  date = {2015-06},
+  pages = {245--255},
+  publisher = {IEEE},
+  location = {Columbus, OH},
+  doi = {10.1109/ICDCS.2015.33},
+  url = {https://ieeexplore.ieee.org/document/7164911/},
+  urldate = {2024-06-04},
+  eventtitle = {2015 {{IEEE}} 35th {{International Conference}} on {{Distributed Computing Systems}} ({{ICDCS}})},
+  isbn = {978-1-4673-7214-5}
+}
+
 @online{robeceOverviewAzureEvent2024,
   title = {Overview - {{Azure Event Grid}}},
   author = {{robece}},
@@ -602,6 +838,39 @@
   isbn = {978-1-4503-6016-6},
   venue = {Rennes, France},
   keywords = {Distributed computing,IBM Cloud Functions,IBM Cloud Object Storage,PyWren,Serverless computing}
+}
+
+@inproceedings{schwarzlRobustScalableProcess2022,
+  title = {Robust and~{{Scalable Process Isolation Against Spectre}} in~the~{{Cloud}}},
+  booktitle = {Computer {{Security}} – {{ESORICS}} 2022},
+  author = {Schwarzl, Martin and Borrello, Pietro and Kogler, Andreas and Varda, Kenton and Schuster, Thomas and Schwarz, Michael and Gruss, Daniel},
+  editor = {Atluri, Vijayalakshmi and Di Pietro, Roberto and Jensen, Christian D. and Meng, Weizhi},
+  date = {2022},
+  pages = {167--186},
+  publisher = {Springer Nature Switzerland},
+  location = {Cham},
+  doi = {10.1007/978-3-031-17146-8_9},
+  abstract = {In the quest for efficiency and performance, edge-computing providers replace process isolation with sandboxes, to support a high number of tenants per machine. While secure against software vulnerabilities, microarchitectural attacks can bypass these sandboxes.},
+  isbn = {978-3-031-17146-8},
+  langid = {english},
+  file = {/Users/oli/Zotero/storage/2AT8FTCU/Schwarzl et al. - 2022 - Robust and Scalable Process Isolation Against Spec.pdf}
+}
+
+@software{SecurefoundationsVWasm2024,
+  title = {Secure-Foundations/{{vWasm}}},
+  date = {2024-05-30T16:57:59Z},
+  origdate = {2022-02-15T00:11:26Z},
+  url = {https://github.com/secure-foundations/vWasm},
+  urldate = {2024-06-04},
+  abstract = {A formally-verified provably-safe sandboxing Wasm-to-native compiler},
+  organization = {Secure Foundations Lab}
+}
+
+@online{SecurityWebAssembly,
+  title = {Security - {{WebAssembly}}},
+  url = {https://webassembly.org/docs/security/},
+  urldate = {2024-06-04},
+  file = {/Users/oli/Zotero/storage/QMMIZE5U/security.html}
 }
 
 @inproceedings{sedefogluCostMinimizationDeploying2021,
@@ -716,6 +985,31 @@
   pagetotal = {626}
 }
 
+@online{Wasmtime,
+  title = {Wasmtime},
+  url = {https://wasmtime.dev/},
+  urldate = {2024-06-04},
+  file = {/Users/oli/Zotero/storage/FBM3EVU8/wasmtime.dev.html}
+}
+
+@online{WebAssembly,
+  title = {{{WebAssembly}}},
+  url = {https://webassembly.org/},
+  urldate = {2024-06-04},
+  file = {/Users/oli/Zotero/storage/69EJYWML/webassembly.org.html}
+}
+
+@online{WebAssemblyWasmCloudflare2024,
+  title = {{{WebAssembly}} ({{Wasm}}) · {{Cloudflare Workers}} Docs},
+  date = {2024-04-02},
+  url = {https://developers.cloudflare.com/workers/runtime-apis/webassembly/},
+  urldate = {2024-06-04},
+  abstract = {Execute code written in a language other than JavaScript or write an entire Cloudflare Worker in Rust.},
+  langid = {english},
+  organization = {Cloudflare Docs},
+  file = {/Users/oli/Zotero/storage/WFF8HG7H/webassembly.html}
+}
+
 @article{wenRisePlanetServerless2023,
   title = {Rise of the {{Planet}} of {{Serverless Computing}}: {{A Systematic Review}}},
   author = {Wen, Jinfeng and Chen, Zhenpeng and Jin, Xin and Liu, Xuanzhe},
@@ -730,4 +1024,14 @@
   url = {https://doi.org/10.1145/3579643},
   abstract = {Serverless computing is an emerging cloud computing paradigm, being adopted to develop a wide range of software applications. It allows developers to focus on the application logic in the granularity of function, thereby freeing developers from tedious and error-prone infrastructure management. Meanwhile, its unique characteristic poses new challenges to the development and deployment of serverless-based applications. To tackle these challenges, enormous research efforts have been devoted. This article provides a comprehensive literature review to characterize the current research state of serverless computing. Specifically, this article covers 164 articles on 17 research directions of serverless computing, including performance optimization, programming framework, application migration, multi-cloud development, testing and debugging, and so on. It also derives research trends, focus, and commonly-used platforms for serverless computing, as well as promising research opportunities.},
   keywords = {literature view,Serverless computing}
+}
+
+@online{WhatContainerDocker,
+  title = {What Is a {{Container}}? | {{Docker}}},
+  shorttitle = {What Is a {{Container}}?},
+  url = {https://www.docker.com/resources/what-container/},
+  urldate = {2024-06-04},
+  abstract = {A container is a standard unit of software that packages up code and all its dependencies so the application runs quickly and reliably from one computing environment to another. A Docker container image is a lightweight, standalone, executable package of software that includes everything needed to run an application: code, runtime, system tools, system libraries and settings.},
+  langid = {american},
+  file = {/Users/oli/Zotero/storage/D2URV2JQ/what-container.html}
 }
