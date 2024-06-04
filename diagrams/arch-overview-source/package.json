@@ -1,0 +1,12 @@
+{
+  "name": "@faaas/arch-overview-source",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "build": "poetry run python src/generate.py"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}

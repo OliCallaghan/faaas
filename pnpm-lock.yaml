@@ -117,12 +117,25 @@ importers:
         specifier: workspace:^
         version: link:../../../pkg/utils/sql
 
+  diagrams/arch-overview-source: {}
+
+  diagrams/arch-overview-split: {}
+
   diagrams/aws-lambda-exec-env: {}
 
   diagrams/aws-lambda-slot-placement: {}
 
   docs:
     dependencies:
+      '@faaas-bench/hello-seq':
+        specifier: workspace:^
+        version: link:../benchmarks/suites/hello-seq
+      '@faaas/arch-overview-source':
+        specifier: workspace:^
+        version: link:../diagrams/arch-overview-source
+      '@faaas/arch-overview-split':
+        specifier: workspace:^
+        version: link:../diagrams/arch-overview-split
       '@faaas/aws-lambda-exec-env':
         specifier: workspace:^
         version: link:../diagrams/aws-lambda-exec-env

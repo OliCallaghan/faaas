@@ -1,2 +1,38 @@
 \chapter{Design}
-Design stuff goes here
+
+\section{Developer Considerations}
+In alignment with the ethos of \faas{} whereby developer time is spent focusing on the business logic of their application rather than the infrastructure, the design of \faaasc{} should be such that it is easy to use and requires minimal developer effort to leverage the benefits of function splitting.
+
+Since the primary code target of \faaasc{} is JavaScript (and by extension TypeScript) serverless functions, specifically ES6 syntax, \faaasc{} should be designed such that it integrates with existing tooling to deploy to \awslambda{}, specifically Serverless\cite{serverless-cli}.
+
+\section{High-level Design}
+
+\begin{figure}[htp]
+    \centering
+    \subfigure[\faas{} architecture from request to response]{
+        \centering
+        \begin{tikzpicture}[scale = 0.75, every node/.style={scale=0.75}]
+            \input{node_modules/@faaas/arch-overview-source/assets/arch-overview-source.pgf}
+        \end{tikzpicture}
+    }\quad
+    \subfigure[Split \faas{} handler using message passing to between split sections of function handler body]{
+        \centering
+        \begin{tikzpicture}[scale = 0.75, every node/.style={scale=0.75}]
+            \input{node_modules/@faaas/arch-overview-split/assets/arch-overview-split.pgf}
+        \end{tikzpicture}
+    }
+    \caption{\faas{} architecture enabling split function handlers}
+\end{figure}
+
+\begin{listing}[H]
+  \inputminted{javascript}{node_modules/@faaas-bench/hello-seq/src/onHttpGetHello.trigger.ts}
+  \caption{Typical serverless function handler interacting with a database via an ORM.}
+\end{listing}
+
+AST of the handler body
+
+\begin{figure}[t]
+    \includegraphics[width=\linewidth]{node_modules/@faaas-bench/hello-seq/assets/module.pdf}
+    \caption{AST of handler body.}
+    \label{fig:suites-hello-seq-module-ast}
+\end{figure}

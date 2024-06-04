@@ -1,4 +1,6 @@
 packages:
+  - "diagrams/arch-overview-source"
+  - "diagrams/arch-overview-split"
   - "diagrams/aws-lambda-exec-env"
   - "diagrams/aws-lambda-slot-placement"
   - "docs"
@@ -9,6 +11,7 @@ packages:
   - "benchmarks/perf-v8-event-loop-results"
   - "benchmarks/perf-v8-event-loop-results-pprof"
   - "benchmarks/suites/bank"
+  - "benchmarks/suites/hello-seq"
   - "pkg/boss-faaas-engine"
   - "pkg/faaasc"
   - "pkg/faaastime"
