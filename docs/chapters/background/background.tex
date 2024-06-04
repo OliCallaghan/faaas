@@ -1,5 +1,31 @@
 \chapter{Background}
 
+\section{Origins of Serverless}
+\subsection{What is serverless?}
+\todo[inline]{Cite page 168 of wardley maps book}
+Serverless computing emerged in the mid-to-late 2000s\cite{wardleyWardleyMaps2022,IntroducingGoogleApp,patilServerlessComputingEmergence2021} as a new paradigm for deploying applications, with the emergence of low-cost public cloud providers\cite{patilServerlessComputingEmergence2021,BenjaminBlackEC2}. It allows developers to deploy applications without managing the underlying infrastructure, leading to much more scalable and cost-effective solutions.
+
+Typically, resources such as VMs\cite{hoeferTaxonomyCloudComputing2010} are rented in sub-second increments, and with storage and network charged by total usage. This results in a Pay-as-you-go (PAYG) model that can adapt to highly variable workloads\cite{sehgalCostBillingPractices2023,hilleyCloudComputingTaxonomy2009}.
+
+Serverless applications are usually composed of cloud provider managed services, such as databases, storage, and compute, and are often event-driven\cite{EventarcOverview,EventListenerAmazon,robeceOverviewAzureEvent2024}. This means that application logic can be invoked by events, such as HTTP requests, database changes, or file uploads. This allows the application to scale independently\cite{goniwadaCloudNativeArchitecture2022}, as the cloud provider can provision resources as needed.
+
+\subsection{What is \faas{}?}
+\todo[inline]{Define \faas{}, and discuss the benefits and drawbacks of using \faas{} architectures.}
+
+\section{Public \faas{} providers}
+\subsection{VM based providers}
+\todo[inline]{Discuss VM based providers, and the benefits and drawbacks of using them.}
+
+\subsection{Container based providers}
+\todo[inline]{Discuss container based providers, and the benefits and drawbacks of using them.}
+
+\section{Novel \faas{} approaches}
+\subsection{Wasm based providers}
+\todo[inline]{Discuss Wasm based providers, and the benefits and drawbacks of using them.}
+
+\subsection{V8 isolate based providers}
+\todo[inline]{Discuss V8 isolate based providers, and the benefits and drawbacks of using them.}
+
 \section{AWS Lambda}
 
 AWS Lambda is by far the most popular\cite{eismannReviewServerlessUse2020,StateServerlessDatadog} \faas{} platform used by developers to deploy serverless applications.
