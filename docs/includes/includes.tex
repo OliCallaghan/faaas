@@ -11,9 +11,17 @@
 \usepackage{epstopdf} % automatically replace .eps with .pdf in graphics
 \usepackage{array} % tables
 \usepackage{latexsym} % symbols
-\usepackage[pdftex,hypertexnames=false,colorlinks]{hyperref} % provide links in pdf
 
 \usepackage{subcaption} % For subfigures
+
+% Because of the way minted works, it needs to be loaded before hyperref
+\usepackage[pdftex,hypertexnames=false,colorlinks]{hyperref} % provide links in pdf
+
+% For code listings
+\usepackage{listings}
+\usepackage{minted}
+
+\usepackage{todonotes} % Because you're a lazy bastard
 \usepackage{csquotes} % Not sure what this is for
 \usepackage{siunitx} % For SI units
 
@@ -24,9 +32,6 @@
 \usepackage{tikz}
 \usepackage{tikz-cd}
 \usepackage{pgfplots}
-
-\usepackage{listings}
-\usepackage{minted}
 
 \setminted{linenos}
 \setminted{breaklines}

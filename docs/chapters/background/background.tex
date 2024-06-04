@@ -2,7 +2,7 @@
 
 \section{AWS Lambda}
 
-AWS Lambda is by far the most popular \faas{} platform used by developers to deploy code.
+AWS Lambda is by far the most popular\cite{} \faas{} platform used by developers to deploy serverless applications.
 
 \subsubsection{System architecture}
 
@@ -23,3 +23,11 @@ Each MicroVM provides a slot which can handle a single invocation, however once 
 \subsection{Pricing structure}
 
 Billed for execution time from start to finish, since a MicroVM is provisioned the entire time.
+
+\section{V8 and the Event Loop}
+\label{sec:js-event-loop}
+
+\todo[inline]{Outline the ins and outs of how event loops work. Also need to discuss re: function continuations.}
+
+\section{Function Continuations and Continuation Passing Style}
+A function continuation is a concept in programming\cite{sussman1975interpreter}, reified as a datastructure encapsulating an execution state, and a function pointer that can be called to resume execution. They are used extensively across many languages, for example, they form the underpinnings of Rust's Futures API.

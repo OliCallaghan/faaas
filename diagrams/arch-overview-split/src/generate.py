@@ -54,7 +54,7 @@ handler_0_to_sql = Edge("handler_0", "sql_bus", label="queries")
 sql_to_db = Edge("sql_bus", "db", label="invokes")
 
 # DB instance sends response to handler_1 task bus
-db_to_tsk_1 = Edge("db", "task_bus_1", label="responds")
+db_to_tsk_1 = Edge("db", "task_bus_1")
 
 # handler_1 task bus invokes handler_1
 tsk_1_to_handler_1 = Edge("task_bus_1", "handler_1", label="invokes")

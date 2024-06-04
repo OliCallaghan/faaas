@@ -6,6 +6,7 @@ In alignment with the ethos of \faas{} whereby developer time is spent focusing 
 Since the primary code target of \faaasc{} is JavaScript (and by extension TypeScript) serverless functions, specifically ES6 syntax, \faaasc{} should be designed such that it integrates with existing tooling to deploy to \awslambda{}, specifically Serverless\cite{serverless-cli}.
 
 \section{High-level Design}
+The core principal underpinning the design of \faaas{} is to decompose each \faas{} invocation into as a set of function continuations. Similarly to how event driven runtimes such as \js{} handle continuations of asynchronous code with an event loop as described in Section \ref{sec:js-event-loop}, \faaas{} takes advantage of function splitting (via code generation) and message passing to register continuations to be executed with a continuation context.
 
 \begin{figure}[htp]
     \centering
@@ -29,7 +30,30 @@ Since the primary code target of \faaasc{} is JavaScript (and by extension TypeS
   \caption{Typical serverless function handler interacting with a database via an ORM.}
 \end{listing}
 
-AST of the handler body
+\section{Splitting Directive}
+
+To reduce developer effort adapting existing functions to support function splitting, a custom directive is introduced into the function handler body, \verb|'use async'|. The purpose of this directive is to indicate to the \faaasc{} compiler that the function handler body should be split into multiple functions at this point, each of which is executed in separate \awslambda{} functions.
+
+This splitting directive draws inspiration by the \verb|'use strict'| directive in JavaScript, which indicates that the code should be executed in strict mode. The \verb|'use async'| directive is a pragma that is not part of the JavaScript language, but is understood by the \faaasc{} compiler. Therefore as a result, unless the \faaasc{} compiler is used, the directive will be ignored by the JavaScript runtime, and so the same code can be run on any other \faas{} platform without modification.
+
+\begin{listing}[H]
+\begin{minted}[obeytabs=true,tabsize=2]{javascript}
+export async function handler(_) {
+  "use async";
+  const foo = await bar();
+}
+\end{minted}
+\caption{Example usage of the directive.}
+\label{listing:use-async-simple-example}
+\end{listing}
+
+Immediately following the \verb|'use async'| directive, it is expected that a variable declaration is made and initialised to the resolved value from a promise constructed by calling a function, as seen in Listing \ref{listing:use-async-simple-example}.
+
+\section{Capturing Scope}
+
+Since from the developer's perspective, the function handler body is a single function, the \faaasc{} compiler must capture the scope of the function handler body at the point of the \verb|'use async'| directive. This is achieved by parsing the function handler body into an Abstract Syntax Tree (AST), and capturing any uses of now free variables beyond the split point.
+
+This scope is captured into a serialized context, and stored so that the continuation can be executed with the correct scope. The continuation is invoked when the async request is completed.
 
 \begin{figure}[t]
     \includegraphics[width=\linewidth]{node_modules/@faaas-bench/hello-seq/assets/module.pdf}
