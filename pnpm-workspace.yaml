@@ -3,6 +3,7 @@ packages:
   - "diagrams/arch-overview-split"
   - "diagrams/aws-lambda-exec-env"
   - "diagrams/aws-lambda-slot-placement"
+  - "diagrams/double-billing-problem"
   - "docs"
   - "benchmarks/perf-v8-event-loop"
   - "benchmarks/perf-v8-event-loop-db"

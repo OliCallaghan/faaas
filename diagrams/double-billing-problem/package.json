@@ -1,0 +1,11 @@
+{
+  "name": "@faaas/double-billing-problem",
+  "version": "1.0.0",
+  "description": "",
+  "scripts": {
+    "build": "poetry run python src/generate.py"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}

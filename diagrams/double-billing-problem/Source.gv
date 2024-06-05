@@ -1,0 +1,11 @@
+digraph "double-billing-problem-split" {
+rankdir=LR;
+fn_fst [label="func | <db_req> query", shape=record];
+fn_snd [label="<db_res> await | ret", shape=record];
+db [label="<db_req> handle | db | db | <db_res> db", shape=record];
+fn_fst:db_req -> db:db_req;
+db:db_res -> fn_snd:db_res;
+state [label=state, shape=circle];
+fn_fst -> state;
+state -> fn_snd;
+}

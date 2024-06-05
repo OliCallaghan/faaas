@@ -125,6 +125,8 @@ importers:
 
   diagrams/aws-lambda-slot-placement: {}
 
+  diagrams/double-billing-problem: {}
+
   docs:
     dependencies:
       '@faaas-bench/hello-seq':
@@ -139,6 +141,9 @@ importers:
       '@faaas/aws-lambda-exec-env':
         specifier: workspace:^
         version: link:../diagrams/aws-lambda-exec-env
+      '@faaas/double-billing-problem':
+        specifier: workspace:^
+        version: link:../diagrams/double-billing-problem
       '@faaas/perf-v8-event-loop-results':
         specifier: workspace:^
         version: link:../benchmarks/perf-v8-event-loop-results

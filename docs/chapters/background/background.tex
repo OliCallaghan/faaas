@@ -1,7 +1,7 @@
 \chapter{Background}
 
-\section{Serverless vs \faas{}}
-\subsection{What is serverless}
+\section{Terminology}
+\subsection{What is serverless?}
 \todo[inline]{Cite page 168 of wardley maps book}
 Serverless computing emerged in the mid-to-late 2000s\cite{wardleyWardleyMaps2022,IntroducingGoogleApp,patilServerlessComputingEmergence2021} as a new paradigm for deploying applications, with the emergence of low-cost public cloud providers\cite{patilServerlessComputingEmergence2021,BenjaminBlackEC2}. It allows developers to deploy applications without managing the underlying infrastructure, leading to much more scalable and cost-effective solutions.
 
@@ -9,10 +9,22 @@ Typically, resources such as VMs\cite{hoeferTaxonomyCloudComputing2010} are rent
 
 Serverless applications are usually composed of cloud provider managed services, such as databases, storage, and compute, and are often event-driven\cite{EventarcOverview,EventListenerAmazon,robeceOverviewAzureEvent2024}. This means that application logic can be invoked by events, such as HTTP requests, database changes, or file uploads. This allows the application to scale independently\cite{goniwadaCloudNativeArchitecture2022}, as the cloud provider can provision resources as needed.
 
+\subsection{What is a VM?}
+\todo[inline]{Talk about how VMs act as an abstraction over physical hardware and can be provisioned to run applications. Typical startup times can vary based on how heavy-weight the VM is, typically ranging from seconds to minutes.}
+
+\subsection{What is a container?}
+\todo[inline]{Introduce containers as now the defacto standard of deployment of applications to cloud and serverless environments.}
+
+\subsubsection{CGroups and Namespaces}
+\todo[inline]{Talk about: CGroups, Namespaces and how they provide isolation mechanisms for containers.}
+
+\subsubsection{Container Runtimes}
+\todo[inline]{Talk about: runC, rkt, containerd, lxc.}
+
 \subsection{What is \faas{}?}
 Derived from the success of serverless computing, \faas{} rose to prominence in the mid-2010s\cite{AmazonWebServices2014,azureAnnouncingGeneralAvailability2016}. It allows developers to write code as functions that are executed in sandboxed environments in response to events, such as HTTP requests, database changes, or file uploads\cite{EventarcOverview,EventListenerAmazon,robeceOverviewAzureEvent2024}. Typically, serverless functions are billed for the duration of their execution in addition to a flat invocation cost, allowing for fine-grained billing of resources\cite{bortoliniInvestigatingPerformanceCost2020}. Additionally, since the underlying infrastructure of the function is abstracted away from the developer, the responsibility for scaling the function is moved to the cloud provider.
 
-\section{\faas{} isolation methods}
+\section{\faas{} isolation mechanisms}
 Typically, multi-tenany public \faas{} providers can be characterised into two categories: providers offering VM based isolation\cite{agacheFirecrackerLightweightVirtualization2020} and providers offering container based isolation\cite{GVisor}. Both types provide differing levels of security guarantees, and have different performance characteristics.
 
 \subsection{VM based isolation}
@@ -56,8 +68,18 @@ Sledge reduces cold-start times and increases throughput over other WASM based \
 
 FaaSM employs a similar approach to container based isolation, using CGroups and Namespaces for isolation, and executing WASM binaries. In order to improve interprocess communication and persisting state, FaaSM utilises shared memory to allow functions to communicate with one another\cite{shillakerFaasmLightweightIsolation2020}.
 
-\section{AWS Lambda}
+\section{Characteristics of \faas{} workloads}
+A review of serverless use cases and their characteristics by Eismann et al.\cite{eismannReviewServerlessUse2020} found that the majority of serverless functions have shortlived executions on the order of milliseconds to seconds.
 
+They found that the most popular languages to write serverless functions in were JavaScript, Python. Additionally, they note that the majority of applications consisted of 5 or less distinct cloud functions, indicating that large granularity is preferred for serverless functions.
+
+Finally, they identified that the overwhelming majority of serverless functions interface with persistent block storage, and databases, accounting for 61\% and 47\% respectively.
+
+\section{\faas{} billing models}
+\label{sec:faas-billing-models}
+\todo[inline]{Describe a deep dive on faas billing models}
+
+\section{AWS Lambda}
 AWS Lambda is by far the most popular\cite{eismannReviewServerlessUse2020,StateServerlessDatadog} \faas{} platform used by developers to deploy serverless applications.
 
 \subsubsection{System architecture}

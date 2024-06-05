@@ -50,8 +50,20 @@ This research aims to yield control back to the runtime from these `functions' w
 
 Typical \faas{} workloads can be characterised as `glue', most commonly handling HTTP requests and interacting with a form of persistent storage --- in fact, around 50\% of all serverless functions fall into this category\cite{eismannReviewServerlessUse2020}.
 
-\faas{} architectures generally tend to decrease costs, achieving this by using a fine-grained billing model, charging per invocation, and for compute and memory allocations in subsecond increments over the duration of execution, ensuring wasted resources are released back to the cloud provider once a function terminates.
+\faas{} architectures generally tend to decrease costs, achieving this by using a fine-grained billing model as described in Section \ref{sec:faas-billing-models}, charging per invocation, and for compute and memory allocations in subsecond increments over the duration of execution, ensuring wasted resources are released back to the cloud provider once a function terminates.
 
 The resolution of the billing model however extends only to the level of granularity of functions, whereby resources are allocated for the entire lifetime of the function's execution. This is particularly important when considering that the serverless suffers from additional latency when accessing persistent storage, for example, the average latency between AWS Lambda and DynamoDB is usually \qtyrange{60}{90}{\ms}\cite{ghoshCachingTechniquesImprove2020}.
 
-Since the median execution time for serverless functions lies between milliseconds and a second\cite{eismannReviewServerlessUse2020}, this latency accounts for a significant proportion of time when resources are allocated and unused during function execution time. Developers are charged for this time, and cannot temporarily yield resources back to the host until the asynchronous action completes.
+Since the median execution time for serverless functions lies between milliseconds and a second\cite{eismannReviewServerlessUse2020}, this latency accounts for a significant proportion of time when resources are allocated and unused during function execution time. Developers are charged for this time, and cannot temporarily yield resources back to the host until the asynchronous action completes. This is refered to as the double billing problem\cite{baldiniServerlessTrilemmaFunction2017,yuCharacterizingServerlessPlatforms2020}.
+
+\begin{figure}[t]
+    \includegraphics[width=\linewidth]{node_modules/@faaas/double-billing-problem/assets/double-billed-db.pdf}
+    \caption{Double billing in action with call to persistent storage. Note that the function handler is idle whilst the DB is executing its query, yet still billed for the entire duration of the function.}
+    \label{fig:double-billing-db}
+\end{figure}
+
+\begin{figure}[t]
+    \includegraphics[width=\linewidth]{node_modules/@faaas/double-billing-problem/assets/double-billed-db-split.pdf}
+    \caption{Illustration of termination function execution once DB request has been sent, with DB responsible for invoking the remaineder of the function with the result of the query.}
+    \label{fig:double-billing-db-split}
+\end{figure}
