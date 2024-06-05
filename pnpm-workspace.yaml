@@ -4,6 +4,7 @@ packages:
   - "diagrams/aws-lambda-exec-env"
   - "diagrams/aws-lambda-slot-placement"
   - "diagrams/double-billing-problem"
+  - "diagrams/pricing"
   - "docs"
   - "benchmarks/perf-v8-event-loop"
   - "benchmarks/perf-v8-event-loop-db"

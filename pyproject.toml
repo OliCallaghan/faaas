@@ -5,6 +5,8 @@ include = [
     "diagrams/arch-overview-source/src",
     "diagrams/arch-overview-split/src",
     "diagrams/aws-lambda-exec-env/src",
+    "diagrams/double-billing-problem/src",
+    "diagrams/pricing/src",
 ]
 exclude = ["**/node_modules", "**/__pycache__"]
 
@@ -22,6 +24,8 @@ executionEnvironments = [
     { root = "diagrams/arch-overview-source/src" },
     { root = "diagrams/arch-overview-split/src" },
     { root = "diagrams/aws-lambda-exec-env/src" },
+    { root = "diagrams/double-billing-problem/src" },
+    { root = "diagrams/pricing/src" },
 ]
 
 [tool.poetry]

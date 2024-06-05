@@ -8,9 +8,9 @@
     \caption{\faas{} function execution profile}
 \end{figure}
 
-\faasxlong{} provides an abstraction over application development, decomposing programs into isolated units called `functions', which are invoked by events such as HTTP requests, or messages received from a message bus.
+\faasxlong{} provides an abstraction over application development, decomposing programs into isolated stateless units called `functions', invoked by events such as HTTP requests, or messages received from a message bus\cite{ibmWhatFaaSFunctionasaService2024}.
 
-This abstraction simplifies application development, allowing developers to focus on the business logic of their system, rather than managing and scaling underlying infrastructure. Typically, developers design serverless functions to be stateless, enabling horizontal scaling, communicating with persistent storage to persist state between function invocations.
+This abstraction simplifies development, allowing developers to focus on the underlying business logic of their system, rather than managing and scaling infrastructure. Typically, developers design serverless functions to be stateless\cite{ggailey777AzureFunctionsBest2022}, enabling horizontal scaling\cite{ngoEvaluatingScalabilityElasticity2022}, communicating with persistent storage to persist state between function invocations.
 
 In these execution environments, whilst `functions' are running, they are allocated and guaranteed resources such as CPU and memory throughout the lifecycle of its invocation. Whilst in theory this seems beneficial, in practice, this leads to wasted resources, as the function may be awaiting an asynchronous operation to complete, such as a network request.
 
@@ -26,7 +26,6 @@ This research aims to yield control back to the runtime from these `functions' w
     \item A costing analysis and evaluation of the required advancements to the serverless ecosystem to provide cost reductions by carrying out code splitting.
 \end{itemize}
 
-% Motivation
 \section{Motivation}
 % Syscall Calls Breakdown
 \begin{figure}
@@ -44,6 +43,12 @@ This research aims to yield control back to the runtime from these `functions' w
     \caption{\faas{} petstore syscall time profile}
 \end{figure}
 
+\faaslong{} has become increasingly more common amongst system architectures since the introduction of AWS Lambda\cite{amazonAWSLambda2024}. Typical \faas{} workloads can be characterised as `glue', most commonly handling HTTP requests and interacting with a form of persistent storage --- in fact, around 50\% of all serverless functions fall into this category\cite{eismannReviewServerlessUse2020}.
+
+\faas{} architectures generally tend to decrease costs, achieving this by using a fine-grained billing model as described in Section \ref{sec:faas-billing-models}, charging per invocation, and for compute and memory allocations in subsecond increments over the duration of execution, ensuring wasted resources are released back to the cloud provider once a function terminates.
+
+The resolution of the billing model however extends only to the level of granularity of functions, whereby resources are allocated for the entire lifetime of the function's execution. This is particularly important when considering that the serverless suffers from additional latency when accessing persistent storage, for example, the average latency between AWS Lambda and DynamoDB is usually \qtyrange{60}{90}{\ms}\cite{ghoshCachingTechniquesImprove2020}.
+
 % PProf Sample from PetStore PutPet Function
 \begin{figure*}
     \begin{center}
@@ -54,15 +59,7 @@ This research aims to yield control back to the runtime from these `functions' w
     \caption{\faas{} petstore PutPet pprof sample}
 \end{figure*}
 
-\faaslong{} has become increasingly more common amongst system architectures since the introduction of AWS Lambda\cite{amazonAWSLambda2024} in 2014, with developers citing cost, scalability, and ease of development as the most important factors\cite{eismannReviewServerlessUse2020}.
-
-Typical \faas{} workloads can be characterised as `glue', most commonly handling HTTP requests and interacting with a form of persistent storage --- in fact, around 50\% of all serverless functions fall into this category\cite{eismannReviewServerlessUse2020}.
-
-\faas{} architectures generally tend to decrease costs, achieving this by using a fine-grained billing model as described in Section \ref{sec:faas-billing-models}, charging per invocation, and for compute and memory allocations in subsecond increments over the duration of execution, ensuring wasted resources are released back to the cloud provider once a function terminates.
-
-The resolution of the billing model however extends only to the level of granularity of functions, whereby resources are allocated for the entire lifetime of the function's execution. This is particularly important when considering that the serverless suffers from additional latency when accessing persistent storage, for example, the average latency between AWS Lambda and DynamoDB is usually \qtyrange{60}{90}{\ms}\cite{ghoshCachingTechniquesImprove2020}.
-
-Since the median execution time for serverless functions lies between milliseconds and a second\cite{eismannReviewServerlessUse2020}, this latency accounts for a significant proportion of time when resources are allocated and unused during function execution time. Developers are charged for this time, and cannot temporarily yield resources back to the host until the asynchronous action completes. This is refered to as the double billing problem\cite{baldiniServerlessTrilemmaFunction2017,yuCharacterizingServerlessPlatforms2020}.
+Since the median execution time for serverless functions lies between milliseconds and a second\cite{eismannReviewServerlessUse2020}, this latency accounts for a significant proportion of time when resources are allocated and unused during function execution time. Developers are charged for this time, and cannot temporarily yield resources back to the host until the asynchronous action completes. This is refered to as the double billing problem\cite{baldiniServerlessTrilemmaFunction2017,yuCharacterizingServerlessPlatforms2020} and discussed further in Section \ref{sec:double-billing-problem}.
 
 \begin{figure}[t]
     \includegraphics[width=\linewidth]{node_modules/@faaas/double-billing-problem/assets/double-billed-db.pdf}

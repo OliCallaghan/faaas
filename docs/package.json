@@ -14,6 +14,7 @@
     "@faaas/aws-lambda-exec-env": "workspace:^",
     "@faaas/double-billing-problem": "workspace:^",
     "@faaas/perf-v8-event-loop-results": "workspace:^",
-    "@faaas/perf-v8-event-loop-results-pprof": "workspace:^"
+    "@faaas/perf-v8-event-loop-results-pprof": "workspace:^",
+    "@faaas/pricing": "workspace:^"
   }
 }

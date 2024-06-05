@@ -127,6 +127,8 @@ importers:
 
   diagrams/double-billing-problem: {}
 
+  diagrams/pricing: {}
+
   docs:
     dependencies:
       '@faaas-bench/hello-seq':
@@ -150,6 +152,9 @@ importers:
       '@faaas/perf-v8-event-loop-results-pprof':
         specifier: workspace:^
         version: link:../benchmarks/perf-v8-event-loop-results-pprof
+      '@faaas/pricing':
+        specifier: workspace:^
+        version: link:../diagrams/pricing
 
   pkg/boss-faaas-engine: {}
 

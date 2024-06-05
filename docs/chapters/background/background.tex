@@ -68,16 +68,71 @@ Sledge reduces cold-start times and increases throughput over other WASM based \
 
 FaaSM employs a similar approach to container based isolation, using CGroups and Namespaces for isolation, and executing WASM binaries. In order to improve interprocess communication and persisting state, FaaSM utilises shared memory to allow functions to communicate with one another\cite{shillakerFaasmLightweightIsolation2020}.
 
+\section{\faas{} billing models}
+\label{sec:faas-billing-models}
+
+The \faas{} billing model is a complex model built around a number of factors that vary between cloud providers. Despite their intricacies and differences, the prevailing common billing model, referred to in Equation \ref{eq:faas-billing-model} can be characterised by a function of: a flat-rate invocation cost ($C_i$), and a rate ($C_r$) per unit of time ($G$) charged over the total invocation time ($t$), from the start of a function to the point at which it returns a response, with a minimum billable cost $C_{min}$.
+
+\begin{equation} \label{eq:faas-billing-model}
+C_t = C_i + \max\left(C_{min},\ceil*{\frac{t}{G}} C_r\right)
+\end{equation}
+
+All the major cloud providers scale their charged rate per unit of time linearly with resource allocation.
+
+\begin{figure*}[ht]
+    \begin{center}
+        \input{node_modules/@faaas/pricing/assets/min-yield-time.pgf}
+    \end{center}
+    \caption{\faas{} billing viability for invoking a new function}
+\end{figure*}
+
+Billing cost curves for function resource allocations of \SI{128}{\mega\byte}, \SI{256}{\mega\byte} and \SI{512}{\mega\byte} respectively on each of the three major cloud platforms are shown in Figure \ref{fig:faas-billing-cost-curves}. Notice that the cost curves for AWS Lambda are linear since they have no minimum billable cost, whereas Azure Functions and Google Cloud Functions have a minimum billable cost, resulting in a flat initial cost for the first \SI{100}{\milli\second}.
+
+\begin{figure*}[htp]
+    \centering
+    \subfigure[AWS Lambda billing cost curve]{
+        \centering
+        \input{node_modules/@faaas/pricing/assets/billed-cost-aws.pgf}
+    }\quad
+    \subfigure[Azure Functions billing cost curve]{
+        \centering
+        \input{node_modules/@faaas/pricing/assets/billed-cost-azure.pgf}
+    }\quad
+    \subfigure[Google Cloud Functions billing cost curve]{
+        \centering
+        \input{node_modules/@faaas/pricing/assets/billed-cost-gcf.pgf}
+    }
+    \caption{\faas{} billing cost curves by cloud provider}
+    \label{fig:faas-billing-cost-curves}
+\end{figure*}
+
+\subsection{AWS Lambda billing model}
+AWS Lambda varies its pricing depending on the datacentre location. As of writing, the pricing model for AWS Lambda is fixed across all regions in the United States, as well as many locations in the EU\cite{ServerlessComputingAWS}.
+
+The flat-rate invocation cost ($C_i$) is uniform regardless of the resources provisioned, and decreases as the number of invocations scales to the millions. The rate per unit of time ($C_r$) is charged based on memory allocation to the function, since function CPU share is not configurable.
+
+Additionally, as of 2020, AWS Lambda changed its billing granularity from \SI{100}{\milli\second} to \SI{1}{\milli\second}\cite{AWSLambdaChanges}, with no minimum billable cost $C_{min}$. As a result, this makes AWS Lambda the only viable option for function splitting with of OLTP workloads, as discussed in Section \ref{sec:double-billing-problem}.
+
+\todo[inline]{Link back to where this change is relevant because its the only provider which has this level of granularity.}
+
+\subsection{Google Cloud Platform}
+Google Cloud Functions' (GCF) billing model is similar to AWS Lambda, with a fixed cost per invocation, and a cost per unit of time. GCF charge per \SI{100}{\milli\second} of execution time, rounded up, with a minimum of \SI{100}{\milli\second} per invocation\cite{PricingCloudFunctions}. Unlike AWS Lambda, GCF additionally charged for network traffic outside of the region, and thus for HTTP requests, the size of the response payload must also be accounted for. Also unlike AWS Lambda, GCF allow for different configurations of CPU and memory, which are charged independently ($C_r = C_c + C_m$) of one another.
+
+\subsection{Azure Functions}
+Azure Functions use the same billing model, charging per invocation and per unit of execution time, with a granularity of \SI{1}{\milli\second}\cite{PricingFunctionsMicrosoft}. Notably however, they have bill for a minimum execution time of \SI{100}{\milli\second}, with the lowest resource allocation \SI{128}{\mega\byte}.
+
+\section{Double billing problem}
+\label{sec:double-billing-problem}
+\todo[inline]{Describe the double billing problem}
+
 \section{Characteristics of \faas{} workloads}
 A review of serverless use cases and their characteristics by Eismann et al.\cite{eismannReviewServerlessUse2020} found that the majority of serverless functions have shortlived executions on the order of milliseconds to seconds.
 
-They found that the most popular languages to write serverless functions in were JavaScript, Python. Additionally, they note that the majority of applications consisted of 5 or less distinct cloud functions, indicating that large granularity is preferred for serverless functions.
+It was found that the most popular languages to write serverless functions in were JavaScript, Python. Additionally, it was noted that the majority of applications consisted of 5 or less distinct cloud functions, indicating that large granularity is preferred for serverless functions.
 
-Finally, they identified that the overwhelming majority of serverless functions interface with persistent block storage, and databases, accounting for 61\% and 47\% respectively.
+Finally, it was identified that the overwhelming majority of serverless functions interface with persistent block storage, and databases, accounting for 61\% and 47\% respectively.
 
-\section{\faas{} billing models}
-\label{sec:faas-billing-models}
-\todo[inline]{Describe a deep dive on faas billing models}
+This further reinforces the notion that \faas{} workloads are much more prone to the double-billing problem, as described further in Section \ref{sec:double-billing-problem}.
 
 \section{AWS Lambda}
 AWS Lambda is by far the most popular\cite{eismannReviewServerlessUse2020,StateServerlessDatadog} \faas{} platform used by developers to deploy serverless applications.
