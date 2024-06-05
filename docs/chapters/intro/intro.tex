@@ -1,6 +1,13 @@
 % Introduction
 \chapter{Introduction}
 
+\begin{figure}
+    \begin{center}
+        \input{node_modules/@faaas/perf-v8-event-loop-results/assets/faas-profile-waiting-on-io.pgf}
+    \end{center}
+    \caption{\faas{} function execution profile}
+\end{figure}
+
 \faasxlong{} provides an abstraction over application development, decomposing programs into isolated units called `functions', which are invoked by events such as HTTP requests, or messages received from a message bus.
 
 This abstraction simplifies application development, allowing developers to focus on the business logic of their system, rather than managing and scaling underlying infrastructure. Typically, developers design serverless functions to be stateless, enabling horizontal scaling, communicating with persistent storage to persist state between function invocations.
@@ -9,17 +16,18 @@ In these execution environments, whilst `functions' are running, they are alloca
 
 In these environments, `functions' are typically implemented either as containers or as virtual machines running atop a serverless `runtime'; whilst these containers are awaiting I/O such as network requests, resources are still allocated, used to determine whether execution can continue.
 
-This research aims to yield control back to the runtime from these `functions' whilst awaiting asynchronous operations to complete, allowing useful work to be scheduled by the runtime.
+This research aims to yield control back to the runtime from these `functions' whilst awaiting asynchronous operations to complete, allowing useful work to be scheduled by the runtime. Throughout this report, we propose three main contributions:
+
+\begin{itemize}
+    \item The \faaasc{} compiler that performs code splitting of JavaScript serverless functions, allowing a function to optionall be deployed in a split manner on any supported Serverless\cite{serverlessServerlessZeroFrictionServerless2024} platform.
+
+    \item The \faaastime{} serverless runtime stack that accurately bills, composes and executes serverless JavaScript functions emitted by \faaasc{}.
+
+    \item A costing analysis and evaluation of the required advancements to the serverless ecosystem to provide cost reductions by carrying out code splitting.
+\end{itemize}
 
 % Motivation
 \section{Motivation}
-\begin{figure}
-    \begin{center}
-        \input{node_modules/@faaas/perf-v8-event-loop-results/assets/faas-profile-waiting-on-io.pgf}
-    \end{center}
-    \caption{\faas{} function execution profile}
-\end{figure}
-
 % Syscall Calls Breakdown
 \begin{figure}
     \begin{center}
