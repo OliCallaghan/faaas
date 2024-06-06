@@ -126,12 +126,22 @@ Google Cloud Functions' (GCF) billing model is similar to AWS Lambda, with a fix
 \subsection{Azure Functions}
 Azure Functions use the same billing model, charging per invocation and per unit of execution time, with a granularity of \SI{1}{\milli\second}\cite{PricingFunctionsMicrosoft}. Notably however, they have bill for a minimum execution time of \SI{100}{\milli\second}, with the lowest resource allocation \SI{128}{\mega\byte}.
 
+\section{\caas{} billing models}
+In contrast to \faas{} billing models, typically \caasxlong{} billing models offer a coarser blling granularity. AWS, Google Cloud and Azure all offer \caas{} services, with AWS Fargate, Google Cloud Run and Azure Container Instances respectively, to complement their \faas{} offerings.
+
+\subsection{Google Cloud Run}
+\label{sec:cloud-run-billing-model}
+Google Cloud Run offers a scale-to-zero solution, and the billing only for this configuration will be discussed. Cloud Run bills based on the resource allocation of the container, with a minimum charge of \SI{100}{\milli\second} per invocation\cite{PricingCloudRun}. The billing granularity, similar to Google Cloud Functions, is charged per \SI{100}{\milli\second} of execution time, rounded up, with a minimum of \SI{100}{\milli\second} per invocation. Additionally, Google Cloud Run charges for network egress, and a flat invocation fee per request made to the service.
+
+The core difference between Google Cloud Functions and Google Cloud Run is that the latter charges for the time the container is executing, rather than the time each request takes to resolve. This allows concurrent requests awaiting IO to not be double charged, as described in Section \ref{sec:double-billing-problem}.
+
 \section{Double billing problem}
 \label{sec:double-billing-problem}
 
 The double billing problem emerges from the fact that \faas{} platforms charge for the time a function is running, and not the time a function is actively executing code. This means that if a function is waiting for a response from an asynchronous service, it is still being billed for the time it spends waiting.
 
-Figure \ref{fig:double-billing-db} illustrates this exact scnario whereby a function makes a request to a database, and is billed whilst idle and awaiting the response.
+\subsection{Double billing when accessing persistent storage}
+Figure \ref{fig:double-billing-db} illustrates this exact scenario whereby a function makes a request to a database, and is billed whilst idle and awaiting the response.
 
 \begin{figure}[t]
     \includegraphics[width=\linewidth]{node_modules/@faaas/double-billing-problem/assets/double-billed-db.pdf}
@@ -141,8 +151,9 @@ Figure \ref{fig:double-billing-db} illustrates this exact scnario whereby a func
 
 This is particularly problematic for serverless functions, which are designed to be stateless, and typically communicate with persistent storage to mainain state. This is further compounded by each function instance handling a single request at time.
 
-In other less fine-grained systems such as CaaS, where a single instance handles multiple requests, this is not an issue, as the function can perform other useful work, such as accepting additional requests, while waiting for a response from an asynchronous service.
+In other systems with a less finegrained billing model such as \caas{} offerings, an example of which is Google Cloud Run described in Section \ref{sec:cloud-run-billing-model}, where a single instance handles multiple requests, this is not an issue, as the function can perform other useful work, such as accepting additional requests, while waiting for a response from an asynchronous service.
 
+\subsection{Double billing when nesting function invocations}
 This issue also manifests more importantly when function invocations are nested as in Figure \ref{fig:double-billing-nested}. Considered an antipattern for this reason\cite{LambdaFunctionsCalling}, nested function invocations lead to a cascading effect of double billing, where each function invocation waits for the next to complete, and is billed for the entire duration of the called function.
 
 \begin{figure}[t]
@@ -150,8 +161,6 @@ This issue also manifests more importantly when function invocations are nested 
     \caption{Double billing in action with nested function invocations. Note that the function handler is idle whilst awaiting the nested invocation, yet still billed for the entire duration of the function.}
     \label{fig:double-billing-nested}
 \end{figure}
-
-\todo[inline]{Define CaaS}
 
 \begin{figure*}[t]
     \begin{center}
