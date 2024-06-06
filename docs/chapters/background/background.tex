@@ -79,13 +79,6 @@ C_t = C_i + \max\left(C_{min},\ceil*{\frac{t}{G}} C_r\right)
 
 All the major cloud providers scale their charged rate per unit of time linearly with resource allocation.
 
-\begin{figure*}[ht]
-    \begin{center}
-        \input{node_modules/@faaas/pricing/assets/min-yield-time.pgf}
-    \end{center}
-    \caption{\faas{} billing viability for invoking a new function}
-\end{figure*}
-
 Billing cost curves for function resource allocations of \SI{128}{\mega\byte}, \SI{256}{\mega\byte} and \SI{512}{\mega\byte} respectively on each of the three major cloud platforms are shown in Figure \ref{fig:faas-billing-cost-curves}. Notice that the cost curves for AWS Lambda are linear since they have no minimum billable cost, whereas Azure Functions and Google Cloud Functions have a minimum billable cost, resulting in a flat initial cost for the first \SI{100}{\milli\second}.
 
 \begin{figure*}[htp]
@@ -123,7 +116,38 @@ Azure Functions use the same billing model, charging per invocation and per unit
 
 \section{Double billing problem}
 \label{sec:double-billing-problem}
-\todo[inline]{Describe the double billing problem}
+
+The double billing problem emerges from the fact that \faas{} platforms charge for the time a function is running, and not the time a function is actively executing code. This means that if a function is waiting for a response from an asynchronous service, it is still being billed for the time it spends waiting.
+
+Figure \ref{fig:double-billing-db} illustrates this exact scnario whereby a function makes a request to a database, and is billed whilst idle and awaiting the response.
+
+\begin{figure}[t]
+    \includegraphics[width=\linewidth]{node_modules/@faaas/double-billing-problem/assets/double-billed-db.pdf}
+    \caption{Double billing in action with call to persistent storage. Note that the function handler is idle whilst the DB is executing its query, yet still billed for the entire duration of the function.}
+    \label{fig:double-billing-db}
+\end{figure}
+
+This is particularly problematic for serverless functions, which are designed to be stateless, and typically communicate with persistent storage to mainain state. This is further compounded by each function instance handling a single request at time.
+
+In other less fine-grained systems such as CaaS, where a single instance handles multiple requests, this is not an issue, as the function can perform other useful work, such as accepting additional requests, while waiting for a response from an asynchronous service.
+
+This issue also manifests more importantly when function invocations are nested as in Figure \ref{fig:double-billing-nested}. Considered an antipattern for this reason\cite{LambdaFunctionsCalling}, nested function invocations lead to a cascading effect of double billing, where each function invocation waits for the next to complete, and is billed for the entire duration of the called function.
+
+\begin{figure}[t]
+    \includegraphics[width=\linewidth]{node_modules/@faaas/double-billing-problem/assets/double-billed-nested.pdf}
+    \caption{Double billing in action with nested function invocations. Note that the function handler is idle whilst awaiting the nested invocation, yet still billed for the entire duration of the function.}
+    \label{fig:double-billing-nested}
+\end{figure}
+
+
+\todo[inline]{Define CaaS}
+
+\begin{figure*}[t]
+    \begin{center}
+        \input{node_modules/@faaas/pricing/assets/min-yield-time.pgf}
+    \end{center}
+    \caption{\faas{} billing viability for invoking a new function}
+\end{figure*}
 
 \section{Characteristics of \faas{} workloads}
 A review of serverless use cases and their characteristics by Eismann et al.\cite{eismannReviewServerlessUse2020} found that the majority of serverless functions have shortlived executions on the order of milliseconds to seconds.
