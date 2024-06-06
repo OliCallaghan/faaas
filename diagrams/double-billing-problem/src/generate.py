@@ -26,23 +26,23 @@ graph.write(format="pdf", path="assets/double-billed-db.pdf")
 ## Double Billing Problem Nested Function
 graph = Dot("double-billing-problem-nest", graph_type="digraph", rankdir="LR")
 
-fn_fst = Node("fn_fst", label="invoke | <nest_req> nest | &#8987; | &#8987; | &#8987; | &#8987; | <nest_res> await | return", shape="record")
-fn_snd = Node("fn_snd", label="<nest_req> invoke | <db_req> query | &#8987; | &#8987; | <db_res> await | <nest_res> return", shape="record")
-db = Node("db", label="<db_req> db | <db_res> db", shape="record")
+fn_fst = Node("fn_fst", label="invoke | <nest_req> nest | &#8987; | &#8987; | &#8987; | &#8987; | &#8987; | &#8987; | <nest_res> await | return", shape="record")
+fn_snd = Node("fn_snd", label="<nest_req> invoke | <nest_req2> query | &#8987; | &#8987; | <nest_res2> await | <nest_res> return", shape="record")
+fn_thd = Node("fn_thd", label="<nest_req> invoke | <nest_res> return", shape="record")
 
 billed_unit_of_time = Node("billed_unit_of_time", label="... | ...", shape="record")
 
 graph.add_node(fn_fst)
 graph.add_node(fn_snd)
-graph.add_node(db)
+graph.add_node(fn_thd)
 
 graph.add_node(billed_unit_of_time)
 
 nest_req = Edge("fn_fst:nest_req", "fn_snd:nest_req")
 nest_res = Edge("fn_snd:nest_res", "fn_fst:nest_res")
 
-db_req = Edge("fn_snd:db_req", "db:db_req")
-db_res = Edge("db:db_res", "fn_snd:db_res")
+db_req = Edge("fn_snd:nest_req2", "fn_thd:nest_req")
+db_res = Edge("fn_thd:nest_res", "fn_snd:nest_res2")
 
 graph.add_edge(db_req)
 graph.add_edge(db_res)
