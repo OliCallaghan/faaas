@@ -57,14 +57,14 @@ GVisor is a container runtime that aims to improve security for running containe
 
 Whilst cold-start times of container-based \faas{} isolation are considerably lower than VM based isolation methods, cold-starts times can vary based on a variety of factors. SOCK reduces cold-start times by caching common dependencies in container images, reducing the image footprint and improving cold start times\cite{oakesSOCKRapidTask2018}. Refunction reuses containers between function invocations, reducing cold start times\cite{oliverstenbomRefunctionEliminatingServerless2019}. Pegurus also reuses warm containers between different function invocations to reduce cold start times\cite{liPagurusEliminatingCold2021}. Xanadu reduces cold start times by pre-warming containers based on a predictive model that estimates which subsequent functions will be triggered in a \faas{} workflow\cite{dawXanaduMitigatingCascading2020}.
 
+Apache OpenWhisk\cite{apacheOpenWhisk2024} is an open-source \faas{} platform that provides container based isolation, leveraging Nginx as an HTTP gateway, Kafka as a message broker to queue invocations, CouchDB as a persistent data storage layer and OCI containers to execute arbitrary function logic.
+
+OpenFaaS\cite{ellisOpenFaaS2024} provides container based isolation for \faas{} using Kubernetes to handle scaling and execution of functions, and Prometheus to handle scaling of the functions.
+
 \subsection{V8 isolate based isolation}
 Whilst containers provide a much lighter footprint in comparison to VM based isolation, CloudFlare Workers\cite{CloudComputingContainers2018} and Vercel Edge Functions\cite{EdgeRuntime} both utilise V8 isolates to provide lightweight user-space isolation between functions. Whilst less secure than process-based isolation employed by contianers, V8 isolates provide a much denser packing of functions on a single host, and can provide much lower cold start times.
 
 Additional work surrounding microarchitectural vulnerabilities such as Spectre within V8 isolates has been carried out to ensure that V8 isolates can execute securely in multitenant environment\cite{schwarzlRobustScalableProcess2022}.
-
-Apache OpenWhisk\cite{apacheOpenWhisk2024} is an open-source \faas{} platform that provides container based isolation, leveraging Nginx as an HTTP gateway, Kafka as a message broker to queue invocations, CouchDB as a persistent data storage layer and OCI containers to execute arbitrary function logic.
-
-OpenFaaS\cite{ellisOpenFaaS2024} provides container based isolation for \faas{} using Kubernetes to handle scaling and execution of functions, and Prometheus to handle scaling of the functions.
 
 \subsection{GraalOS and GraalVM based isolation}
 \todo[inline]{Discuss how GraalOS and GraalVM reduces cold start times.}
@@ -72,7 +72,9 @@ OpenFaaS\cite{ellisOpenFaaS2024} provides container based isolation for \faas{} 
 \subsection{Wasm based isolation}
 WASM provides a secure and efficient environment for executing untrusted code\cite{WebAssembly} in a multitenant environment. Initially developed to run in the browser, WASM allows for the execution of untrusted code in a sandboxed environment without the need for a full VM or container. It has formal semantics\cite{haasBringingWebSpeed2017}, its embeddings can be formally proven to be memory-safe\cite{SecurefoundationsVWasm2024}, and utilises software based fault isolation to ensure that code cannot escape the sandbox\cite{SecurityWebAssembly}. Despite this effort, microarchitectural vulnerabilities such as Spectre still exist within WASM runtimes, and additional work is being carried out to mitigate these\cite{narayanSwivelHardeningWebAssembly2021}.
 
-Fastly Edge Compute Platform\cite{EdgeCloudPlatform} utilises Lucet\cite{BytecodeallianceLucet2024} (now Wasmtime\cite{Wasmtime}) to sandbox WebAssembly executables from one-another. Fastly Edge Compute Platform cites startup times in the order of tens of microseconds to instantiate the sandbox.
+Fastly Edge Compute Platform\cite{EdgeCloudPlatform} utilises Lucet\cite{BytecodeallianceLucet2024} (now Wasmtime\cite{Wasmtime}) to sandbox WebAssembly executables from one-another. Fastly Edge Compute Platform cites startup times in the order of tens of microseconds to instantiate the sandbox. The Wasmtime runtime now used by Fastly Edge Compute Platform employs a set of security features to ensure that code executing within the runtime cannot escape the sandbox, and that the runtime itself is secure\cite{SecurityWasmtime}. The guarantees provides by WASM are defined in Section \ref{sec:wasm-safety-mechanisms}. Wasmtime prepends a guard region before linear memories in order to protect against sign-extension bugs in the Cranelift JIT compiler resulting in invalid memory accesses between instances. It utilises guard pages on all thread stacks, triggering an exception if they are hit to prevent data leakage. Additionally, since Wasmtime is written in Rust, the surface which a vulnerability could manifest is reduced to only the unsafe sections of the codebase. The runtime is also implementing CFI mechanisms to use ARM specific instructions
+
+\todo[inline]{WASM safety mechanisms need to be fleshed out}
 
 In addition to JavaScript functions deployed using V8 isolates, Cloudflare Workers\cite{CloudComputingContainers2018} also allow WASM based functions to be deployed to their edge network. Unlike Fastly, Cloudflare Workers do not execute the function within a WASM runtime, and instead rely on the V8 runtime to execute WASM functions\cite{WebAssemblyWasmCloudflare2024}.
 
@@ -179,7 +181,7 @@ Finally, it was identified that the overwhelming majority of serverless function
 This further reinforces the notion that \faas{} workloads are much more prone to the double-billing problem, as described further in Section \ref{sec:double-billing-problem}.
 
 \section{AWS Lambda}
-AWS Lambda is by far the most popular\cite{eismannReviewServerlessUse2020,StateServerlessDatadog} \faas{} platform used by developers to deploy serverless applications.
+AWS Lambda is by far the most popular\cite{eismannReviewServerlessUse2020,StateServerlessDatadog} \faas{} platform used by developers to deploy serverless applications. It employs a slightly different structure
 
 \subsubsection{System architecture}
 
