@@ -24,7 +24,7 @@ Containers were popularised by Docker\cite{DockerAcceleratedContainer2022} in th
 \subsubsection{CGroups and Namespaces}
 Containers are interally just linux processes — the same type of processes that typically would run inside a VM. The core difference however is the use of CGroups and Namespaces\cite{rosenramiNamespacesCgroupsBasis2016} attached to the process that isolate the container from other processes running on the same operating system.
 
-Typically, in order to provide isolation between containers, namespaces are used\cite{NamespacesLinuxManual}. Whilst namespace level security should provide isolation for a container, it cannot provide protection against kernel layer attacks, whereby a malicious container exploits a vulnerability in the kernel to escalate its permissions and take control of the host system, and in turn other containers\cite{linMeasurementStudyLinux2018}. Kernel level security mechanisms have been shown to provide additional protection against this\cite{sunSecurityNamespaceMaking2018}, in addition to restricting particular vulnerable syscalls from the container to the host\cite{GVisor}.
+Typically, in order to provide isolation between containers, namespaces are used\cite{NamespacesLinuxManual}. Whilst namespace level security should provide isolation for a container, it cannot provide protection against kernel layer attacks, whereby a malicious container exploits a vulnerability in the kernel to escalate its permissions and take control of the host system\cite{CVECVE202014386}, and in turn other containers\cite{linMeasurementStudyLinux2018}. Kernel level security mechanisms have been shown to provide additional protection against this\cite{sunSecurityNamespaceMaking2018}, in addition to restricting particular vulnerable syscalls from the container to the host\cite{GVisor}.
 
 In order to control and meter resource usage, containers use CGroups, allowing memory usage and CPU time shares to be controlled\cite{CgroupsLinuxManual}. This allows for fine-grained control over resource usage, and can be used to prevent a single container from consuming all resources on a host\cite{ContainerSecurityFundamentals}.
 
@@ -75,6 +75,8 @@ WASM provides a secure and efficient environment for executing untrusted code\ci
 Fastly Edge Compute Platform\cite{EdgeCloudPlatform} utilises Lucet\cite{BytecodeallianceLucet2024} (now Wasmtime\cite{Wasmtime}) to sandbox WebAssembly executables from one-another. Fastly Edge Compute Platform cites startup times in the order of tens of microseconds to instantiate the sandbox. The Wasmtime runtime now used by Fastly Edge Compute Platform employs a set of security features to ensure that code executing within the runtime cannot escape the sandbox, and that the runtime itself is secure\cite{SecurityWasmtime}. The guarantees provides by WASM are defined in Section \ref{sec:wasm-safety-mechanisms}. Wasmtime prepends a guard region before linear memories in order to protect against sign-extension bugs in the Cranelift JIT compiler resulting in invalid memory accesses between instances. It utilises guard pages on all thread stacks, triggering an exception if they are hit to prevent data leakage. Additionally, since Wasmtime is written in Rust, the surface which a vulnerability could manifest is reduced to only the unsafe sections of the codebase. The runtime is also implementing CFI mechanisms to use ARM specific instructions
 
 \todo[inline]{WASM safety mechanisms need to be fleshed out}
+\section{WASM Safety Mechanisms}
+\label{sec:wasm-safety-mechanisms}
 
 In addition to JavaScript functions deployed using V8 isolates, Cloudflare Workers\cite{CloudComputingContainers2018} also allow WASM based functions to be deployed to their edge network. Unlike Fastly, Cloudflare Workers do not execute the function within a WASM runtime, and instead rely on the V8 runtime to execute WASM functions\cite{WebAssemblyWasmCloudflare2024}.
 
@@ -137,6 +139,21 @@ Google Cloud Run offers a scale-to-zero solution, and the billing only for this 
 
 The core difference between Google Cloud Functions and Google Cloud Run is that the latter charges for the time the container is executing, rather than the time each request takes to resolve. This allows concurrent requests awaiting IO to not be double charged, as described in Section \ref{sec:double-billing-problem}.
 
+\section{V8 and the Event Loop}
+\label{sec:js-event-loop}
+At the core of every JavaScript runtime is an I/O event loop, whether it be LibUV\cite{LibuvCrossplatformAsynchronous, DesignOverviewLibuv} in V8\cite{googleWhatV82024} based runtimes such as Node.JS\cite{foundationNodeJS2024}, or Tokio\cite{TokioAsynchronousRust} as used in Deno\cite{incDeno2024}.
+
+The I/O event loop is responsible for handling asynchronous IO operations, file system operations, network requests, and IPC in a non-blocking manner. Typically, event loops use operating system level syscalls such as \verb|epoll| and \verb|io_uring|, which are described in more detail in Section \ref{sec:os-level-io}.
+
+\section{Linux asynchronous IO}
+\label{sec:os-level-io}
+
+\subsection{What is epoll?}
+\todo[inline]{Explain what is the epoll syscall}
+
+\subsection{What is iouring?}
+\todo[inline]{Explain what is the iouring syscall}
+
 \section{Double billing problem}
 \label{sec:double-billing-problem}
 
@@ -181,7 +198,7 @@ Finally, it was identified that the overwhelming majority of serverless function
 This further reinforces the notion that \faas{} workloads are much more prone to the double-billing problem, as described further in Section \ref{sec:double-billing-problem}.
 
 \section{AWS Lambda}
-AWS Lambda is by far the most popular\cite{eismannReviewServerlessUse2020,StateServerlessDatadog} \faas{} platform used by developers to deploy serverless applications. It employs a slightly different structure
+AWS Lambda is by far the most popular\cite{eismannReviewServerlessUse2020,StateServerlessDatadog} \faas{} platform used by developers to deploy serverless applications. Unlike Google Cloud Functions, which utilise gVisor\cite{GVisor},
 
 \subsubsection{System architecture}
 
@@ -202,11 +219,6 @@ Each MicroVM provides a slot which can handle a single invocation, however once 
 \subsection{Pricing structure}
 
 Billed for execution time from start to finish, since a MicroVM is provisioned the entire time.
-
-\section{V8 and the Event Loop}
-\label{sec:js-event-loop}
-
-\todo[inline]{Outline the ins and outs of how event loops work. Also need to discuss re: function continuations.}
 
 \section{Continuations and Continuation Passing Style}
 A function continuation is a concept in programming\cite{sussmanSCHEMEInterpreterExtended1975}, reified as a datastructure encapsulating an execution state, and a function pointer that can be called to resume execution. They are used extensively across many languages, for example, they form the underpinnings of Rust's Futures API.

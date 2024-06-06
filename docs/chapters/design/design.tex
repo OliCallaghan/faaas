@@ -1,9 +1,17 @@
-\chapter{Design}
+\chapter{Code splitting using dynamic response time modelling}
+\todo[inline]{Discuss how the previous chapters influence the design of the \faaasc{} compiler. Discuss the next steps regarding how this data is used to optimise the }
 
-\section{Developer Considerations}
-In alignment with the ethos of \faas{} whereby developer time is spent focusing on the business logic of their application rather than the infrastructure, the design of \faaasc{} should be such that it is easy to use and requires minimal developer effort to leverage the benefits of function splitting.
+\section{Persistent storage response time modelling}
+\todo[inline]{Introduce how response times are modelled when interacting with persistent storage.}
 
-Since the primary code target of \faaasc{} is JavaScript (and by extension TypeScript) serverless functions, specifically ES6 syntax, \faaasc{} should be designed such that it integrates with existing tooling to deploy to \awslambda{}, specifically Serverless\cite{serverlessServerlessZeroFrictionServerless2024}.
+\section{Code splitting cost estimation}
+\todo[inline]{Probably should move the background chapter explaining the model to this section}
+
+\section{Code splitting profitability analysis}
+\todo[inline]{Introduce the cost/benefit model for deciding whether to code split.}
+
+\subsection{Monitoring and strategy switching}
+\todo[inline]{Discuss how the profitability model can be used to switch between code splitting strategies.}
 
 \section{High-level Design}
 The core principal underpinning the design of \faaas{} is to decompose each \faas{} invocation into as a set of function continuations. Similarly to how event driven runtimes such as \js{} handle continuations of asynchronous code with an event loop as described in Section \ref{sec:js-event-loop}, \faaas{} takes advantage of function splitting (via code generation) and message passing to register continuations to be executed with a continuation context.
@@ -34,7 +42,7 @@ The core principal underpinning the design of \faaas{} is to decompose each \faa
 
 To reduce developer effort adapting existing functions to support function splitting, a custom directive is introduced into the function handler body, \verb|'use async'|. The purpose of this directive is to indicate to the \faaasc{} compiler that the function handler body should be split into multiple functions at this point, each of which is executed in separate \awslambda{} functions.
 
-This splitting directive draws inspiration by the \verb|'use strict'| directive in JavaScript, which indicates that the code should be executed in strict mode. The \verb|'use async'| directive is a pragma that is not part of the JavaScript language, but is understood by the \faaasc{} compiler. Therefore as a result, unless the \faaasc{} compiler is used, the directive will be ignored by the JavaScript runtime, and so the same code can be run on any other \faas{} platform without modification.
+This splitting directive resembles the \verb|'use strict'| directive in JavaScript, which indicates that the code should be executed in strict mode. The \verb|'use async'| directive is a pragma that is not part of the JavaScript language, but is understood by the \faaasc{} compiler. Therefore as a result, unless the \faaasc{} compiler is used, the directive will be ignored by the JavaScript runtime, and so the same code can be run on any other \faas{} platform without modification.
 
 \begin{listing}[H]
 \begin{minted}[obeytabs=true,tabsize=2]{javascript}
@@ -60,3 +68,14 @@ This scope is captured into a serialized context, and stored so that the continu
     \caption{AST of handler body.}
     \label{fig:suites-hello-seq-module-ast}
 \end{figure}
+
+\section{Splitting cost optimisation}
+\todo[inline]{Discuss what you're going to discuss.}
+
+\subsection{Splitting cost estimation}
+\todo[inline]{Describe how the cost of splitting is estimated.}
+
+\subsection{Splitting cost optimisation algorithm}
+\todo[inline]{Describe the different algorithms used to optimise the cost of splitting.}
+
+\section{Message passing}

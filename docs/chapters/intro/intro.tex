@@ -12,14 +12,14 @@
 
 This abstraction simplifies development, allowing developers to focus on the underlying business logic of their system, rather than managing and scaling infrastructure. Typically, developers design serverless functions to be stateless\cite{ggailey777AzureFunctionsBest2022}, enabling horizontal scaling\cite{ngoEvaluatingScalabilityElasticity2022}, communicating with persistent storage to persist state between function invocations.
 
-In these execution environments, whilst `functions' are running, they are allocated and guaranteed resources such as CPU and memory throughout the lifecycle of its invocation. Whilst in theory this seems beneficial, in practice, this leads to wasted resources, as the function may be awaiting an asynchronous operation to complete, such as a network request.
+In these execution environments, whilst `functions' are running, they are allocated, guaranteed and billed for resources such as CPU and memory throughout the lifecycle of its invocation. Whilst in theory this seems beneficial, in practice, this leads to wasted resources, as the function may be awaiting an asynchronous operation to complete, such as a network request.
 
 In these environments, `functions' are typically implemented either as containers or as virtual machines running atop a serverless `runtime'; whilst these containers are awaiting I/O such as network requests, resources are still allocated, used to determine whether execution can continue.
 
 This research aims to yield control back to the runtime from these `functions' whilst awaiting asynchronous operations to complete, allowing useful work to be scheduled by the runtime. Throughout this report, we propose three main contributions:
 
 \begin{itemize}
-    \item The \faaasc{} compiler that performs code splitting of JavaScript serverless functions, allowing a function to optionall be deployed in a split manner on any supported Serverless\cite{serverlessServerlessZeroFrictionServerless2024} platform.
+    \item The \faaasc{} compiler that performs code splitting of JavaScript serverless functions, allowing a function to optionally be deployed in a split manner on any supported Serverless\cite{serverlessServerlessZeroFrictionServerless2024} platform.
 
     \item The \faaastime{} serverless runtime stack that accurately bills, composes and executes serverless JavaScript functions emitted by \faaasc{}.
 
@@ -47,7 +47,7 @@ This research aims to yield control back to the runtime from these `functions' w
 
 \faas{} architectures generally tend to decrease costs, achieving this by using a fine-grained billing model as described in Section \ref{sec:faas-billing-models}, charging per invocation, and for compute and memory allocations in subsecond increments over the duration of execution, ensuring wasted resources are released back to the cloud provider once a function terminates.
 
-The resolution of the billing model however extends only to the level of granularity of functions, whereby resources are allocated for the entire lifetime of the function's execution. This is particularly important when considering that the serverless suffers from additional latency when accessing persistent storage, for example, the average latency between AWS Lambda and DynamoDB is usually \qtyrange{60}{90}{\ms}\cite{ghoshCachingTechniquesImprove2020}.
+The resolution of the billing model however extends only to the level of granularity of functions, whereby resources are allocated for the entire lifetime of the function's execution. This is particularly important when considering that serverless suffers from additional latency when accessing persistent storage, for example, the average latency between AWS Lambda and DynamoDB is usually between \qtyrange{60}{90}{\ms}\cite{ghoshCachingTechniquesImprove2020}.
 
 % PProf Sample from PetStore PutPet Function
 \begin{figure*}

@@ -1,1 +1,85 @@
-\chapter{Implementation}
+\chapter{Implementation of the \faaas{} stack}
+\todo[inline]{Introduce how the findings from the previous chapters are implemented within this chapter.}
+
+\section{Requirements}
+\todo[inline]{Describe the technical requirements when building the BOSS Engine.}
+
+\cprotect\subsection{The \faaasc{} compiler}
+In alignment with the ethos of \faas{} whereby developer time is spent focusing on the business logic of their application rather than the infrastructure, the design of \faaasc{} should be such that it is easy to use and requires minimal developer effort to leverage the benefits of function splitting.
+
+Since the primary code target of \faaasc{} is JavaScript (and by extension TypeScript) serverless functions, specifically ES6 syntax, \faaasc{} should be designed such that it integrates with existing tooling to deploy to \awslambda{}, specifically Serverless\cite{serverlessServerlessZeroFrictionServerless2024}.
+
+\cprotect\subsection{DX of the \faaasc{} compiler}
+\todo[inline]{Introduce why the DX of the \faaasc{} compiler is important.}
+
+To reduce developer effort adapting existing functions to support function splitting, a custom directive is introduced into the function handler body, \verb|'use async'|. The purpose of this directive is to indicate to the \faaasc{} compiler that the function handler body should be split into multiple functions at this point, each of which is executed in separate \awslambda{} functions.
+
+This splitting directive resembles the \verb|'use strict'| directive in JavaScript, which indicates that the code should be executed in strict mode. The \verb|'use async'| directive is a pragma that is not part of the JavaScript language, but is understood by the \faaasc{} compiler. Therefore as a result, unless the \faaasc{} compiler is used, the directive will be ignored by the JavaScript runtime, and so the same code can be run on any other \faas{} platform without modification.
+
+\subsection{Monitoring and reactivity}
+\todo[inline]{Establish that async requests are unpredictable in execution time}
+Due to the nature of asynchronous requests and scalability issues, it is likely that over the course of an application's lifetime, the response times of asynchronous services will vary, impacting the profitability of code splitting.
+
+\todo[inline]{Introduce how this strategy is propagated to the serverless function}
+\todo[inline]{Introduce how this metric is measured and by who}
+
+\section{The \faaasc{} Compiler}
+\todo[inline]{Describe the need to use a JavaScript compiler to implement code-splitting}
+
+\subsection{SWC Compiler}
+\todo[inline]{Discuss the benefits of using Speedy Web Compiler}
+
+\section{Function continuations}
+\todo[inline]{Introduce function continuation primitives as the return type for \faas{}}
+
+\subsection{Continuation context}
+\todo[inline]{Introduce the concept of a continuation context}
+
+\subsubsection{Free variable analysis}
+\todo[inline]{Introduce the concept of free variable analysis}
+\todo[inline]{Introduce the concept of free variable analysis in JavaScript}
+\todo[inline]{Discuss JavaScript scoping}
+
+\subsubsection{Modelling variable usage as a DAG}
+\todo[inline]{Introduce the concept of modelling variable usage in each function split as a DAG.}
+
+\section{Queuing function continuations}
+\todo[inline]{Discuss how queuing function continuations is implemented in the \faaas{} stack}
+
+\subsection{Existing queuing systems}
+\todo[inline]{Discuss the selection of the queuing system for the \faaas{} stack}
+
+\subsection{Plug-n-play queuing}
+\todo[inline]{Discuss the option to switch out the queueing system for another (they're basically all the same)}
+
+\section{Consuming function continuations}
+\todo[inline]{Discuss how function continuations are consumed in the \faaas{} stack}
+\todo[inline]{Introduce the HTTP proxy consumer}
+\todo[inline]{Introduce the PostgreSQL \faaas{} consumer}
+\todo[inline]{Introduce the BOSS \faaas{} engine consumer}
+
+\subsection{HTTP proxy consumer}
+\todo[inline]{For slow HTTP requests}
+
+\subsection{PostgreSQL \faaas{} consumer}
+\todo[inline]{For slow HTTP requests}
+
+\subsection{BOSS \faaas{} engine consumer}
+\todo[inline]{For slow HTTP requests}
+
+\subsection{Reporting response times}
+\todo[inline]{Discuss what reports the response times for asynchronous operations}
+
+\section{The \faaastime{} experimental runtime}
+\todo[inline]{Introduce how existing runtimes are not suitable for measuring and providing metrics on the performance of asynchronous operations}
+\todo[inline]{Discuss how existing research has been focused on improving cold-start times for serverless functions}
+\todo[inline]{Introduce \faaastime{} as an experimental setup with low cost-start times to measure the performance of asynchronous operations and report these back to the functions.}
+\todo[inline]{Note how \faaastime{} is intended to be swapped in and out for another runtime that has faster cold starts.}
+
+\subsection{Gateway}
+\todo[inline]{Introduce the gateway as the entry point for all function invocations}
+\todo[inline]{Discuss how it adds the initial invocation to the queue}
+
+\subsection{\faaastime{} workers}
+\todo[inline]{Discuss how \faaastime{} uses WASI to measure the response times of asynchronous operations}
+\todo[inline]{Using }
