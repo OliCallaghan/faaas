@@ -231,6 +231,13 @@
   keywords = {cloud database,disaggregated data center,shared remote memory,shared storage}
 }
 
+@online{CgroupsLinuxManual,
+  title = {Cgroups(7) - {{Linux}} Manual Page},
+  url = {https://www.man7.org/linux/man-pages/man7/cgroups.7.html},
+  urldate = {2024-06-06},
+  file = {/Users/oli/Zotero/storage/4MTG5ENA/cgroups.7.html}
+}
+
 @article{chardServerlessSupercomputingHigh2019,
   title = {Serverless {{Supercomputing}}: {{High Performance Function}} as a {{Service}} for {{Science}}},
   author = {Chard, Ryan and Skluzacek, Tyler J. and Li, Zhuozhao and Babuji, Yadu N. and Woodard, Anna and Blaiszik, Ben and Tuecke, Steven and Foster, Ian T. and Chard, Kyle},
@@ -258,6 +265,16 @@
   url = {https://github.com/cloud-hypervisor/cloud-hypervisor},
   urldate = {2024-06-04},
   file = {/Users/oli/Zotero/storage/W2AC6E2M/cloud-hypervisor.html}
+}
+
+@online{ContainerSecurityFundamentals,
+  title = {Container Security Fundamentals Part 4: {{Cgroups}} | {{Datadog Security Labs}}},
+  shorttitle = {Container Security Fundamentals Part 4},
+  url = {https://securitylabs.datadoghq.com/articles/container-security-fundamentals-part-4/},
+  urldate = {2024-06-06},
+  abstract = {A look at how cgroups are used in Linux and container systems},
+  langid = {english},
+  file = {/Users/oli/Zotero/storage/T92V2EMA/container-security-fundamentals-part-4.html}
 }
 
 @inproceedings{copikSeBSServerlessBenchmark2021,
@@ -301,6 +318,28 @@
   langid = {english},
   organization = {Google Cloud Blog},
   file = {/Users/oli/Zotero/storage/DG3SLZF5/demystifying-container-vs-vm-based-security-security-in-plaintext.html}
+}
+
+@article{desaiHypervisorSurveyConcepts2013,
+  title = {Hypervisor: {{A Survey}} on {{Concepts}} and {{Taxonomy}}},
+  author = {Desai, Ankita and Oza, Rachana and Sharma, Pratik and Patel, Bhautik},
+  date = {2013},
+  volume = {2},
+  number = {3},
+  abstract = {Because of the advancement of VLSI technology and aggregate throughput of all devices of servers, we are having tremendous computing power which could not be utilized either 100\% or optimized way. Virtualization technique has solved this problem by providing proper utilization of hardware resources. Virtualization refers to the abstraction of computer resources. It separates user and applications from the specific hardware characteristics they use to perform their task and thus creates virtual environment. The purpose of creating virtual environment is to improve resource utilization by aggregating heterogeneous and autonomous resources. This can be provided by adding a layer called HYPERVISOR between OS and underlying hardware. There are many market players who have launched the hypervisor. This paper mentions architectural specification of each hypervisor followed by common characteristics that each hypervisor poses.},
+  langid = {english},
+  file = {/Users/oli/Zotero/storage/3BA6NET6/Desai et al. - 2013 - Hypervisor A Survey on Concepts and Taxonomy.pdf}
+}
+
+@online{DockerAcceleratedContainer2022,
+  title = {Docker: {{Accelerated Container Application Development}}},
+  shorttitle = {Docker},
+  date = {2022-05-10T08:10:33-07:00},
+  url = {https://www.docker.com/},
+  urldate = {2024-06-06},
+  abstract = {Docker is a platform designed to help developers build, share, and run container applications. We handle the tedious setup, so you can focus on the code.},
+  langid = {american},
+  file = {/Users/oli/Zotero/storage/7BMHT3AJ/www.docker.com.html}
 }
 
 @inproceedings{duCatalyzerSubmillisecondStartup2020,
@@ -354,6 +393,24 @@
   author = {Ellis, Alex},
   date = {2024},
   url = {https://github.com/openfaas/faas}
+}
+
+@inproceedings{espePerformanceEvaluationContainer2020,
+  title = {Performance {{Evaluation}} of {{Container Runtimes}}:},
+  shorttitle = {Performance {{Evaluation}} of {{Container Runtimes}}},
+  booktitle = {Proceedings of the 10th {{International Conference}} on {{Cloud Computing}} and {{Services Science}}},
+  author = {Espe, Lennart and Jindal, Anshul and Podolskiy, Vladimir and Gerndt, Michael},
+  date = {2020},
+  pages = {273--281},
+  publisher = {{SCITEPRESS - Science and Technology Publications}},
+  location = {Prague, Czech Republic},
+  doi = {10.5220/0009340402730281},
+  url = {http://www.scitepress.org/DigitalLibrary/Link.aspx?doi=10.5220/0009340402730281},
+  urldate = {2024-06-06},
+  eventtitle = {10th {{International Conference}} on {{Cloud Computing}} and {{Services Science}}},
+  isbn = {978-989-758-424-4},
+  langid = {english},
+  file = {/Users/oli/Zotero/storage/N2PP2BFU/Espe et al. - 2020 - Performance Evaluation of Container Runtimes.pdf}
 }
 
 @online{EventarcOverview,
@@ -508,6 +565,22 @@
   langid = {english}
 }
 
+@inproceedings{haoEmpiricalAnalysisVM2021,
+  title = {An {{Empirical Analysis}} of {{VM Startup Times}} in {{Public IaaS Clouds}}},
+  booktitle = {2021 {{IEEE}} 14th {{International Conference}} on {{Cloud Computing}} ({{CLOUD}})},
+  author = {Hao, Jianwei and Jiang, Ting and Wang, Wei and Kim, In Kee},
+  date = {2021-09},
+  pages = {398--403},
+  issn = {2159-6190},
+  doi = {10.1109/CLOUD53861.2021.00053},
+  url = {https://ieeexplore.ieee.org/abstract/document/9582255},
+  urldate = {2024-06-06},
+  abstract = {VM startup time is an essential factor in designing elastic cloud applications. VM autoscaling can reduce the under-/over-provisioning period of VMs with a precise estimation of VM startup time, and in turn, it can guarantee the application's SLOs with improved cost-efficiency. Unfortunately, VM startup time has been little studied, and previous measurement results did not consider various configurations of VMs. This work performs a thorough analysis of VM startup times in two IaaS clouds (AWS, GCP). Specifically, we collected 300,000 data points from each provider by applying diverse VM configurations. i.e., different VM types, image sizes, location, purchase models. With extensive analysis, we found several important factors that can change VM startup time significantly. Moreover, by comparing with a previous study, we confirm that AWS made significant improvements for reducing VM startup times and currently has much quicker VM startup times than in the past.},
+  eventtitle = {2021 {{IEEE}} 14th {{International Conference}} on {{Cloud Computing}} ({{CLOUD}})},
+  keywords = {Cloud computing,Cloud Computing,Conferences,Data models,Estimation,IaaS,Time measurement,VM Startup Time},
+  file = {/Users/oli/Zotero/storage/EAXYPX5H/Hao et al. - 2021 - An Empirical Analysis of VM Startup Times in Publi.pdf;/Users/oli/Zotero/storage/4SJUGSZE/9582255.html}
+}
+
 @article{hellersteinServerlessComputingOne2018,
   title = {Serverless {{Computing}}: {{One Step Forward}}, {{Two Steps Back}}},
   author = {Hellerstein, Joseph M. and Faleiro, Jose M. and Gonzalez, Joseph E. and Schleier-Smith, Johann and Sreekanti, Vikram and Tumanov, Alexey and Wu, Chenggang},
@@ -517,6 +590,23 @@
   eprint = {1812.03651},
   eprinttype = {arxiv},
   url = {http://arxiv.org/abs/1812.03651}
+}
+
+@inproceedings{hildenbrandVirtiomemParavirtualizedMemory2021,
+  title = {Virtio-Mem: Paravirtualized Memory Hot(Un)Plug},
+  shorttitle = {Virtio-Mem},
+  booktitle = {Proceedings of the 17th {{ACM SIGPLAN}}/{{SIGOPS International Conference}} on {{Virtual Execution Environments}}},
+  author = {Hildenbrand, David and Schulz, Martin},
+  date = {2021-04-16},
+  pages = {1--14},
+  publisher = {ACM},
+  location = {Virtual USA},
+  doi = {10.1145/3453933.3454010},
+  url = {https://dl.acm.org/doi/10.1145/3453933.3454010},
+  urldate = {2024-06-06},
+  eventtitle = {{{VEE}} '21: 17th {{ACM SIGPLAN}}/{{SIGOPS International Conference}} on {{Virtual Execution Environments}}},
+  isbn = {978-1-4503-8394-3},
+  langid = {english}
 }
 
 @inproceedings{hilleyCloudComputingTaxonomy2009,
@@ -709,6 +799,13 @@
   file = {/Users/oli/Zotero/storage/H9VAYK4D/Li et al. - 2021 - Pagurus Eliminating Cold Startup in Serverless Co.pdf}
 }
 
+@online{LKMLDanielKiper,
+  title = {{{LKML}}: {{Daniel Kiper}}: [{{PATCH}}] Xen/Balloon: {{Memory}} Hotplug Support for {{Xen}} Balloon Driver},
+  url = {https://lkml.org/lkml/2011/3/28/108},
+  urldate = {2024-06-06},
+  file = {/Users/oli/Zotero/storage/VHNMIFBR/108.html}
+}
+
 @inproceedings{mahmoudiOptimizingServerlessComputing2019,
   title = {Optimizing Serverless Computing: Introducing an Adaptive Function Placement Algorithm},
   booktitle = {Proceedings of the 29th {{Annual International Conference}} on {{Computer Science}} and {{Software Engineering}}},
@@ -762,6 +859,22 @@
   keywords = {Memory-safety,Secure Compilation,Semantics,WebAssembly}
 }
 
+@online{moniruzzamanAnalysisMemoryBallooning2014,
+  title = {Analysis of {{Memory Ballooning Technique}} for {{Dynamic Memory Management}} of {{Virtual Machines}} ({{VMs}})},
+  author = {Moniruzzaman, A. B. M.},
+  date = {2014-11-26},
+  eprint = {1411.7344},
+  eprinttype = {arxiv},
+  eprintclass = {cs},
+  doi = {10.48550/arXiv.1411.7344},
+  url = {http://arxiv.org/abs/1411.7344},
+  urldate = {2024-06-06},
+  abstract = {Memory ballooning is dynamic memory management technique for virtual machines (VMs). Ballooning is a part of memory reclamation technique operations used by a hypervisor to allow the physical host system to retrieve unused memory from certain guest virtual machines (VMs) and share it with others. Memory ballooning allows the total amount ofRAM required by guest VMs to exceed the amount ofphysical RAM available on the host. Memory overcommitment enables a higher consolidation ratio in a hypervisor. Using memory overcommitment, users can consolidate VMs on a physical machine such that physical resources are utilized in an optimal manner while delivering good performance. Hence memory reclamation is an integral component ofmemory overcommitment. In this paper, we address that the basic cause of memory that ballooning is memory overcommitment from using memory-intensive virtual machines. We compared to others reclamation technique and identify Cost Associate with Memory Ballooning in state of Memory Overcommitment. The objective of this paper is to analyse memory ballooning technique for dynamic memory management of VMs. For this analysis, VMware based virtualization software e.g ESXi Server, vCenter Server, vSphere Client are installed and configured on the Centre for Innovation and Technology (CIT) Lab, DIU; for monitor and analyze VM performance for memory ballooning technique. The performance ofmemory ballooning technique is evaluated with two different test cases. The purpose is to help users understand, how this technique impact the performance. Finally, we presents the throughput ofheavy workload with different memory limits when using ballooning or swapping; and analyse VM performance issue for this technique.},
+  pubstate = {preprint},
+  keywords = {Computer Science - Distributed Parallel and Cluster Computing},
+  file = {/Users/oli/Zotero/storage/FIHFSFT4/Moniruzzaman - 2014 - Analysis of Memory Ballooning Technique for Dynami.pdf;/Users/oli/Zotero/storage/LFGGP2X8/1411.html}
+}
+
 @online{mozillaSpiderMonkeyJavaScriptWebAssembly2024,
   title = {{{SpiderMonkey JavaScript}}/{{WebAssembly Engine}}},
   author = {{Mozilla}},
@@ -784,6 +897,12 @@
   isbn = {978-1-4503-8334-9},
   venue = {Online Event, United Kingdom},
   keywords = {cache,cloud computing,functions as a service (FaaS),latency,serverless}
+}
+
+@online{NamespacesLinuxManual,
+  title = {Namespaces(7) - {{Linux}} Manual Page},
+  url = {https://man7.org/linux/man-pages/man7/namespaces.7.html},
+  urldate = {2024-06-06}
 }
 
 @inproceedings{narayanSwivelHardeningWebAssembly2021,
@@ -835,6 +954,17 @@
   url = {https://www.imperial.ac.uk/media/imperial-college/faculty-of-engineering/computing/public/1819-ug-projects/StenbomO-Refunction-Eliminating-Serverless-Cold-Starts-Through-Container-Reuse.pdf}
 }
 
+@software{OpencontainersRunc2024,
+  title = {Opencontainers/Runc},
+  date = {2024-06-06T09:10:19Z},
+  origdate = {2015-06-05T23:30:45Z},
+  url = {https://github.com/opencontainers/runc},
+  urldate = {2024-06-06},
+  abstract = {CLI tool for spawning and running containers according to the OCI specification},
+  organization = {Open Container Initiative},
+  keywords = {containers,docker,oci}
+}
+
 @online{OptimizingLambdasReducing,
   title = {Optimizing Lambdas - Reducing Your Bills - {{Serverless Framework}} - {{Serverless Forums}}},
   url = {https://forum.serverless.com/t/optimizing-lambdas-reducing-your-bills/4101},
@@ -855,6 +985,24 @@
   urldate = {2024-06-04},
   eventtitle = {2021 {{International Conference}} on {{Recent Trends}} on {{Electronics}}, {{Information}}, {{Communication}} \& {{Technology}} ({{RTEICT}})},
   isbn = {978-1-66543-559-8}
+}
+
+@article{potdarPerformanceEvaluationDocker2020,
+  title = {Performance {{Evaluation}} of {{Docker Container}} and {{Virtual Machine}}},
+  author = {Potdar, Amit M and D g, Narayan and Kengond, Shivaraj and Mulla, Mohammed Moin},
+  date = {2020-01-01},
+  journaltitle = {Procedia Computer Science},
+  shortjournal = {Procedia Computer Science},
+  series = {Third {{International Conference}} on {{Computing}} and {{Network Communications}} ({{CoCoNet}}'19)},
+  volume = {171},
+  pages = {1419--1428},
+  issn = {1877-0509},
+  doi = {10.1016/j.procs.2020.04.152},
+  url = {https://www.sciencedirect.com/science/article/pii/S1877050920311315},
+  urldate = {2024-06-06},
+  abstract = {Server virtualization is a technological innovation broadly used in IT enterprises. Virtualization provides a platform to run different services of operating systems on the cloud. It facilitates to build multiple virtual machines on a single basic physical machine either in the form of hypervisors or containers. To host many microservice applications, the emergent technology has introduced a model which consists of different operations performed by smaller individual deployed services. Thus, the demand for low-overhead virtualization technique is rapidly developing. There are many lightweight virtualization technologies; docker is one among them, which is an open-source platform. This technology allows developers and system admins to build, create, and run applications using docker engine. This paper provides the performance evaluation of Docker containers and virtual machines using standard benchmark tools such as Sysbench, Phoronix, and Apache benchmark, which include CPU performance, Memory throughput, Storage read/write performance, load test, and operation speed measurement.},
+  keywords = {Benchmark tools,Docker Container,Virtual Machine,Virtualization},
+  file = {/Users/oli/Zotero/storage/LRQZUAY5/S1877050920311315.html}
 }
 
 @online{PricingCloudFunctions,
@@ -883,6 +1031,12 @@
   file = {/Users/oli/Zotero/storage/VHWQTJNN/www.qemu.org.html}
 }
 
+@thesis{ramosjoaocarloscarvalhodossantosSecurityChallengesVirtualization2009,
+  title = {Security Challenges with Virtualization},
+  author = {{Ramos, João Carlos Carvalho dos Santos}},
+  date = {2009}
+}
+
 @inproceedings{razaviPrebakedUVMsScalable2015,
   title = {Prebaked {{µVMs}}: {{Scalable}}, {{Instant VM Startup}} for {{IaaS Clouds}}},
   shorttitle = {Prebaked {{µVMs}}},
@@ -899,6 +1053,14 @@
   isbn = {978-1-4673-7214-5}
 }
 
+@article{reubenSurveyVirtualMachine,
+  title = {A {{Survey}} on {{Virtual Machine Security}}},
+  author = {Reuben, Jenni Susan},
+  abstract = {Virtualization plays a major role in helping the organizations to reduce the operational cost, and still ensuring improved efficiency, better utilization and flexibility of existing hardware. "Virtualization is both an opportunity and a threat says Patrick Lin, Senior director of Product Management for VMware" [4]. This paper presents a literature study on various security issues in virtualization technologies. Our study focus mainly on some open security vulnerabilities that virtualization brings to the environment. We concentrate on security issues that are unique for virtual machines. The security threats presented here are common to all the virtualization technologies available in the market, they are not specific to a single virtualization technology. We provide an overview of various virtualization technologies available in the market at the first place together with some security benefits that comes together with virtualization. Finally we provide a detailed discussion of several security holes in the virtualized environment.},
+  langid = {english},
+  file = {/Users/oli/Zotero/storage/47MTQDVI/Reuben - A Survey on Virtual Machine Security.pdf}
+}
+
 @online{robeceOverviewAzureEvent2024,
   title = {Overview - {{Azure Event Grid}}},
   author = {{robece}},
@@ -908,6 +1070,13 @@
   abstract = {Learn about Event Grid's http and MQTT messaging capabilities.},
   langid = {american},
   file = {/Users/oli/Zotero/storage/XG7JCGWG/overview.html}
+}
+
+@article{rosenramiNamespacesCgroupsBasis2016,
+  title = {Namespaces and Cgroups, the Basis of {{Linux}} Containers},
+  author = {{Rosen, Rami}},
+  date = {2016},
+  journaltitle = {Seville, Spain, Feb}
 }
 
 @inproceedings{sabbioniSharedMemoryApproach2021,
@@ -1058,6 +1227,20 @@
   url = {https://bun.sh/}
 }
 
+@inproceedings{sunSecurityNamespaceMaking2018,
+  title = {Security {{Namespace}}: {{Making Linux Security Frameworks Available}} to {{Containers}}},
+  shorttitle = {Security {{Namespace}}},
+  author = {Sun, Yuqiong and Safford, David and Zohar, Mimi and Pendarakis, Dimitrios and Gu, Zhongshu and Jaeger, Trent},
+  date = {2018},
+  pages = {1423--1439},
+  url = {https://www.usenix.org/conference/usenixsecurity18/presentation/sun},
+  urldate = {2024-06-06},
+  eventtitle = {27th {{USENIX Security Symposium}} ({{USENIX Security}} 18)},
+  isbn = {978-1-939133-04-5},
+  langid = {english},
+  file = {/Users/oli/Zotero/storage/QFZBIZYR/Sun et al. - 2018 - Security Namespace Making Linux Security Framewor.pdf}
+}
+
 @article{sussmanSCHEMEInterpreterExtended1975,
   title = {{{SCHEME}}: {{An Interpreter}} for {{Extended Lambda Calculus}}},
   shorttitle = {{{SCHEME}}},
@@ -1069,6 +1252,27 @@
   langid = {american},
   annotation = {Accepted: 2004-10-01T20:37:06Z},
   file = {/Users/oli/Zotero/storage/5ZU5V6UU/Sussman and Steele - 1975 - SCHEME An Interpreter for Extended Lambda Calculu.pdf}
+}
+
+@article{vanoCloudNativeWorkloadOrchestration2023,
+  title = {Cloud-{{Native Workload Orchestration}} at the {{Edge}}: {{A Deployment Review}} and {{Future Directions}}},
+  shorttitle = {Cloud-{{Native Workload Orchestration}} at the {{Edge}}},
+  author = {Vaño, Rafael and Lacalle, Ignacio and Sowiński, Piotr and S-Julián, Raúl and Palau, Carlos E.},
+  date = {2023-02-16},
+  journaltitle = {Sensors (Basel, Switzerland)},
+  shortjournal = {Sensors (Basel)},
+  volume = {23},
+  number = {4},
+  eprint = {36850813},
+  eprinttype = {pmid},
+  pages = {2215},
+  issn = {1424-8220},
+  doi = {10.3390/s23042215},
+  url = {https://www.ncbi.nlm.nih.gov/pmc/articles/PMC9967903/},
+  urldate = {2024-06-06},
+  abstract = {Cloud-native computing principles such as virtualization and orchestration are key to transferring to the promising paradigm of edge computing. Challenges of containerization, operative models and scarce availability of established tools make a thorough review indispensable. Therefore, the authors have described the practical methods and tools found in the literature as well as in current community-led development projects, and have thoroughly exposed the future directions of the field. Container virtualization and its orchestration through Kubernetes have dominated the cloud computing domain, while major efforts have been recently recorded focused on the adaptation of these technologies to the edge. Such initiatives have addressed either the reduction of container engines and the development of specific tailored operating systems or the development of smaller K8s distributions and edge-focused adaptations (such as KubeEdge). Finally, new workload virtualization approaches, such as WebAssembly modules together with the joint orchestration of these heterogeneous workloads, seem to be the topics to pay attention to in the short to medium term.},
+  pmcid = {PMC9967903},
+  file = {/Users/oli/Zotero/storage/G8I9QCE8/Vaño et al. - 2023 - Cloud-Native Workload Orchestration at the Edge A.pdf}
 }
 
 @unpublished{vassenaMemorySafetyPreservation2019,
@@ -1140,6 +1344,33 @@
   abstract = {A container is a standard unit of software that packages up code and all its dependencies so the application runs quickly and reliably from one computing environment to another. A Docker container image is a lightweight, standalone, executable package of software that includes everything needed to run an application: code, runtime, system tools, system libraries and settings.},
   langid = {american},
   file = {/Users/oli/Zotero/storage/D2URV2JQ/what-container.html}
+}
+
+@online{WhatContainerDockera,
+  title = {What Is a {{Container}}? | {{Docker}}},
+  shorttitle = {What Is a {{Container}}?},
+  url = {https://www.docker.com/resources/what-container/},
+  urldate = {2024-06-06},
+  abstract = {A container is a standard unit of software that packages up code and all its dependencies so the application runs quickly and reliably from one computing environment to another. A Docker container image is a lightweight, standalone, executable package of software that includes everything needed to run an application: code, runtime, system tools, system libraries and settings.},
+  langid = {american},
+  file = {/Users/oli/Zotero/storage/FZMW5XP2/what-container.html}
+}
+
+@inproceedings{yadavDockerContainersVirtual2019,
+  title = {Docker {{Containers Versus Virtual Machine-Based Virtualization}}},
+  booktitle = {Emerging {{Technologies}} in {{Data Mining}} and {{Information Security}}},
+  author = {Yadav, Anuj Kumar and Garg, M. L. and {Ritika}},
+  editor = {Abraham, Ajith and Dutta, Paramartha and Mandal, Jyotsna Kumar and Bhattacharya, Abhishek and Dutta, Soumi},
+  date = {2019},
+  pages = {141--150},
+  publisher = {Springer},
+  location = {Singapore},
+  doi = {10.1007/978-981-13-1501-5_12},
+  abstract = {Cloud computing is a paradigm based on IT that enables ubiquitous access to large pools of configurable resources which can be shared (such as computer networks, servers, storage, applications, and services) and rapidly provisioned with least effort. Cloud computing implementation in traditional ways is done using virtual machines, but nowadays a new concept of Docker containers is also gaining popularity due to its features. Containerization in some cases is treated as lightweight virtualization technique. Virtualization is used by cloud computing environments and data centres to disassociate the tools and applications from the underlying hardware. To validate this, hardware virtualization and OS-level virtualization is used. Apart from virtualization, a new technique is, containers, gaining popularity and many cloud-based deployments are using this technique. In this paper, both of these technologies are compared such that end-user can use these according to the requirement to get benefitted.},
+  isbn = {9789811315015},
+  langid = {english},
+  keywords = {Container,Docker engine,Hypervisor,VMs},
+  file = {/Users/oli/Zotero/storage/WSQNL697/Yadav et al. - 2019 - Docker Containers Versus Virtual Machine-Based Vir.pdf}
 }
 
 @inproceedings{yuCharacterizingServerlessPlatforms2020,
