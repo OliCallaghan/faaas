@@ -7,7 +7,7 @@ from diagrams.oci.network import Vcn
 
 cluster_style = { "fontsize": "28" }
 
-with Diagram("AWS Lambda Execution Environment", show=False, filename="assets/aws-lambda-exec-env", outformat="pdf"):
+with Diagram("AWS Lambda Execution Environment", show=False, filename="assets/aws-lambda-exec-env", outformat="svg"):
     with Cluster("KVM on EC2", graph_attr=cluster_style):
         with Cluster("KVM Host Kernel", graph_attr=cluster_style):
             host_blk = BlockStorage("host-block")

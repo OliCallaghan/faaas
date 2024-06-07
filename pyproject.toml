@@ -4,8 +4,10 @@ include = [
     "benchmarks/perf-v8-event-loop-results-pprof/src",
     "diagrams/arch-overview-source/src",
     "diagrams/arch-overview-split/src",
+    "diagrams/aws-faaas-arch/src",
     "diagrams/aws-lambda-exec-env/src",
     "diagrams/double-billing-problem/src",
+    "diagrams/faaas-arch/src",
     "diagrams/pricing/src",
 ]
 exclude = ["**/node_modules", "**/__pycache__"]
@@ -23,8 +25,10 @@ executionEnvironments = [
     { root = "benchmarks/perf-v8-event-loop-results-pprof/src" },
     { root = "diagrams/arch-overview-source/src" },
     { root = "diagrams/arch-overview-split/src" },
+    { root = "diagrams/aws-faaas-arch/src" },
     { root = "diagrams/aws-lambda-exec-env/src" },
     { root = "diagrams/double-billing-problem/src" },
+    { root = "diagrams/faaas-arch/src" },
     { root = "diagrams/pricing/src" },
 ]
 

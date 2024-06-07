@@ -27,6 +27,7 @@
 			cmake-language-server
 
             racket
+            inkscape-with-extensions
 
             pprof
             aws-sam-cli

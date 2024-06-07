@@ -1,0 +1,10 @@
+{
+  "name": "@faaas/faaas-arch",
+  "version": "1.0.0",
+  "scripts": {
+    "build": "poetry run python src/generate.py"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}

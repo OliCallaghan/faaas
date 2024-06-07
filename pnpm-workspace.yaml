@@ -1,9 +1,11 @@
 packages:
   - "diagrams/arch-overview-source"
   - "diagrams/arch-overview-split"
+  - "diagrams/aws-faaas-arch"
   - "diagrams/aws-lambda-exec-env"
   - "diagrams/aws-lambda-slot-placement"
   - "diagrams/double-billing-problem"
+  - "diagrams/faaas-arch"
   - "diagrams/pricing"
   - "docs"
   - "benchmarks/perf-v8-event-loop"

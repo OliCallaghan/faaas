@@ -121,11 +121,15 @@ importers:
 
   diagrams/arch-overview-split: {}
 
+  diagrams/aws-faaas-arch: {}
+
   diagrams/aws-lambda-exec-env: {}
 
   diagrams/aws-lambda-slot-placement: {}
 
   diagrams/double-billing-problem: {}
+
+  diagrams/faaas-arch: {}
 
   diagrams/pricing: {}
 
@@ -140,12 +144,18 @@ importers:
       '@faaas/arch-overview-split':
         specifier: workspace:^
         version: link:../diagrams/arch-overview-split
+      '@faaas/aws-faaas-arch':
+        specifier: workspace:^
+        version: link:../diagrams/aws-faaas-arch
       '@faaas/aws-lambda-exec-env':
         specifier: workspace:^
         version: link:../diagrams/aws-lambda-exec-env
       '@faaas/double-billing-problem':
         specifier: workspace:^
         version: link:../diagrams/double-billing-problem
+      '@faaas/faaas-arch':
+        specifier: workspace:^
+        version: link:../diagrams/faaas-arch
       '@faaas/perf-v8-event-loop-results':
         specifier: workspace:^
         version: link:../benchmarks/perf-v8-event-loop-results
