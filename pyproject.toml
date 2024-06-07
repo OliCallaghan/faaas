@@ -8,6 +8,7 @@ include = [
     "diagrams/aws-lambda-exec-env/src",
     "diagrams/double-billing-problem/src",
     "diagrams/faaas-arch/src",
+    "diagrams/faaas-message-passing/src",
     "diagrams/pricing/src",
 ]
 exclude = ["**/node_modules", "**/__pycache__"]
@@ -29,6 +30,7 @@ executionEnvironments = [
     { root = "diagrams/aws-lambda-exec-env/src" },
     { root = "diagrams/double-billing-problem/src" },
     { root = "diagrams/faaas-arch/src" },
+    { root = "diagrams/faaas-message-passing/src" },
     { root = "diagrams/pricing/src" },
 ]
 

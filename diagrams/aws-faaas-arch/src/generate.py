@@ -5,9 +5,10 @@ from diagrams.aws.database import RDS
 from diagrams.aws.integration import MQ
 from diagrams.aws.network import InternetGateway, APIGateway
 
+graph_attr = { "pad": "0" }
 cluster_style = { "fontsize": "28" }
 
-with Diagram(show=False, filename="assets/aws-faaas-arch", outformat="svg"):
+with Diagram(show=False, filename="assets/aws-faaas-arch", graph_attr=graph_attr, outformat="svg"):
     net = InternetGateway("Internet")
 
     mq = MQ("RabbitMQ")

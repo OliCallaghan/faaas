@@ -131,6 +131,8 @@ importers:
 
   diagrams/faaas-arch: {}
 
+  diagrams/faaas-message-passing: {}
+
   diagrams/pricing: {}
 
   docs:

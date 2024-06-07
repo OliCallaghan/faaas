@@ -6,9 +6,10 @@ from diagrams.onprem.network import Internet
 from diagrams.oci.compute import Container, Functions, OKE
 from diagrams.oci.network import ServiceGateway
 
+graph_attr = { "pad": "0" }
 cluster_style = { "fontsize": "28" }
 
-with Diagram(show=False, filename="assets/faaas-arch", outformat="svg"):
+with Diagram(show=False, filename="assets/faaas-arch", graph_attr=graph_attr, outformat="svg"):
     net = Internet("Internet")
 
     mq = RabbitMQ("RabbitMQ")

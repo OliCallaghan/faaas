@@ -6,6 +6,7 @@ packages:
   - "diagrams/aws-lambda-slot-placement"
   - "diagrams/double-billing-problem"
   - "diagrams/faaas-arch"
+  - "diagrams/faaas-message-passing"
   - "diagrams/pricing"
   - "docs"
   - "benchmarks/perf-v8-event-loop"
