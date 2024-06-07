@@ -35,12 +35,12 @@ Due to the nature of asynchronous requests and scalability issues, it is likely 
 \subsection{Continuation context}
 \todo[inline]{Introduce the concept of a continuation context}
 
-\subsubsection{Free variable analysis}
+\subsection{Free variable analysis}
 \todo[inline]{Introduce the concept of free variable analysis}
 \todo[inline]{Introduce the concept of free variable analysis in JavaScript}
 \todo[inline]{Discuss JavaScript scoping}
 
-\subsubsection{Modelling variable usage as a DAG}
+\subsection{Modelling variable usage as a DAG}
 \todo[inline]{Introduce the concept of modelling variable usage in each function split as a DAG.}
 
 \section{Queuing function continuations}
@@ -51,6 +51,10 @@ Due to the nature of asynchronous requests and scalability issues, it is likely 
 
 \subsection{Plug-n-play queuing}
 \todo[inline]{Discuss the option to switch out the queueing system for another (they're basically all the same)}
+
+\section{Gateway}
+\todo[inline]{Introduce the gateway as the entry point for all function invocations}
+\todo[inline]{Discuss how it adds the initial invocation to the queue}
 
 \section{Consuming function continuations}
 \todo[inline]{Discuss how function continuations are consumed in the \faaas{} stack}
@@ -70,15 +74,17 @@ Due to the nature of asynchronous requests and scalability issues, it is likely 
 \subsection{Reporting response times}
 \todo[inline]{Discuss what reports the response times for asynchronous operations}
 
+\section{Reducing cold-starts on AWS Lambda}
+\todo[inline]{Introduce how cold-starts are a limiting factor when using \faas{}}
+\todo[inline]{Xanadu demonstrated that this was a solvable problem, which if implemented would decrease bundle size of each function.}
+\todo[inline]{Link back to AWS Lambda's slot placement algorithm}
+\todo[inline]{Discuss how \faaasc{} outputs a single function which is invoked by the gateway}
+
 \section{The \faaastime{} experimental runtime}
 \todo[inline]{Introduce how existing runtimes are not suitable for measuring and providing metrics on the performance of asynchronous operations}
 \todo[inline]{Discuss how existing research has been focused on improving cold-start times for serverless functions}
 \todo[inline]{Introduce \faaastime{} as an experimental setup with low cost-start times to measure the performance of asynchronous operations and report these back to the functions.}
 \todo[inline]{Note how \faaastime{} is intended to be swapped in and out for another runtime that has faster cold starts.}
-
-\subsection{Gateway}
-\todo[inline]{Introduce the gateway as the entry point for all function invocations}
-\todo[inline]{Discuss how it adds the initial invocation to the queue}
 
 \subsection{\faaastime{} workers}
 \todo[inline]{Discuss how \faaastime{} uses WASI to measure the response times of asynchronous operations}

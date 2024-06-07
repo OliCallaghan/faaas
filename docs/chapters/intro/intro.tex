@@ -16,16 +16,6 @@ In these execution environments, whilst `functions' are running, they are alloca
 
 In these environments, `functions' are typically implemented either as containers or as virtual machines running atop a serverless `runtime'; whilst these containers are awaiting I/O such as network requests, resources are still allocated, used to determine whether execution can continue.
 
-This research aims to yield control back to the runtime from these `functions' whilst awaiting asynchronous operations to complete, allowing useful work to be scheduled by the runtime. Throughout this report, we propose three main contributions:
-
-\begin{itemize}
-    \item The \faaasc{} compiler that performs code splitting of JavaScript serverless functions, allowing a function to optionally be deployed in a split manner on any supported Serverless\cite{serverlessServerlessZeroFrictionServerless2024} platform.
-
-    \item The \faaastime{} serverless runtime stack that accurately bills, composes and executes serverless JavaScript functions emitted by \faaasc{}.
-
-    \item A costing analysis and evaluation of the required advancements to the serverless ecosystem to provide cost reductions by carrying out code splitting.
-\end{itemize}
-
 \section{Motivation}
 % Syscall Calls Breakdown
 \begin{figure}
@@ -66,3 +56,18 @@ Since the median execution time for serverless functions lies between millisecon
     \caption{Illustration of termination function execution once DB request has been sent, with DB responsible for invoking the remaineder of the function with the result of the query.}
     \label{fig:double-billing-db-split}
 \end{figure}
+
+\section{Contributions}
+
+This research aims to yield control back to the runtime from these `functions' whilst awaiting asynchronous operations to complete, allowing useful work to be scheduled by the runtime. Throughout this report, we propose three main contributions:
+
+\begin{itemize}
+    \item The \faaasc{} compiler that performs code splitting of JavaScript serverless functions, allowing a function to optionally be deployed in a split manner on any supported Serverless\cite{serverlessServerlessZeroFrictionServerless2024} platform.
+
+    \item The \faaastime{} serverless runtime stack that accurately bills, composes and executes serverless JavaScript functions emitted by \faaasc{}.
+
+    \item A costing analysis and evaluation of the required advancements to the serverless ecosystem to provide cost reductions by carrying out code splitting.
+\end{itemize}
+
+\section{Thesis Structure}
+\todo[inline]{Explain how this thesis is structured, and what is talked about where.}

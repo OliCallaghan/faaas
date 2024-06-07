@@ -1,13 +1,29 @@
 \chapter{Code splitting using dynamic response time modelling}
-\todo[inline]{Discuss how the previous chapters influence the design of the \faaasc{} compiler. Discuss the next steps regarding how this data is used to optimise the }
 
-\section{Persistent storage response time modelling}
+As detailed in Section \ref{sec:double-billing-problem}, serverless functions that interface with external asynchronous services are particularly vulnerable to the double billing problem.
+
+To reduce billed idle time, we propose using code generation to split existing serverless functions around calls to asynchronous services, suspending billing for this period, and resume execution once the asynchronous result is ready.
+
+Since \faaas{} billing is deterministic as described in Section \ref{sec:faas-billing-models}, we can accurately determine the cost of ending an invocation and reinvoking the continuation at a later time. This allows us to build a generic parameterised model described in Section \ref{sec:faas-param-cost-model} that can be applied to any \faas{} platform, given the set of parameters that accurately describe the platform's billing model.
+
+Additionally, in Section \ref{sec:faas-async-service-response-time-modelling} we will introduce a model to estimate response times when interacting with asynchronous services, which in conjunction with the parameterised cost model, will be used to determine the profitability of code splitting in Section \ref{sec:faas-code-splitting-profitability}.
+
+\section{Parameterised cost model for \faas{} platforms}
+\label{sec:faas-param-cost-model}
+\todo[inline]{Parameterised cost model}
+
+\section{Asynchronous service response time modelling}
+\label{sec:faas-async-service-response-time-modelling}
+In this section we will develop a generic model that is able to estimate the response time of an asynchronous service.
+
+\subsection{Persistent storage response time modelling}
 \todo[inline]{Introduce how response times are modelled when interacting with persistent storage.}
 
 \section{Code splitting cost estimation}
 \todo[inline]{Probably should move the background chapter explaining the model to this section}
 
 \section{Code splitting profitability analysis}
+\label{sec:faas-code-splitting-profitability}
 \todo[inline]{Introduce the cost/benefit model for deciding whether to code split.}
 
 \subsection{Monitoring and strategy switching}
