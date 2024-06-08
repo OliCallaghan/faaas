@@ -16,7 +16,69 @@ pub mod types {
     use serde::Deserialize;
     use serde::Serialize;
 
+    use faaasmq::{MqTaskContext, MqValue};
+
     use super::bindings::faaas::task::types::Value;
+
+    impl Into<TaskContext> for MqTaskContext {
+        fn into(self) -> TaskContext {
+            TaskContext {
+                id: self.id,
+                task_id: self.task_id,
+                args: self.args.into_iter().map(|v| v.into()).collect(),
+                data: self.data.into_iter().map(|(k, v)| (k, v.into())).collect(),
+                continuation: self.continuation,
+                continuation_args: self
+                    .continuation_args
+                    .into_iter()
+                    .map(|v| v.into())
+                    .collect(),
+            }
+        }
+    }
+
+    impl Into<Value> for MqValue {
+        fn into(self) -> Value {
+            match self {
+                MqValue::Bool(v) => Value::BoolVal(v),
+                MqValue::Int(v) => Value::S32Val(v),
+                MqValue::Uint(v) => Value::U32Val(v),
+                MqValue::Float(v) => Value::F64Val(v),
+                MqValue::String(v) => Value::StrVal(v),
+                MqValue::Bytes(v) => Value::BufVal(v),
+            }
+        }
+    }
+
+    impl From<TaskContext> for MqTaskContext {
+        fn from(ctx: TaskContext) -> Self {
+            MqTaskContext {
+                id: ctx.id,
+                task_id: ctx.task_id,
+                args: ctx.args.into_iter().map(|v| v.into()).collect(),
+                data: ctx.data.into_iter().map(|(k, v)| (k, v.into())).collect(),
+                continuation: ctx.continuation,
+                continuation_args: ctx
+                    .continuation_args
+                    .into_iter()
+                    .map(|v| v.into())
+                    .collect(),
+            }
+        }
+    }
+
+    impl From<Value> for MqValue {
+        fn from(v: Value) -> Self {
+            match v {
+                Value::BoolVal(v) => MqValue::Bool(v),
+                Value::S32Val(v) => MqValue::Int(v),
+                Value::U32Val(v) => MqValue::Uint(v),
+                Value::F64Val(v) => MqValue::Float(v),
+                Value::StrVal(v) => MqValue::String(v),
+                Value::BufVal(v) => MqValue::Bytes(v),
+            }
+        }
+    }
 
     #[derive(Clone, Serialize, Deserialize)]
     pub struct TaskContext {

@@ -3,7 +3,7 @@ resolver = "2"
 members = [
     "pkg/faaasc",
     "pkg/faaastime",
-    "pkg/gateway", "pkg/postgres-faaas-engine",
+    "pkg/gateway", "pkg/mq", "pkg/postgres-faaas-engine",
     "pkg/primitives/condition",
     "pkg/primitives/example/tasks/dec_pet",
     "pkg/primitives/example/tasks/get_pet",

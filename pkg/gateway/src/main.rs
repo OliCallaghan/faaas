@@ -10,10 +10,11 @@ use amqprs::channel::{
 };
 use amqprs::connection::{Connection, OpenConnectionArguments};
 use amqprs::consumer::AsyncConsumer;
+use amqprs::tls::TlsAdaptor;
 use amqprs::{BasicProperties, Deliver};
 use anyhow::Result;
 use async_trait::async_trait;
-use faaastime::state::types::TaskContext;
+use faaasmq::MqTaskContext;
 use http_body_util::Full;
 use hyper::body::Bytes;
 use hyper::server::conn::http1;
@@ -88,6 +89,8 @@ async fn consume_resp(mq_chann: &Channel, invoc_id: &str) -> Receiver<Vec<u8>> {
         .await
         .unwrap();
 
+    println!("Listening for invocation {}", invoc_id);
+
     rx
 }
 
@@ -95,7 +98,7 @@ async fn publish_invoke(mq_chann: &Channel, id: &str, task_id: &str) -> Result<(
     let mq_routing_key = "mq.invocations.tasks";
     let mq_exchange_name = "amq.direct";
 
-    let invoc = TaskContext::new(id, task_id);
+    let invoc = MqTaskContext::new(id, task_id);
     let invoc = serde_json::to_vec(&invoc).unwrap();
 
     // create arguments for basic_publish
@@ -105,6 +108,8 @@ async fn publish_invoke(mq_chann: &Channel, id: &str, task_id: &str) -> Result<(
         .basic_publish(BasicProperties::default(), invoc, args)
         .await
         .unwrap();
+
+    println!("Published {} with task id {}", id, task_id);
 
     Ok(())
 }
@@ -119,6 +124,8 @@ async fn invoke(mq_conn: Connection, task_id: &str) -> Result<Response<Full<Byte
 
     let id = Uuid::new_v4().to_string();
     let task_id = task_id.to_string();
+
+    println!("Invoking {} with task id {}", id, task_id);
 
     let resp = consume_resp(&mq_chann, &id).await;
 
@@ -145,6 +152,13 @@ async fn handle_invocation_req(
         .map(|p| p.collect::<HashMap<_, _>>())
         .unwrap_or_default();
 
+    if req.uri().path() == "/health-check" {
+        return Ok(Response::builder()
+            .status(StatusCode::OK)
+            .body(Full::new(Bytes::from_static(b"gateway alive")))
+            .unwrap());
+    }
+
     match url_query.get("task_id") {
         // Invoke function by pushing to message queue.
         Some(task_id) => invoke(mq_conn, task_id).await,
@@ -158,7 +172,7 @@ async fn handle_invocation_req(
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
-    let addr = SocketAddr::from(([127, 0, 0, 1], 3000));
+    let addr = SocketAddr::from(([0, 0, 0, 0], 80));
     let listener = TcpListener::bind(addr).await?;
 
     // Collect RabbitMQ connection configuration
@@ -171,17 +185,19 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
     let mq_pass = env::var("MQ_PASS").expect("MQ_PASS is not set");
 
     // Initialize RabbitMQ connection
-    let mq_conn = Connection::open(&OpenConnectionArguments::new(
-        &mq_host, mq_port, &mq_user, &mq_pass,
-    ))
-    .await
-    .unwrap();
+    let mq_conf_tls_adaptor = TlsAdaptor::without_client_auth(None, mq_host.clone())?;
+    let mut mq_conf = OpenConnectionArguments::new(&mq_host, mq_port, &mq_user, &mq_pass);
+    mq_conf.tls_adaptor(mq_conf_tls_adaptor);
+
+    let mq_conn = Connection::open(&mq_conf).await.unwrap();
 
     // Connect to RabbitMQ
     mq_conn
         .register_callback(DefaultConnectionCallback)
         .await
         .unwrap();
+
+    println!("Listening on 0.0.0.0:3000");
 
     // Accept HTTP requests
     loop {

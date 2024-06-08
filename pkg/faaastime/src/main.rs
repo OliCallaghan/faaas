@@ -3,6 +3,7 @@ mod registry;
 mod state;
 mod timed;
 
+use faaasmq::MqTaskContext;
 use state::exports::faaas::task::callable::TaskContext;
 use state::types::TaskStatus;
 use std::env;
@@ -119,11 +120,11 @@ impl AsyncConsumer for Consumer {
         content: Vec<u8>,
     ) {
         let handler = &self.0;
-        let ctx = serde_json::from_slice::<TaskContext>(&content).unwrap();
+        let ctx = serde_json::from_slice::<MqTaskContext>(&content).unwrap();
 
         let id = ctx.id.clone();
 
-        let res = invoke(handler, ctx).await;
+        let res = invoke(handler, ctx.into()).await;
 
         match res {
             Ok(ctx) => match ctx.into_continuation() {
@@ -142,6 +143,8 @@ async fn publish_continuation(mq_chann: &Channel, ctx: TaskContext) {
     let mq_exchange_name = "amq.direct";
 
     let args = BasicPublishArguments::new(mq_exchange_name, &mq_routing_key);
+
+    let ctx = MqTaskContext::from(ctx);
     let data = serde_json::to_vec(&ctx).unwrap();
 
     mq_chann

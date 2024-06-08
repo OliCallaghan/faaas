@@ -27,6 +27,7 @@ aws-sdk-s3 = { version = "1.29.0", features = ["behavior-version-latest"] }
 aws-config = { version = "1.4.0", features = ["behavior-version-latest"] }
 aws-credential-types = "1.2.0"
 faaasc = { version = "0.1.0", path = "../faaasc" }
+faaasmq = { version = "0.1.0", path = "../mq" }
 async-trait = "0.1.80"
 amqprs = "1.6.1"
 uuid = { version = "1.8.0", features = ["v4"] }
