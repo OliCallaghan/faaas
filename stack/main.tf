@@ -366,6 +366,10 @@ resource "aws_ecr_repository" "app" {
   name = "app-repo"
 }
 
+resource "aws_cloudwatch_log_group" "faaas_gateway" {
+  name = local.gateway_log_group
+}
+
 # Define ECS Task Definition
 resource "aws_ecs_task_definition" "app" {
   family                   = "app-task"
@@ -400,6 +404,15 @@ resource "aws_ecs_task_definition" "app" {
         value = "ishouldmakethissecure"
       }
     ]
+    logConfiguration = {
+      logDriver = "awslogs"
+      options = {
+        "awslogs-create-group" : "true"
+        "awslogs-group" : local.gateway_log_group
+        "awslogs-region" : "eu-west-2"
+        "awslogs-stream-prefix" : "ecs"
+      }
+    }
   }])
 
   runtime_platform {
