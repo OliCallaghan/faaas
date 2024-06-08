@@ -14,7 +14,7 @@ provider "aws" {
 
 resource "aws_lambda_function" "handler" {
   filename = "${local.build_path}/handler.zip"
-  handler  = "handler.entrypoint"
+  handler  = "index.entrypoint"
   runtime  = "nodejs20.x"
   role     = aws_iam_role.iam_for_lambda.arn
 

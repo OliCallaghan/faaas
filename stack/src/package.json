@@ -2,10 +2,8 @@
   "name": "@faaas-stack/handler",
   "version": "1.0.0",
   "type": "module",
-  "main": "handler.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
+  "main": "index.mjs",
+  "scripts": {},
   "keywords": [],
   "author": "",
   "license": "ISC"

@@ -271,6 +271,24 @@ importers:
 
   pkg/utils/async: {}
 
+  pkg/utils/aws-adaptor:
+    devDependencies:
+      '@faaas/tsconfig':
+        specifier: workspace:^
+        version: link:../tsconfig
+      pkgroll:
+        specifier: ^2.1.0
+        version: 2.1.0(typescript@5.4.4)
+      rabbitmq-client:
+        specifier: ^4.6.0
+        version: 4.6.0
+      typescript:
+        specifier: ^5.4.4
+        version: 5.4.4
+      zod:
+        specifier: ^3.23.8
+        version: 3.23.8
+
   pkg/utils/faaasman:
     dependencies:
       '@aws-sdk/client-s3':
@@ -345,6 +363,12 @@ importers:
       '@types/node':
         specifier: ^20.12.5
         version: 20.12.5
+
+  stack:
+    dependencies:
+      '@faaas/aws-adaptor':
+        specifier: workspace:^
+        version: link:../pkg/utils/aws-adaptor
 
 packages:
 
@@ -3295,6 +3319,11 @@ packages:
       side-channel: 1.0.6
     dev: false
 
+  /rabbitmq-client@4.6.0:
+    resolution: {integrity: sha512-RHt6Vz+nCzsMlSJ5HbMgxR1SMej1LtRVYCmbIWXfUhgeej3HshByQdVOirF195V3RVCRI3UHEec9PzgDQQtS8Q==}
+    engines: {node: '>=16'}
+    dev: true
+
   /range-parser@1.2.1:
     resolution: {integrity: sha512-Hrgsx+orqoygnmhFbKaHE6c296J+HTAQXoxEF6gNupROmmGJRoyzfG3ccAveqCBrwr/2yxQ5BVd/GTl5agOwSg==}
     engines: {node: '>= 0.6'}
@@ -3832,3 +3861,7 @@ packages:
     resolution: {integrity: sha512-Ux4ygGWsu2c7isFWe8Yu1YluJmqVhxqK2cLXNQA5AcC3QfbGNpM7fu0Y8b/z16pXLnFxZYvWhd3fhBY9DLmC6Q==}
     engines: {node: '>=6'}
     dev: false
+
+  /zod@3.23.8:
+    resolution: {integrity: sha512-XBx9AXhXktjUqnepgTiE5flcKIYWi/rme0Eaj+5Y0lftuGBq+jyRu/md4WnuxqgP1ubdpNCsYEYPxrzVHD8d6g==}
+    dev: true

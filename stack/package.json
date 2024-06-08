@@ -1,0 +1,14 @@
+{
+  "name": "@faaas/stack",
+  "version": "1.0.0",
+  "description": "FaaAS stack running on AWS infrastructure",
+  "scripts": {
+    "build": "./bundle.sh"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@faaas/aws-adaptor": "workspace:^"
+  }
+}

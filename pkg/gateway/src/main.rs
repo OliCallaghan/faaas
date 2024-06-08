@@ -64,7 +64,8 @@ async fn consume_resp(mq_chann: &Channel, invoc_id: &str) -> Receiver<Vec<u8>> {
     let mq_routing_key = format!("mq.gateway.invocations.{}", invoc_id);
     let mq_exchange_name = "amq.direct";
 
-    let mq_queue_decl_args = QueueDeclareArguments::exclusive_server_named();
+    let mut mq_queue_decl_args = QueueDeclareArguments::exclusive_server_named();
+    mq_queue_decl_args.auto_delete(true);
 
     let (resp_queue_name, _, _) = mq_chann
         .queue_declare(mq_queue_decl_args)

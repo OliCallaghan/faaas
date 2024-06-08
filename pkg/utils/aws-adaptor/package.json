@@ -1,0 +1,19 @@
+{
+  "name": "@faaas/aws-adaptor",
+  "version": "1.0.0",
+  "description": "AWS adaptor layer defining entrypoints for FaaAS functions",
+  "main": "./dist/index.mjs",
+  "scripts": {
+    "build": "pkgroll"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@faaas/tsconfig": "workspace:^",
+    "pkgroll": "^2.1.0",
+    "rabbitmq-client": "^4.6.0",
+    "typescript": "^5.4.4",
+    "zod": "^3.23.8"
+  }
+}
