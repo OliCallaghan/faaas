@@ -1,19 +1,22 @@
-use std::{any::Any, collections::HashMap, env};
+use std::{collections::HashMap, env};
 
 use amqprs::{
     callbacks::{DefaultChannelCallback, DefaultConnectionCallback},
     channel::{
-        BasicConsumeArguments, BasicPublishArguments, Channel, QueueBindArguments,
-        QueueDeclareArguments,
+        BasicAckArguments, BasicConsumeArguments, BasicPublishArguments, Channel,
+        QueueBindArguments, QueueDeclareArguments,
     },
     connection::{Connection, OpenConnectionArguments},
     consumer::AsyncConsumer,
+    tls::TlsAdaptor,
     BasicProperties, Deliver,
 };
 use anyhow::{Error, Result};
-use faaastime::state::{bindings::faaas::task::types::Value, types::TaskContext};
+use faaasmq::{MqTaskContext, MqValue};
+use native_tls::TlsConnector;
+use postgres_native_tls::MakeTlsConnector;
 use tokio::sync::Notify;
-use tokio_postgres::{Client, Config, NoTls, SimpleQueryMessage};
+use tokio_postgres::{Client, Config, SimpleQueryMessage};
 use uuid::Uuid;
 
 struct Consumer(pub Client);
@@ -28,7 +31,10 @@ impl AsyncConsumer for Consumer {
         content: Vec<u8>,
     ) {
         let client = &self.0;
-        let ctx = serde_json::from_slice::<TaskContext>(&content).unwrap();
+        let ctx = serde_json::from_slice::<MqTaskContext>(&content).unwrap();
+
+        let args = BasicAckArguments::new(deliver.delivery_tag(), false);
+        channel.basic_ack(args).await.unwrap();
 
         println!("CTX: {:?}", serde_json::to_string_pretty(&ctx));
 
@@ -43,11 +49,10 @@ impl AsyncConsumer for Consumer {
     }
 }
 
-async fn execute_query(client: &Client, ctx: &TaskContext) -> Result<TaskContext> {
-    let error = anyhow::Error::msg("Missing query");
-    let query = ctx.args.get(0).ok_or(error)?;
+async fn execute_query(client: &Client, ctx: &MqTaskContext) -> Result<MqTaskContext> {
+    let query = ctx.args.get(2).ok_or(anyhow::Error::msg("Missing query"))?;
 
-    if let Value::StrVal(query_str) = query {
+    if let MqValue::String(query_str) = query {
         let query_res = client.simple_query(query_str).await.unwrap();
 
         let query_data = query_res
@@ -60,19 +65,19 @@ async fn execute_query(client: &Client, ctx: &TaskContext) -> Result<TaskContext
                     .map(|(col_index, col)| {
                         (
                             col.name().to_string(),
-                            Value::StrVal(row.get(col_index).unwrap().into()),
+                            MqValue::String(row.get(col_index).unwrap().into()),
                         )
                     })
-                    .collect::<HashMap<String, Value>>(),
+                    .collect::<HashMap<String, MqValue>>(),
                 SimpleQueryMessage::CommandComplete(changed) => {
-                    HashMap::from([("changed".into(), Value::U32Val(*changed as u32))])
+                    HashMap::from([("changed".into(), MqValue::Uint(*changed as u32))])
                 }
                 _ => HashMap::new(),
             })
             .collect::<Vec<HashMap<_, _>>>();
 
         let query_data_serial = serde_json::to_string(&query_data).unwrap();
-        let query_data_val = Value::StrVal(query_data_serial);
+        let query_data_val = MqValue::String(query_data_serial);
 
         let mut ctx = ctx.clone();
 
@@ -84,18 +89,42 @@ async fn execute_query(client: &Client, ctx: &TaskContext) -> Result<TaskContext
     }
 }
 
-async fn publish_result(mq_chann: &Channel, ctx: &mut TaskContext) -> Result<()> {
-    let mq_routing_key = "mq.invocations.tasks";
+async fn publish_result(mq_chann: &Channel, ctx: &mut MqTaskContext) -> Result<()> {
+    let task_id = ctx
+        .args
+        .get(0)
+        .ok_or(anyhow::Error::msg("Missing task ID"))
+        .and_then(|id| {
+            if let MqValue::String(id) = id {
+                Ok(id.clone())
+            } else {
+                Err(anyhow::Error::msg("Task ID is not a string"))
+            }
+        })?;
+
+    let task_cont_id = ctx
+        .args
+        .get(1)
+        .ok_or(anyhow::Error::msg("Missing task continuation ID"))
+        .and_then(|id| {
+            if let MqValue::String(id) = id {
+                Ok(id.clone())
+            } else {
+                Err(anyhow::Error::msg("Task continuation ID is not a string"))
+            }
+        })?;
+
+    let mq_routing_key = format!("mq.invocations.tasks.{}", task_id);
     let mq_exchange_name = "amq.direct";
 
-    ctx.set_continuation("tasks/dec_pet", vec![]);
+    ctx.set_continuation(&task_cont_id, vec![]);
     ctx.continuation();
 
     let ctx = serde_json::to_vec(&ctx).unwrap();
 
     println!("Sending result: {:?}", ctx);
 
-    let args = BasicPublishArguments::new(mq_exchange_name, mq_routing_key);
+    let args = BasicPublishArguments::new(mq_exchange_name, &mq_routing_key);
 
     mq_chann
         .basic_publish(BasicProperties::default(), ctx, args)
@@ -105,7 +134,7 @@ async fn publish_result(mq_chann: &Channel, ctx: &mut TaskContext) -> Result<()>
     Ok(())
 }
 
-async fn publish_err(mq_chann: &Channel, task: &TaskContext, err: Error) -> Result<()> {
+async fn publish_err(mq_chann: &Channel, task: &MqTaskContext, err: Error) -> Result<()> {
     let mq_routing_key = format!("mq.gateway.invocations.{}", task.id);
     let mq_exchange_name = "amq.direct";
 
@@ -141,6 +170,13 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
         .expect("PG_PORT is not a number");
     let pg_user = env::var("PG_USER").expect("PG_USER is not set");
     let pg_pass = env::var("PG_PASS").expect("PG_PASS is not set");
+    let pg_db = env::var("PG_DB").expect("PG_DB is not set");
+
+    let connector = TlsConnector::builder()
+        .danger_accept_invalid_certs(true)
+        .build()
+        .unwrap();
+    let connector = MakeTlsConnector::new(connector);
 
     // Initialize PostgreSQL connection
     let (client, connection) = Config::new()
@@ -148,7 +184,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
         .port(pg_port)
         .user(&pg_user)
         .password(&pg_pass)
-        .connect(NoTls)
+        .dbname(&pg_db)
+        .connect(connector)
         .await?;
 
     // Spawn a task to handle the connection
@@ -158,12 +195,19 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
         }
     });
 
+    // // Initialize RabbitMQ connection
+    // let mq_conn = Connection::open(&OpenConnectionArguments::new(
+    //     &mq_host, mq_port, &mq_user, &mq_pass,
+    // ))
+    // .await
+    // .unwrap();
+
     // Initialize RabbitMQ connection
-    let mq_conn = Connection::open(&OpenConnectionArguments::new(
-        &mq_host, mq_port, &mq_user, &mq_pass,
-    ))
-    .await
-    .unwrap();
+    let mq_conf_tls_adaptor = TlsAdaptor::without_client_auth(None, mq_host.clone())?;
+    let mut mq_conf = OpenConnectionArguments::new(&mq_host, mq_port, &mq_user, &mq_pass);
+    mq_conf.tls_adaptor(mq_conf_tls_adaptor);
+
+    let mq_conn = Connection::open(&mq_conf).await.unwrap();
 
     // Connect to RabbitMQ
     mq_conn
@@ -180,11 +224,10 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
 
     // Connect to RabbitMQ invocation queue
     let mq_node_id = Uuid::new_v4().to_string();
-    let mq_routing_key = "mq.invocations.io.pg";
+    let mq_routing_key = "mq.invocations.proxy.sql.pg";
     let mq_exchange_name = "amq.direct";
 
-    let mq_queue_decl_args =
-        QueueDeclareArguments::durable_client_named("sql_invocations").finish();
+    let mq_queue_decl_args = QueueDeclareArguments::new("sql_invocations").finish();
 
     let (resp_queue_name, _, _) = mq_chann
         .queue_declare(mq_queue_decl_args)

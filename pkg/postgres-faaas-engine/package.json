@@ -4,7 +4,8 @@
   "description": "",
   "scripts": {
     "build": "cargo build --release --quiet",
-    "start": "dotenvx run -- target/release/postgres-faaas-engine"
+    "start": "dotenvx run -- target/release/postgres-faaas-engine",
+    "deploy": "./deploy.sh"
   },
   "keywords": [],
   "author": "",

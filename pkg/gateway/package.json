@@ -4,7 +4,8 @@
   "description": "",
   "scripts": {
     "build": "cargo build --release --quiet",
-    "start": "dotenvx run -- target/release/gateway"
+    "start": "dotenvx run -- target/release/gateway",
+    "deploy": "./deploy.sh"
   },
   "keywords": [],
   "author": "",

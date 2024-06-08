@@ -12,6 +12,7 @@
   "devDependencies": {
     "@faaas/tsconfig": "workspace:^",
     "pkgroll": "^2.1.0",
+    "postgres": "^3.4.4",
     "rabbitmq-client": "^4.6.0",
     "typescript": "^5.4.4",
     "zod": "^3.23.8"

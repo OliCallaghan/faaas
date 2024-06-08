@@ -34,4 +34,21 @@ impl MqTaskContext {
             continuation_args: Vec::new(),
         }
     }
+
+    pub fn continuation(&mut self) {
+        if let Some(continuation) = self.continuation.take() {
+            self.task_id = continuation;
+            self.args = self.continuation_args.clone();
+            self.continuation_args = vec![]
+        }
+    }
+
+    pub fn set_continuation(&mut self, task_id: &str, args: Vec<MqValue>) {
+        self.continuation = Some(task_id.to_owned());
+        self.continuation_args = args;
+    }
+}
+
+pub fn get_task_init_id(task_id: &str) -> String {
+    format!("{}_0", task_id)
 }

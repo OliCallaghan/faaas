@@ -23,10 +23,6 @@ resource "aws_lambda_function" "handler" {
   function_name = "handler"
   timeout       = 30
 
-  depends_on = [
-    null_resource.build_lambda_function
-  ]
-
   environment {}
 }
 
@@ -45,16 +41,6 @@ resource "aws_lambda_event_source_mapping" "handler_rabbit_mq_event_source" {
   source_access_configuration {
     type = "BASIC_AUTH"
     uri  = aws_secretsmanager_secret_version.rabbit_mq_auth.arn
-  }
-}
-
-resource "null_resource" "build_lambda_function" {
-  triggers = {
-    build_number = "${timestamp()}"
-  }
-
-  provisioner "local-exec" {
-    command = "./bundle.sh"
   }
 }
 
@@ -162,6 +148,15 @@ resource "aws_secretsmanager_secret_version" "rabbit_mq_auth" {
 
 resource "aws_ecr_repository" "faaas_gateway" {
   name                 = "faaas_gateway"
+  image_tag_mutability = "MUTABLE"
+
+  image_scanning_configuration {
+    scan_on_push = true
+  }
+}
+
+resource "aws_ecr_repository" "postgres_faaas_engine" {
+  name                 = "postgres_faaas_engine"
   image_tag_mutability = "MUTABLE"
 
   image_scanning_configuration {
@@ -370,6 +365,10 @@ resource "aws_cloudwatch_log_group" "faaas_gateway" {
   name = local.gateway_log_group
 }
 
+resource "aws_cloudwatch_log_group" "faaas_proxy_sql_pg" {
+  name = local.proxy_sql_pg_log_group
+}
+
 # Define ECS Task Definition
 resource "aws_ecs_task_definition" "app" {
   family                   = "app-task"
@@ -422,6 +421,77 @@ resource "aws_ecs_task_definition" "app" {
 
   tags = {
     Name = "app-task"
+  }
+}
+
+# Define ECS Task Definition
+resource "aws_ecs_task_definition" "proxy_sql_pg" {
+  family                   = "proxy-sql-pg"
+  execution_role_arn       = aws_iam_role.ecs_task_execution_role.arn
+  network_mode             = "awsvpc"
+  requires_compatibilities = ["FARGATE"]
+  cpu                      = "256"
+  memory                   = "512"
+
+  container_definitions = jsonencode([{
+    name  = "proxy-sql-pg"
+    image = "${aws_ecr_repository.postgres_faaas_engine.repository_url}:latest"
+    environment = [
+      {
+        name  = "MQ_HOST"
+        value = "b-33245d09-61e4-4119-84ae-13dcdd945031.mq.eu-west-2.amazonaws.com"
+      },
+      {
+        name  = "MQ_PORT"
+        value = "5671"
+      },
+      {
+        name  = "MQ_USER"
+        value = "admin"
+      },
+      {
+        name  = "MQ_PASS"
+        value = "ishouldmakethissecure"
+      },
+      {
+        name  = "PG_HOST"
+        value = "postgres-db.cno4eviwxzxv.eu-west-2.rds.amazonaws.com"
+      },
+      {
+        name  = "PG_PORT"
+        value = "5432"
+      },
+      {
+        name  = "PG_USER"
+        value = "faaasuser"
+      },
+      {
+        name  = "PG_PASS"
+        value = "securepassword"
+      },
+      {
+        name  = "PG_DB"
+        value = "postgres"
+      }
+    ]
+    logConfiguration = {
+      logDriver = "awslogs"
+      options = {
+        "awslogs-create-group" : "true"
+        "awslogs-group" : local.proxy_sql_pg_log_group
+        "awslogs-region" : "eu-west-2"
+        "awslogs-stream-prefix" : "ecs"
+      }
+    }
+  }])
+
+  runtime_platform {
+    operating_system_family = "LINUX"
+    cpu_architecture        = "ARM64"
+  }
+
+  tags = {
+    Name = "proxy-sql-pg-task"
   }
 }
 
@@ -506,6 +576,82 @@ resource "aws_ecs_service" "app" {
   }
 }
 
+resource "aws_ecs_service" "proxy_sql_pg" {
+  name                 = "proxy-sql-pg-service"
+  cluster              = aws_ecs_cluster.main.id
+  task_definition      = aws_ecs_task_definition.proxy_sql_pg.arn
+  desired_count        = 1
+  launch_type          = "FARGATE"
+  force_new_deployment = true
+
+  network_configuration {
+    subnets = [
+      aws_subnet.private_subnet_1.id,
+      aws_subnet.private_subnet_2.id
+    ]
+    security_groups  = [aws_security_group.ecs_sg.id]
+    assign_public_ip = false
+  }
+
+  tags = {
+    Name = "proxy-sql-pg-service"
+  }
+}
+
 variable "aws_region" {
   default = "eu-west-2"
+}
+
+resource "aws_db_subnet_group" "postgres" {
+  name = "postgres"
+  subnet_ids = [
+    aws_subnet.public_subnet_1.id,
+    aws_subnet.public_subnet_2.id,
+  ]
+
+  tags = {
+    Name = "postgres-db"
+  }
+}
+
+resource "aws_security_group" "postgres" {
+  name   = "postgres_sg"
+  vpc_id = aws_vpc.main.id
+
+  ingress {
+    from_port   = 5432
+    to_port     = 5432
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  egress {
+    from_port   = 5432
+    to_port     = 5432
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  tags = {
+    Name = "postgres-db"
+  }
+}
+
+resource "aws_db_instance" "postgres" {
+  identifier             = "postgres-db"
+  allocated_storage      = 20
+  engine                 = "postgres"
+  engine_version         = "16.3"
+  instance_class         = "db.t3.micro"
+  username               = "faaasuser"
+  password               = "securepassword"
+  parameter_group_name   = "default.postgres16"
+  publicly_accessible    = true
+  db_subnet_group_name   = aws_db_subnet_group.postgres.name
+  vpc_security_group_ids = [aws_security_group.postgres.id]
+  skip_final_snapshot    = true
+
+  tags = {
+    Name = "postgres-db"
+  }
 }

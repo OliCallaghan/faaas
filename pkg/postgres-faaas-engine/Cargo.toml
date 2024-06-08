@@ -7,10 +7,12 @@ edition = "2021"
 name = "postgres-faaas-engine"
 
 [dependencies]
-amqprs = "1.6.1"
+amqprs = { version = "1.6.1", features = ["tls"] }
 anyhow = "1.0.86"
 async-trait = "0.1.80"
-faaastime = { version = "0.1.0", path = "../faaastime" }
+faaasmq = { version = "0.1.0", path = "../mq" }
+native-tls = "0.2.12"
+postgres-native-tls = "0.5.0"
 serde = { version = "1.0.202", features = ["derive"] }
 serde_json = "1.0.117"
 tokio = { version = "1.37.0", features = ["full"] }
