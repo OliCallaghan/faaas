@@ -1,6 +1,12 @@
 import { z } from "zod";
 import { Connection } from "rabbitmq-client";
 
+import { type Handler } from "@faaas/faaasc";
+
+// type Task = {
+//   proxy: string;
+// };
+
 const MQInvocationEvent = z.object({
   rmqMessagesByQueue: z.object({
     "task_invocations::/": z.array(
@@ -13,10 +19,10 @@ const MQInvocationEvent = z.object({
 type MQInvocationEvent = z.infer<typeof MQInvocationEvent>;
 
 const MQTaskContext = z.object({
-  id: z.string(), // invocation id
-  task_id: z.string(), // this will be handler_0, handler_1, etc.
-  args: z.any(), // args passed to task
-  state: z.record(z.string(), z.any()), // TODO: change name to state
+  id: z.string(),
+  task_id: z.string(),
+  args: z.any(),
+  state: z.record(z.string(), z.any()),
   continuation: z.nullable(z.string()), // deprecated
   continuation_args: z.array(z.any()), // deprecated
 });
@@ -48,99 +54,67 @@ const pub = rabbit.createPublisher({
   maxAttempts: 2,
 });
 
-export async function entrypoint(event: unknown, ctx) {
-  try {
-    const mqInvocEvent = MQInvocationEvent.parse(event);
+export function buildEntrypoint(handlers: Record<string, Handler>) {
+  async function entrypoint(event: unknown, _: unknown) {
+    try {
+      const mqInvocEvent = MQInvocationEvent.parse(event);
 
-    const { rmqMessagesByQueue } = mqInvocEvent;
-    const { "task_invocations::/": msgs } = rmqMessagesByQueue;
+      const { rmqMessagesByQueue } = mqInvocEvent;
+      const { "task_invocations::/": msgs } = rmqMessagesByQueue;
 
-    const mqTaskCtxs = msgs
-      .map((msg) => msg.data)
-      .map(atob)
-      .map((str) => JSON.parse(str))
-      .map((json) => MQTaskContext.parse(json))
-      .map(handle);
+      const mqTaskCtxs = msgs
+        .map((msg) => msg.data)
+        .map(atob)
+        .map((str) => JSON.parse(str))
+        .map((json) => MQTaskContext.parse(json))
+        .map(handle);
 
-    await Promise.all(mqTaskCtxs);
+      await Promise.all(mqTaskCtxs);
 
-    return "processed";
-  } catch (err) {
-    console.error("Invalid event", err);
+      return "processed";
+    } catch (err) {
+      console.error("Invalid event", err);
 
-    throw new Error("Invalid event schema");
+      throw new Error("Invalid event schema");
+    }
   }
-}
 
-type Task = {
-  proxy: string;
-};
+  async function handle(mqTaskCtx: MQTaskContext): Promise<void> {
+    console.log("Responding to invocation", mqTaskCtx.id);
 
-function continuation(
-  task: Task,
-  taskArgs: string[],
-  taskScope: Record<string, any>,
-) {
-  return {
-    status: "continuation",
-    taskId: task.proxy,
-    taskArgs,
-    taskScope,
-  } as const;
-}
+    const taskId = mqTaskCtx.task_id;
+    const handler = handlers[taskId];
 
-function result(data: string) {
-  return {
-    status: "done",
-    data,
-  } as const;
-}
-
-type State = Record<string, any>;
-type Handler = (
-  ctx: Context,
-  state: State,
-) => Promise<ReturnType<typeof continuation> | ReturnType<typeof result>>;
-
-const handlers: Record<string, Handler> = {
-  // handler_0: handler_no_async,
-  handler_0: handler_0,
-  handler_1: handler_1,
-};
-
-async function handle(mqTaskCtx: MQTaskContext): Promise<void> {
-  console.log("Responding to invocation", mqTaskCtx.id);
-
-  const taskId = mqTaskCtx.task_id;
-  const handler = handlers[taskId];
-
-  try {
-    if (handler) {
-      const res = await handler(
-        { id: mqTaskCtx.id, data: mqTaskCtx.args ?? "" },
-        mqTaskCtx.state,
-      );
-
-      if (res.status == "done") {
-        await invokeResponse(mqTaskCtx, res.data);
-      } else {
-        await invokeContinuation(
-          mqTaskCtx,
-          res.taskId,
-          res.taskArgs,
-          res.taskScope,
+    try {
+      if (handler) {
+        const res = await handler(
+          { id: mqTaskCtx.id, data: mqTaskCtx.args ?? "" },
+          mqTaskCtx.state,
         );
+
+        if (res.status == "done") {
+          await invokeResponse(mqTaskCtx, res.data);
+        } else {
+          await invokeContinuation(
+            mqTaskCtx,
+            res.taskId,
+            res.taskArgs,
+            res.taskScope,
+          );
+        }
+      } else {
+        throw new Error("Unknown handler");
       }
-    } else {
-      throw new Error("Unknown handler");
-    }
-  } catch (err) {
-    if (err instanceof Error) {
-      await invokeError(mqTaskCtx, err);
-    } else {
-      await invokeError(mqTaskCtx, new Error("Unknown error"));
+    } catch (err) {
+      if (err instanceof Error) {
+        await invokeError(mqTaskCtx, err);
+      } else {
+        await invokeError(mqTaskCtx, new Error("Unknown error"));
+      }
     }
   }
+
+  return entrypoint;
 }
 
 async function invokeResponse(mqTaskCtx: MQTaskContext, data: string) {
@@ -200,98 +174,92 @@ async function onShutdown() {
 process.on("SIGINT", onShutdown);
 process.on("SIGTERM", onShutdown);
 
-const Context = z.object({
-  id: z.string(),
-  data: z.string(),
-});
-type Context = z.infer<typeof Context>;
+// /**
+//     Insert user code from here
+// */
+// import postgres from "postgres";
 
-/**
-    Insert user code from here
-*/
-import postgres from "postgres";
+// const sql = postgres({
+//   host: "postgres-db.cno4eviwxzxv.eu-west-2.rds.amazonaws.com",
+//   port: 5432,
+//   username: "faaasuser",
+//   password: "securepassword",
+//   database: "postgres",
+//   ssl: { rejectUnauthorized: false },
+// });
 
-const sql = postgres({
-  host: "postgres-db.cno4eviwxzxv.eu-west-2.rds.amazonaws.com",
-  port: 5432,
-  username: "faaasuser",
-  password: "securepassword",
-  database: "postgres",
-  ssl: { rejectUnauthorized: false },
-});
+// // Is vulnerable to SQL injection
+// function execSql<T>(query: string): Promise<T[]> {
+//   return sql.unsafe(query);
+// }
 
-// Is vulnerable to SQL injection
-function execSql<T>(query: string): Promise<T[]> {
-  return sql.unsafe(query);
-}
+// execSql.proxy = "proxy.sql.pg";
 
-execSql.proxy = "proxy.sql.pg";
+// // Original function
+// async function handler_no_async(ctx: Context, _: State) {
+//   const { name } = JSON.parse(ctx.data ?? "{}");
+//   const foo = 11;
 
-// Original function
-async function handler_no_async(ctx: Context, _: State) {
-  const { name } = JSON.parse(ctx.data ?? "{}");
-  const foo = 11;
+//   ("use async");
+//   const rows = await execSql<{ name: string; age: number }>(
+//     `SELECT * FROM pets WHERE name = '${name}'`,
+//   );
 
-  ("use async");
-  const rows = await execSql<{ name: string; age: number }>(
-    `SELECT * FROM pets WHERE name = '${name}'`,
-  );
+//   let sumAge = 0;
+//   for (const row of rows) {
+//     if (row.age) {
+//       sumAge += row.age;
+//     }
+//   }
 
-  let sumAge = 0;
-  for (const row of rows) {
-    if (row.age) {
-      sumAge += row.age;
-    }
-  }
+//   const age = sumAge + foo;
+//   console.log("age", age);
 
-  const age = sumAge + foo;
-  console.log("age", age);
+//   return result(JSON.stringify({ age }));
+// }
 
-  return result(JSON.stringify({ age }));
-}
+// /**
+//     Handlers start from here
+// */
 
-/**
-    Handlers start from here
-*/
+// // handler_0: initial handler
+// async function handler_0(ctx: Context, _: State) {
+//   const { name } = JSON.parse(ctx.data ?? "{}");
+//   const foo = 11;
 
-// handler_0: initial handler
-async function handler_0(ctx: Context, _: State) {
-  const { name } = JSON.parse(ctx.data ?? "{}");
-  const foo = 11;
+//   return continuation(
+//     execSql,
+//     ["handler", "handler_1", `SELECT * FROM pets WHERE name = '${name}'`],
+//     { foo },
+//   );
+// }
 
-  return continuation(
-    execSql,
-    ["handler", "handler_1", `SELECT * FROM pets WHERE name = '${name}'`],
-    { foo },
-  );
-}
+// async function handler_1(ctx: Context, state: State) {
+//   console.log("state", state);
+//   console.log("state.foo", state.foo);
 
-async function handler_1(ctx: Context, state: State) {
-  console.log("state", state);
-  console.log("state.foo", state.foo);
+//   const { foo } = state;
 
-  const { foo } = state;
+//   console.log("foo", foo);
 
-  console.log("foo", foo);
+//   console.log("typeof ctx", typeof ctx);
+//   console.log("ctx", ctx);
 
-  console.log("typeof ctx", typeof ctx);
-  console.log("ctx", ctx);
+//   console.log("typeof ctx.data", typeof ctx.data);
+//   console.log("ctx.data", ctx.data);
 
-  console.log("typeof ctx.data", typeof ctx.data);
-  console.log("ctx.data", ctx.data);
+//   const rows = JSON.parse(ctx.data);
+//   console.log("data", rows);
 
-  const rows = JSON.parse(ctx.data);
-  console.log("data", rows);
+//   let sumAge = 0;
+//   for (const row of rows) {
+//     if (row.age) {
+//       sumAge += Number(row.age);
+//     }
+//   }
 
-  let sumAge = 0;
-  for (const row of rows) {
-    if (row.age) {
-      sumAge += Number(row.age);
-    }
-  }
+//   const age = sumAge + foo;
+//   console.log("age", age);
 
-  const age = sumAge + foo;
-  console.log("age", age);
-
-  return result(JSON.stringify({ age }));
-}
+//   return result(JSON.stringify({ age }));
+// }

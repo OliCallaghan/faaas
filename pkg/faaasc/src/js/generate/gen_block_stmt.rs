@@ -7,12 +7,12 @@ use crate::js::capture::FreeVariables;
 use crate::js::directive::Directive;
 use crate::js::generate::GenerateContinuation;
 
-use super::{GenerateWithTargetAndIdent, Generation};
+use super::{GenerateDeclFromCtxData, GenerateWithTargetAndIdent, Generation};
 
 impl GenerateWithTargetAndIdent for BlockStmt {
     fn generate(&self, gen_target: &mut Vec<Generation>, id: Ident) -> Result<()> {
         let mut gen = Generation::new(id);
-        let mut skip = false;
+        let mut decl_from_ctx = false;
 
         for (i, stmt) in self.stmts.iter().enumerate() {
             // Is statement a 'use async' directive?
@@ -21,7 +21,7 @@ impl GenerateWithTargetAndIdent for BlockStmt {
 
                 // Compute free variables for the rest of the statements.
                 let mut free_vars = FreeVariables::new();
-                for stmt in &self.stmts[i + 2..] {
+                for stmt in &self.stmts[i + 1..] {
                     stmt.capture_free_vars(&mut free_vars);
                 }
 
@@ -34,17 +34,18 @@ impl GenerateWithTargetAndIdent for BlockStmt {
                     cont_task_ident.expect("task ident"),
                     cont_task_args_ident.expect("task args ident"),
                 );
-                skip = true;
+                decl_from_ctx = true;
 
                 let mut old_gen = gen;
                 gen = old_gen.next();
 
                 gen_target.push(old_gen);
             } else {
-                if !skip {
-                    gen.push_stmt(stmt.clone())
+                if decl_from_ctx {
+                    gen.push_stmt(stmt.generate_decl_from_ctx_data());
+                    decl_from_ctx = false;
                 } else {
-                    skip = false;
+                    gen.push_stmt(stmt.clone());
                 }
             }
         }

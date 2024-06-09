@@ -1,35 +1,45 @@
-export type Value = string | number | boolean;
-export type TaskContext = Record<string, any>;
-export type TaskContextState = TaskContext;
-
-export type Continuation = {
-  what: "continuation";
-  taskId: string;
-  args: Value[];
-  ctx: TaskContext;
+// This is the type which any "use async" function must implement.
+export type Task = {
+  proxy: string;
 };
 
-export type Result = {
-  what: "complete";
-  ctx: TaskContext;
-};
-
+// Denotes a continuation to a proxy
 export function continuation(
-  taskId: string,
-  args: Value[],
-  ctx: TaskContext,
-): Continuation {
+  task: Task,
+  taskArgs: string[],
+  taskScope: Record<string, any>,
+) {
   return {
-    what: "continuation",
-    taskId,
-    args,
-    ctx,
-  };
+    status: "continuation",
+    taskId: task.proxy,
+    taskArgs,
+    taskScope,
+  } as const;
 }
 
-export function result(ctx: TaskContext): Result {
+// Denotes a result to the function invocation
+export function result(data: any) {
   return {
-    what: "complete",
-    ctx,
-  };
+    status: "done",
+    data: JSON.stringify(data),
+  } as const;
 }
+
+/**
+    This represents the function invocation context.
+    When functions are split, the result of the
+    async proxy is stored in data.
+*/
+export type FaaascInternalContext = {
+  id: string;
+  data: string;
+};
+
+// Represents the state of the function invocation. Stores free variables
+export type FaaascInternalState = Record<string, any>;
+
+// This is the type of a split function handler. This is **not** what a developer implements.
+export type Handler = (
+  ctx: FaaascInternalContext,
+  state: FaaascInternalState,
+) => Promise<ReturnType<typeof continuation> | ReturnType<typeof result>>;

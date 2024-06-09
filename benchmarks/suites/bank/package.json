@@ -2,16 +2,21 @@
   "name": "@faaas-bench/bank",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "dist/onHttpPostTransaction.trigger.mjs",
   "scripts": {
-    "build": "faaasc src/onHttpPostTransaction.trigger.ts build/onHttpPostTransaction.trigger.ts"
+    "generate": "faaasc src/onHttpPostTransaction.trigger.ts gen/onHttpPostTransaction.trigger.ts",
+    "build": "pkgroll --src=gen"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@faaas/faaasc": "workspace:^",
     "@faaas/handler": "workspace:^",
     "@faaas/sql": "workspace:^"
+  },
+  "devDependencies": {
+    "@faaas/aws-adaptor": "workspace:^",
+    "@faaas/faaasc": "workspace:^",
+    "pkgroll": "^2.1.0"
   }
 }

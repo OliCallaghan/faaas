@@ -1,20 +1,25 @@
-import { TaskContext, result } from "@faaas/handler";
-import { database, exec } from "@faaas/sql";
+import { type Context, result } from "@faaas/handler";
+import { database } from "@faaas/sql";
 
 const PG_USER = "postgres";
 const PG_PASS = "password";
 const PG_HOST = "localhost";
 const PG_PORT = 5432;
 
-const sql = database(PG_USER, PG_PASS, PG_HOST, PG_PORT, "postgres");
+const sql = database({
+  host: PG_USER,
+  port: PG_PORT,
+  user: PG_HOST,
+  pass: PG_PASS,
+  database: "postgres",
+  ssl: { rejectUnauthorized: false },
+});
 
-export async function handler(ctx: TaskContext) {
-  const { src, dst, amount } = ctx.data;
+export async function handler(ctx: Context) {
+  const { src, dst, amount } = JSON.parse(ctx.data);
 
   ("use async");
-  const srcAcc = await exec(
-    sql`SELECT balance FROM accounts WHERE id == ${src}`,
-  );
+  const srcAcc = await sql(`SELECT balance FROM accounts WHERE id == '${src}'`);
 
   const [account] = srcAcc;
 
@@ -25,7 +30,7 @@ export async function handler(ctx: TaskContext) {
   }
 
   ("use async");
-  const _ = await exec(sql`
+  const _ = await sql(`
     BEGIN;
 
     -- Decrement the balance of the sender's account
@@ -36,7 +41,7 @@ export async function handler(ctx: TaskContext) {
     -- Increment the balance of the receiver's account
     UPDATE accounts
     SET balance = balance + ${amount}
-    WHERE id = ${dst};
+    WHERE id = '${dst}';
 
     COMMIT;
   `);

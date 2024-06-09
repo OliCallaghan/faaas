@@ -95,15 +95,22 @@ importers:
 
   benchmarks/suites/bank:
     dependencies:
-      '@faaas/faaasc':
-        specifier: workspace:^
-        version: link:../../../pkg/faaasc
       '@faaas/handler':
         specifier: workspace:^
         version: link:../../../pkg/utils/handler
       '@faaas/sql':
         specifier: workspace:^
         version: link:../../../pkg/utils/sql
+    devDependencies:
+      '@faaas/aws-adaptor':
+        specifier: workspace:^
+        version: link:../../../pkg/utils/aws-adaptor
+      '@faaas/faaasc':
+        specifier: workspace:^
+        version: link:../../../pkg/faaasc
+      pkgroll:
+        specifier: ^2.1.0
+        version: 2.1.0(typescript@5.4.4)
 
   benchmarks/suites/hello-seq:
     dependencies:
@@ -273,15 +280,12 @@ importers:
 
   pkg/utils/aws-adaptor:
     devDependencies:
+      '@faaas/faaasc':
+        specifier: workspace:^
+        version: link:../../faaasc
       '@faaas/tsconfig':
         specifier: workspace:^
         version: link:../tsconfig
-      pkgroll:
-        specifier: ^2.1.0
-        version: 2.1.0(typescript@5.4.4)
-      postgres:
-        specifier: ^3.4.4
-        version: 3.4.4
       rabbitmq-client:
         specifier: ^4.6.0
         version: 4.6.0
@@ -3286,6 +3290,7 @@ packages:
   /postgres@3.4.4:
     resolution: {integrity: sha512-IbyN+9KslkqcXa8AO9fxpk97PA4pzewvpi2B3Dwy9u4zpV32QicaEdgmF3eSQUzdRk7ttDHQejNgAEr4XoeH4A==}
     engines: {node: '>=12'}
+    dev: false
 
   /prettier@3.2.5:
     resolution: {integrity: sha512-3/GWa9aOC0YeD7LUfvOG2NiDyhOWRvt1k+rcKhOuYnMY24iiCphgneUfJDyFXd6rZCAnuLBv6UeAULtrhT/F4A==}

@@ -35,6 +35,10 @@ pub trait GenerateContinuation {
     fn generate_continuation(&self) -> (Option<Atom>, Option<Atom>, Self);
 }
 
+pub trait GenerateDeclFromCtxData {
+    fn generate_decl_from_ctx_data(&self) -> Self;
+}
+
 pub struct Generation {
     handler_name: Ident,
     handler_split_id: u32,
@@ -84,7 +88,7 @@ impl Generation {
         }
     }
 
-    pub fn to_module_item(&self) -> ModuleItem {
+    pub fn to_module_item_ident(&self) -> Ident {
         let fn_ident_str = format!(
             "{}_{}",
             self.handler_name.sym.as_str(),
@@ -93,8 +97,14 @@ impl Generation {
         let fn_ident_atom = swc_atoms::Atom::new(fn_ident_str);
         let fn_ident = Ident::new(fn_ident_atom, Default::default());
 
+        fn_ident
+    }
+
+    pub fn to_module_item(&self) -> ModuleItem {
+        let fn_ident = self.to_module_item_ident();
+
         // Context
-        let fn_param_ctx_ts_ann_atom = swc_atoms::atom!("TaskContext");
+        let fn_param_ctx_ts_ann_atom = swc_atoms::atom!("FaaascInternalContext");
         let fn_param_ctx_ts_ann_id = Ident::new(fn_param_ctx_ts_ann_atom, Default::default());
 
         let fn_param_ctx_atom = swc_atoms::atom!("ctx");
@@ -113,7 +123,7 @@ impl Generation {
         });
 
         // State
-        let fn_param_state_ts_ann_atom = swc_atoms::atom!("TaskContextState");
+        let fn_param_state_ts_ann_atom = swc_atoms::atom!("FaaascInternalState");
         let fn_param_state_ts_ann_id = Ident::new(fn_param_state_ts_ann_atom, Default::default());
 
         let fn_param_state_atom = swc_atoms::atom!("state");
@@ -231,21 +241,15 @@ impl Generation {
                 };
                 let continuation_fn_task_ident = ExprOrSpread {
                     spread: None,
-                    expr: Box::new(Expr::Member(MemberExpr {
-                        span: Default::default(),
-                        obj: Box::new(Expr::Ident(Ident::new(
-                            task_ident.clone(),
-                            Default::default(),
-                        ))),
-                        prop: MemberProp::Ident(Ident::new(
-                            swc_atoms::atom!("continuation"),
-                            Default::default(),
-                        )),
-                    })),
+                    expr: Box::new(Expr::Ident(Ident::new(
+                        task_ident.clone(),
+                        Default::default(),
+                    ))),
                 };
 
                 let (handler_next_ident, handler_next_split_id) =
                     self.handler_next.clone().unwrap();
+                let handler_task_id = self.handler_name.sym.as_str();
                 let handler_next_atom = format!(
                     "{}_{}",
                     handler_next_ident.sym.as_str(),
@@ -259,11 +263,11 @@ impl Generation {
                         elems: vec![
                             Some(ExprOrSpread {
                                 spread: None,
-                                expr: Box::new(Expr::Lit(Lit::Str(handler_next_atom.into()))),
+                                expr: Box::new(Expr::Lit(Lit::Str(handler_task_id.into()))),
                             }),
                             Some(ExprOrSpread {
                                 spread: None,
-                                expr: Box::new(Expr::Lit(Lit::Str(task_args_ident.clone().into()))),
+                                expr: Box::new(Expr::Lit(Lit::Str(handler_next_atom.into()))),
                             }),
                             Some(ExprOrSpread {
                                 spread: Some(Default::default()),

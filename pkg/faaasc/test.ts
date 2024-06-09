@@ -1,6 +1,6 @@
 type Value = string | number | boolean;
 type TaskContext = Record<string, any>;
-type TaskContextState = TaskContext;
+type State = TaskContext;
 
 type Continuation = {
   what: "continuation";

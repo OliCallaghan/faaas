@@ -1,7 +1,10 @@
 use swc_atoms::Atom;
-use swc_ecma_ast::{Decl, Expr, Stmt, VarDecl, VarDeclarator};
+use swc_ecma_ast::{
+    CallExpr, Callee, Decl, Expr, ExprOrSpread, MemberExpr, MemberProp, Stmt, VarDecl,
+    VarDeclarator,
+};
 
-use super::GenerateContinuation;
+use super::{GenerateContinuation, GenerateDeclFromCtxData};
 
 impl GenerateContinuation for Stmt {
     fn generate_continuation(&self) -> (Option<Atom>, Option<Atom>, Self) {
@@ -88,6 +91,74 @@ impl GenerateContinuation for Expr {
                 }),
             ),
             _ => (None, None, self.clone()),
+        }
+    }
+}
+
+impl GenerateDeclFromCtxData for Stmt {
+    fn generate_decl_from_ctx_data(&self) -> Self {
+        match self {
+            Stmt::Decl(decl) => Stmt::Decl(decl.generate_decl_from_ctx_data()),
+            _ => self.clone(),
+        }
+    }
+}
+
+impl GenerateDeclFromCtxData for Decl {
+    fn generate_decl_from_ctx_data(&self) -> Self {
+        match self {
+            Decl::Var(var_decl) => Decl::Var(Box::new(var_decl.generate_decl_from_ctx_data())),
+            _ => self.clone(),
+        }
+    }
+}
+
+impl GenerateDeclFromCtxData for VarDecl {
+    fn generate_decl_from_ctx_data(&self) -> Self {
+        let decls = self
+            .decls
+            .iter()
+            .map(GenerateDeclFromCtxData::generate_decl_from_ctx_data)
+            .collect();
+
+        VarDecl {
+            span: self.span,
+            kind: self.kind,
+            declare: self.declare,
+            decls,
+        }
+    }
+}
+
+impl GenerateDeclFromCtxData for VarDeclarator {
+    fn generate_decl_from_ctx_data(&self) -> Self {
+        let deserialiser_expr = Expr::Member(MemberExpr {
+            span: Default::default(),
+            obj: Box::new(Expr::Ident("JSON".into())),
+            prop: MemberProp::Ident("parse".into()),
+        });
+
+        let ctx_data_expr = Expr::Member(MemberExpr {
+            span: Default::default(),
+            obj: Box::new(Expr::Ident("ctx".into())),
+            prop: MemberProp::Ident("data".into()),
+        });
+
+        let init_expr = Expr::Call(CallExpr {
+            span: Default::default(),
+            callee: Callee::Expr(Box::new(deserialiser_expr)),
+            args: vec![ExprOrSpread {
+                expr: Box::new(ctx_data_expr),
+                spread: None,
+            }],
+            type_args: None,
+        });
+
+        VarDeclarator {
+            span: self.span,
+            name: self.name.clone(),
+            init: Some(Box::new(init_expr)),
+            definite: self.definite,
         }
     }
 }

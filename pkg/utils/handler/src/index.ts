@@ -1,1 +1,1 @@
-export { type TaskContext, result } from "@faaas/faaasc";
+export { type FaaascInternalContext as Context, result } from "@faaas/faaasc";
