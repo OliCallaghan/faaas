@@ -59,7 +59,7 @@ async fn execute_query(client: &Client, ctx: &MqTaskContext) -> Result<MqValue> 
     let query = ctx.args.get(2).ok_or(anyhow::Error::msg("Missing query"))?;
 
     if let MqValue::String(query_str) = query {
-        let query_res = client.simple_query(query_str).await.unwrap();
+        let query_res = client.simple_query(query_str).await?;
 
         let query_data = query_res
             .iter()
@@ -71,7 +71,7 @@ async fn execute_query(client: &Client, ctx: &MqTaskContext) -> Result<MqValue> 
                     .map(|(col_index, col)| {
                         (
                             col.name().to_string(),
-                            MqValue::String(row.get(col_index).unwrap().into()),
+                            MqValue::String(row.get(col_index).unwrap_or_default().into()),
                         )
                     })
                     .collect::<HashMap<String, MqValue>>(),
@@ -82,7 +82,7 @@ async fn execute_query(client: &Client, ctx: &MqTaskContext) -> Result<MqValue> 
             })
             .collect::<Vec<HashMap<_, _>>>();
 
-        let query_data_serial = serde_json::to_string(&query_data).unwrap();
+        let query_data_serial = serde_json::to_string(&query_data)?;
         let query_data_val = MqValue::String(query_data_serial);
 
         Ok(query_data_val)

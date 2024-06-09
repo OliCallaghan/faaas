@@ -72,14 +72,18 @@ export async function entrypoint(event: unknown, ctx) {
   }
 }
 
+type Task = {
+  proxy: string;
+};
+
 function continuation(
-  taskId: string,
+  task: Task,
   taskArgs: string[],
   taskScope: Record<string, any>,
 ) {
   return {
     status: "continuation",
-    taskId,
+    taskId: task.proxy,
     taskArgs,
     taskScope,
   } as const;
@@ -99,6 +103,7 @@ type Handler = (
 ) => Promise<ReturnType<typeof continuation> | ReturnType<typeof result>>;
 
 const handlers: Record<string, Handler> = {
+  // handler_0: handler_no_async,
   handler_0: handler_0,
   handler_1: handler_1,
 };
@@ -215,37 +220,78 @@ const sql = postgres({
   ssl: { rejectUnauthorized: false },
 });
 
+// Is vulnerable to SQL injection
+function execSql<T>(query: string): Promise<T[]> {
+  return sql.unsafe(query);
+}
+
+execSql.proxy = "proxy.sql.pg";
+
+// Original function
+async function handler_no_async(ctx: Context, _: State) {
+  const { name } = JSON.parse(ctx.data ?? "{}");
+  const foo = 11;
+
+  ("use async");
+  const rows = await execSql<{ name: string; age: number }>(
+    `SELECT * FROM pets WHERE name = '${name}'`,
+  );
+
+  let sumAge = 0;
+  for (const row of rows) {
+    if (row.age) {
+      sumAge += row.age;
+    }
+  }
+
+  const age = sumAge + foo;
+  console.log("age", age);
+
+  return result(JSON.stringify({ age }));
+}
+
 /**
     Handlers start from here
 */
 
 // handler_0: initial handler
 async function handler_0(ctx: Context, _: State) {
-  const name = ctx.data;
-  console.log("Invoking first part with", name);
-
-  // Log SQL Query Performance
-  const queryStart = performance.now();
-  const data = await sql`SELECT * FROM pets`;
-  const dataStr = data.toString();
-  const queryEnd = performance.now();
-
-  console.log("Query took", queryEnd - queryStart, "ms");
-  console.log("Query returned", dataStr);
+  const { name } = JSON.parse(ctx.data ?? "{}");
+  const foo = 11;
 
   return continuation(
-    "proxy.sql.pg",
-    ["handler", "handler_1", "SELECT * FROM pets"],
-    { foo: "5" },
+    execSql,
+    ["handler", "handler_1", `SELECT * FROM pets WHERE name = '${name}'`],
+    { foo },
   );
 }
 
 async function handler_1(ctx: Context, state: State) {
-  const res = JSON.parse(ctx.data);
+  console.log("state", state);
+  console.log("state.foo", state.foo);
+
   const { foo } = state;
 
-  console.log("data", res);
   console.log("foo", foo);
 
-  return result(res);
+  console.log("typeof ctx", typeof ctx);
+  console.log("ctx", ctx);
+
+  console.log("typeof ctx.data", typeof ctx.data);
+  console.log("ctx.data", ctx.data);
+
+  const rows = JSON.parse(ctx.data);
+  console.log("data", rows);
+
+  let sumAge = 0;
+  for (const row of rows) {
+    if (row.age) {
+      sumAge += Number(row.age);
+    }
+  }
+
+  const age = sumAge + foo;
+  console.log("age", age);
+
+  return result(JSON.stringify({ age }));
 }
