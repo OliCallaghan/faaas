@@ -9,7 +9,7 @@ const PG_PORT = 5432;
 const sql = database(PG_USER, PG_PASS, PG_HOST, PG_PORT, "postgres");
 
 export async function handler(ctx: TaskContext) {
-  const { src, dst, amount } = ctx;
+  const { src, dst, amount } = ctx.data;
 
   ("use async");
   const srcAcc = await exec(

@@ -1,7 +1,7 @@
 FROM lukemathwalker/cargo-chef:latest-rust-slim-bookworm AS chef
 WORKDIR /app
 RUN apt-get -y update
-RUN apt-get -y install patch libclang-dev
+RUN apt-get -y install patch pkg-config libssl-dev libclang-dev
 
 FROM chef AS planner
 COPY . .

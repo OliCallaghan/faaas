@@ -26,7 +26,7 @@ pub mod types {
                 id: self.id,
                 task_id: self.task_id,
                 args: self.args.into_iter().map(|v| v.into()).collect(),
-                data: self.data.into_iter().map(|(k, v)| (k, v.into())).collect(),
+                data: self.state.into_iter().map(|(k, v)| (k, v.into())).collect(),
                 continuation: self.continuation,
                 continuation_args: self
                     .continuation_args
@@ -56,7 +56,7 @@ pub mod types {
                 id: ctx.id,
                 task_id: ctx.task_id,
                 args: ctx.args.into_iter().map(|v| v.into()).collect(),
-                data: ctx.data.into_iter().map(|(k, v)| (k, v.into())).collect(),
+                state: ctx.data.into_iter().map(|(k, v)| (k, v.into())).collect(),
                 continuation: ctx.continuation,
                 continuation_args: ctx
                     .continuation_args

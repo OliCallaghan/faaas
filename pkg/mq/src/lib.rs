@@ -18,7 +18,7 @@ pub struct MqTaskContext {
     pub id: String,
     pub task_id: String,
     pub args: Vec<MqValue>,
-    pub data: HashMap<String, MqValue>,
+    pub state: HashMap<String, MqValue>,
     pub continuation: Option<String>,
     pub continuation_args: Vec<MqValue>,
 }
@@ -29,17 +29,31 @@ impl MqTaskContext {
             id: id.to_owned(),
             task_id: task_id.to_owned(),
             args: Vec::new(),
-            data: Default::default(),
+            state: Default::default(),
             continuation: None,
             continuation_args: Vec::new(),
         }
     }
 
-    pub fn continuation(&mut self) {
-        if let Some(continuation) = self.continuation.take() {
-            self.task_id = continuation;
-            self.args = self.continuation_args.clone();
-            self.continuation_args = vec![]
+    pub fn new_with_data(id: &str, task_id: &str, data: String) -> Self {
+        Self {
+            id: id.to_owned(),
+            task_id: task_id.to_owned(),
+            args: vec![MqValue::String(data)],
+            state: Default::default(),
+            continuation: None,
+            continuation_args: Vec::new(),
+        }
+    }
+
+    pub fn continuation(&self, task_id: &str, args: Vec<MqValue>) -> Self {
+        Self {
+            id: self.id.clone(),
+            task_id: task_id.to_owned(),
+            state: self.state.clone(),
+            args,
+            continuation: None,
+            continuation_args: Vec::new(),
         }
     }
 

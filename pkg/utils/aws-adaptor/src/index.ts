@@ -1,8 +1,6 @@
 import { z } from "zod";
 import { Connection } from "rabbitmq-client";
 
-import { continuation, result } from "@faaas/async";
-
 const MQInvocationEvent = z.object({
   rmqMessagesByQueue: z.object({
     "task_invocations::/": z.array(
@@ -15,12 +13,12 @@ const MQInvocationEvent = z.object({
 type MQInvocationEvent = z.infer<typeof MQInvocationEvent>;
 
 const MQTaskContext = z.object({
-  id: z.string(),
-  task_id: z.string(),
-  args: z.any(),
-  data: z.record(z.string(), z.any()),
-  continuation: z.nullable(z.string()),
-  continuation_args: z.array(z.any()),
+  id: z.string(), // invocation id
+  task_id: z.string(), // this will be handler_0, handler_1, etc.
+  args: z.any(), // args passed to task
+  state: z.record(z.string(), z.any()), // TODO: change name to state
+  continuation: z.nullable(z.string()), // deprecated
+  continuation_args: z.array(z.any()), // deprecated
 });
 type MQTaskContext = z.infer<typeof MQTaskContext>;
 
@@ -94,8 +92,10 @@ function result(data: string) {
   } as const;
 }
 
+type State = Record<string, any>;
 type Handler = (
-  mqTaskCtx: MQTaskContext,
+  ctx: Context,
+  state: State,
 ) => Promise<ReturnType<typeof continuation> | ReturnType<typeof result>>;
 
 const handlers: Record<string, Handler> = {
@@ -111,7 +111,10 @@ async function handle(mqTaskCtx: MQTaskContext): Promise<void> {
 
   try {
     if (handler) {
-      const res = await handler(mqTaskCtx);
+      const res = await handler(
+        { id: mqTaskCtx.id, data: mqTaskCtx.args ?? "" },
+        mqTaskCtx.state,
+      );
 
       if (res.status == "done") {
         await invokeResponse(mqTaskCtx, res.data);
@@ -162,7 +165,7 @@ async function invokeContinuation(
     args: taskArgs,
     continuation: null,
     continuation_args: [],
-    data: taskScope,
+    state: taskScope,
   };
 
   const publishStart = performance.now();
@@ -192,6 +195,12 @@ async function onShutdown() {
 process.on("SIGINT", onShutdown);
 process.on("SIGTERM", onShutdown);
 
+const Context = z.object({
+  id: z.string(),
+  data: z.string(),
+});
+type Context = z.infer<typeof Context>;
+
 /**
     Insert user code from here
 */
@@ -211,7 +220,10 @@ const sql = postgres({
 */
 
 // handler_0: initial handler
-async function handler_0(mqTaskCtx: MQTaskContext) {
+async function handler_0(ctx: Context, _: State) {
+  const name = ctx.data;
+  console.log("Invoking first part with", name);
+
   // Log SQL Query Performance
   const queryStart = performance.now();
   const data = await sql`SELECT * FROM pets`;
@@ -224,10 +236,16 @@ async function handler_0(mqTaskCtx: MQTaskContext) {
   return continuation(
     "proxy.sql.pg",
     ["handler", "handler_1", "SELECT * FROM pets"],
-    {},
+    { foo: "5" },
   );
 }
 
-async function handler_1(mqTaskCtx: MQTaskContext) {
-  return result("Hello, World!");
+async function handler_1(ctx: Context, state: State) {
+  const res = JSON.parse(ctx.data);
+  const { foo } = state;
+
+  console.log("data", res);
+  console.log("foo", foo);
+
+  return result(res);
 }

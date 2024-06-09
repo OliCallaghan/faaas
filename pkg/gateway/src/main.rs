@@ -15,7 +15,7 @@ use amqprs::{BasicProperties, Deliver};
 use anyhow::Result;
 use async_trait::async_trait;
 use faaasmq::{get_task_init_id, MqTaskContext};
-use http_body_util::Full;
+use http_body_util::{BodyExt, Full};
 use hyper::body::Bytes;
 use hyper::server::conn::http1;
 use hyper::service::service_fn;
@@ -95,12 +95,12 @@ async fn consume_resp(mq_chann: &Channel, invoc_id: &str) -> Receiver<Vec<u8>> {
     rx
 }
 
-async fn publish_invoke(mq_chann: &Channel, id: &str, task_id: &str) -> Result<()> {
+async fn publish_invoke(mq_chann: &Channel, id: &str, task_id: &str, data: String) -> Result<()> {
     let mq_routing_key = format!("mq.invocations.tasks.{}", task_id);
     let mq_exchange_name = "amq.direct";
 
     let task_init_id = get_task_init_id(task_id);
-    let invoc = MqTaskContext::new(id, &task_init_id);
+    let invoc = MqTaskContext::new_with_data(id, &task_init_id, data);
     let invoc = serde_json::to_vec(&invoc).unwrap();
 
     // create arguments for basic_publish
@@ -119,8 +119,13 @@ async fn publish_invoke(mq_chann: &Channel, id: &str, task_id: &str) -> Result<(
     Ok(())
 }
 
-async fn invoke(mq_conn: Connection, task_id: &str) -> Result<Response<Full<Bytes>>, Infallible> {
+async fn invoke(
+    mq_conn: Connection,
+    task_id: String,
+    data: Vec<u8>,
+) -> Result<Response<Full<Bytes>>, Infallible> {
     let mq_chann = mq_conn.open_channel(None).await.unwrap();
+    let data = String::from_utf8(data).unwrap_or_default();
 
     mq_chann
         .register_callback(DefaultChannelCallback)
@@ -134,7 +139,7 @@ async fn invoke(mq_conn: Connection, task_id: &str) -> Result<Response<Full<Byte
 
     let resp = consume_resp(&mq_chann, &id).await;
 
-    publish_invoke(&mq_chann, &id, &task_id)
+    publish_invoke(&mq_chann, &id, &task_id, data)
         .await
         .expect("to publish invoke");
 
@@ -166,7 +171,18 @@ async fn handle_invocation_req(
 
     match url_query.get("task_id") {
         // Invoke function by pushing to message queue.
-        Some(task_id) => invoke(mq_conn, task_id).await,
+        Some(task_id) => {
+            invoke(
+                mq_conn,
+                task_id.to_string(),
+                req.into_body()
+                    .collect()
+                    .await
+                    .map(|body| body.to_bytes().into())
+                    .unwrap_or_default(),
+            )
+            .await
+        }
         // No function ID specified.
         None => Ok(Response::builder()
             .status(StatusCode::NOT_FOUND)

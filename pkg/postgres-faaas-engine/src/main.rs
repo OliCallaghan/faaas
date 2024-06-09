@@ -1,4 +1,4 @@
-use std::{collections::HashMap, env};
+use std::{collections::HashMap, env, str::from_utf8};
 
 use amqprs::{
     callbacks::{DefaultChannelCallback, DefaultConnectionCallback},
@@ -30,26 +30,32 @@ impl AsyncConsumer for Consumer {
         basic_properties: BasicProperties,
         content: Vec<u8>,
     ) {
-        let client = &self.0;
-        let ctx = serde_json::from_slice::<MqTaskContext>(&content).unwrap();
-
         let args = BasicAckArguments::new(deliver.delivery_tag(), false);
         channel.basic_ack(args).await.unwrap();
 
-        println!("CTX: {:?}", serde_json::to_string_pretty(&ctx));
+        let client = &self.0;
 
-        match execute_query(client, &ctx).await {
-            Ok(mut ctx) => publish_result(channel, &mut ctx)
-                .await
-                .expect("failed to publish success"),
-            Err(err) => publish_err(channel, &ctx, err)
-                .await
-                .expect("failed to publish error"),
+        match serde_json::from_slice::<MqTaskContext>(&content) {
+            Ok(ctx) => handle_task(client, channel, ctx).await,
+            Err(err) => eprintln!("Error deserialising: {:?}", err),
         }
     }
 }
 
-async fn execute_query(client: &Client, ctx: &MqTaskContext) -> Result<MqTaskContext> {
+async fn handle_task(client: &Client, channel: &Channel, ctx: MqTaskContext) {
+    println!("CTX: {:?}", serde_json::to_string_pretty(&ctx));
+
+    match execute_query(client, &ctx).await {
+        Ok(res) => publish_result(channel, &ctx, res)
+            .await
+            .expect("failed to publish success"),
+        Err(err) => publish_err(channel, &ctx, err)
+            .await
+            .expect("failed to publish error"),
+    }
+}
+
+async fn execute_query(client: &Client, ctx: &MqTaskContext) -> Result<MqValue> {
     let query = ctx.args.get(2).ok_or(anyhow::Error::msg("Missing query"))?;
 
     if let MqValue::String(query_str) = query {
@@ -79,17 +85,13 @@ async fn execute_query(client: &Client, ctx: &MqTaskContext) -> Result<MqTaskCon
         let query_data_serial = serde_json::to_string(&query_data).unwrap();
         let query_data_val = MqValue::String(query_data_serial);
 
-        let mut ctx = ctx.clone();
-
-        ctx.data.insert("sql".into(), query_data_val);
-
-        Ok(ctx)
+        Ok(query_data_val)
     } else {
         Err(anyhow::Error::msg("Query is not a string"))
     }
 }
 
-async fn publish_result(mq_chann: &Channel, ctx: &mut MqTaskContext) -> Result<()> {
+async fn publish_result(mq_chann: &Channel, ctx: &MqTaskContext, res: MqValue) -> Result<()> {
     let task_id = ctx
         .args
         .get(0)
@@ -117,9 +119,7 @@ async fn publish_result(mq_chann: &Channel, ctx: &mut MqTaskContext) -> Result<(
     let mq_routing_key = format!("mq.invocations.tasks.{}", task_id);
     let mq_exchange_name = "amq.direct";
 
-    ctx.set_continuation(&task_cont_id, vec![]);
-    ctx.continuation();
-
+    let ctx = ctx.continuation(&task_cont_id, vec![res]);
     let ctx = serde_json::to_vec(&ctx).unwrap();
 
     println!("Sending result: {:?}", ctx);
@@ -194,13 +194,6 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
             eprintln!("connection error: {}", e);
         }
     });
-
-    // // Initialize RabbitMQ connection
-    // let mq_conn = Connection::open(&OpenConnectionArguments::new(
-    //     &mq_host, mq_port, &mq_user, &mq_pass,
-    // ))
-    // .await
-    // .unwrap();
 
     // Initialize RabbitMQ connection
     let mq_conf_tls_adaptor = TlsAdaptor::without_client_auth(None, mq_host.clone())?;
