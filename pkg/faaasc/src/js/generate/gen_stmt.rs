@@ -1,7 +1,7 @@
 use swc_atoms::Atom;
 use swc_ecma_ast::{
-    CallExpr, Callee, Decl, Expr, ExprOrSpread, MemberExpr, MemberProp, Stmt, VarDecl,
-    VarDeclarator,
+    CallExpr, Callee, ComputedPropName, Decl, Expr, ExprOrSpread, Lit, MemberExpr, MemberProp,
+    Number, Stmt, VarDecl, VarDeclarator,
 };
 
 use super::{GenerateContinuation, GenerateDeclFromCtxData};
@@ -144,11 +144,20 @@ impl GenerateDeclFromCtxData for VarDeclarator {
             prop: MemberProp::Ident("data".into()),
         });
 
+        let ctx_data_fst_expr = Expr::Member(MemberExpr {
+            span: Default::default(),
+            obj: Box::new(ctx_data_expr),
+            prop: MemberProp::Computed(ComputedPropName {
+                span: Default::default(),
+                expr: Box::new(Expr::Lit(Lit::Num(0.into()))),
+            }),
+        });
+
         let init_expr = Expr::Call(CallExpr {
             span: Default::default(),
             callee: Callee::Expr(Box::new(deserialiser_expr)),
             args: vec![ExprOrSpread {
-                expr: Box::new(ctx_data_expr),
+                expr: Box::new(ctx_data_fst_expr),
                 spread: None,
             }],
             type_args: None,

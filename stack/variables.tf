@@ -1,5 +1,5 @@
 locals {
-  build_path           = "build"
+  build_path           = "node_modules/@faaas-bench/pets/dist"
   lambda_code_filename = "publishBookReview.zip"
   lambda_src_path      = "./src"
 

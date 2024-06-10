@@ -3,12 +3,13 @@
   "version": "1.0.0",
   "description": "FaaAS stack running on AWS infrastructure",
   "scripts": {
-    "build": "./bundle.sh"
+    "deploy": "dotenvx run -- terraform apply -auto-approve",
+    "plan": "dotenvx run -- terraform plan"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@faaas/aws-adaptor": "workspace:^"
+    "@faaas-bench/pets": "workspace:^"
   }
 }

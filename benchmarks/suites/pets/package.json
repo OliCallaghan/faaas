@@ -1,11 +1,12 @@
 {
-  "name": "@faaas-bench/bank",
+  "name": "@faaas-bench/pets",
   "version": "1.0.0",
-  "description": "",
-  "main": "dist/onHttpPostTransaction.trigger.js",
+  "description": "Pets example lambda",
+  "main": "dist/handler.js",
   "scripts": {
-    "generate": "faaasc src/onHttpPostTransaction.trigger.ts gen/onHttpPostTransaction.trigger.ts",
-    "build": "esbuild gen/*.trigger.ts --platform=node --bundle --outdir=dist"
+    "generate": "faaasc src/handler.ts gen/handler.ts",
+    "build": "esbuild gen/handler.ts --platform=node --bundle --outdir=dist",
+    "deploy": "zip -j -r dist/handler.zip dist/handler.js"
   },
   "keywords": [],
   "author": "",

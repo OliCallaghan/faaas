@@ -12,18 +12,124 @@ provider "aws" {
   region = "eu-west-2"
 }
 
+resource "aws_elasticache_serverless_cache" "redis" {
+  engine = "redis"
+  name   = "redis"
+
+  cache_usage_limits {
+    data_storage {
+      maximum = 5
+      unit    = "GB"
+    }
+    ecpu_per_second {
+      maximum = 5000
+    }
+  }
+
+  daily_snapshot_time      = "09:00"
+  description              = "Redis Server"
+  major_engine_version     = "7"
+  snapshot_retention_limit = 1
+  security_group_ids       = [aws_security_group.redis.id]
+  subnet_ids = [
+    aws_subnet.private_subnet_1.id,
+    aws_subnet.private_subnet_2.id,
+  ]
+}
+
+resource "aws_security_group" "redis" {
+  name   = "redis_sg"
+  vpc_id = aws_vpc.main.id
+
+  ingress {
+    from_port   = 6379
+    to_port     = 6379
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  ingress {
+    from_port   = 6380
+    to_port     = 6380
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  egress {
+    from_port   = 6379
+    to_port     = 6379
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  egress {
+    from_port   = 6380
+    to_port     = 6380
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  tags = {
+    Name = "redis"
+  }
+}
+
+resource "aws_security_group" "lambda_sg" {
+  name   = "lambda_sg"
+  vpc_id = aws_vpc.main.id
+
+  ingress {
+    from_port       = 0
+    to_port         = 0
+    protocol        = "-1"
+    security_groups = [aws_security_group.redis.id]
+    cidr_blocks     = ["0.0.0.0/0"]
+  }
+
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  tags = {
+    Name = "lambda_sg"
+  }
+}
+
+
+
 resource "aws_lambda_function" "handler" {
   filename = "${local.build_path}/handler.zip"
-  handler  = "index.entrypoint"
+  handler  = "handler.entrypoint"
   runtime  = "nodejs20.x"
   role     = aws_iam_role.iam_for_lambda.arn
+
+  memory_size = 256
 
   source_code_hash = filebase64sha256("${local.build_path}/handler.zip")
 
   function_name = "handler"
   timeout       = 30
 
-  environment {}
+  environment {
+    variables = {
+      MQ_HOST   = "b-5a738d61-9443-4566-84e9-2c576774f230.mq.eu-west-2.amazonaws.com"
+      MQ_PORT   = "5671"
+      MQ_USER   = "admin"
+      MQ_PASS   = "ishouldmakethissecure"
+      REDIS_URL = "rediss://redis-av1ecw.serverless.euw2.cache.amazonaws.com:6379"
+    }
+  }
+
+  vpc_config {
+    security_group_ids = [aws_security_group.lambda_sg.id]
+    subnet_ids = [
+      aws_subnet.private_subnet_1.id,
+      aws_subnet.private_subnet_2.id,
+    ]
+  }
 }
 
 resource "aws_lambda_event_source_mapping" "handler_rabbit_mq_event_source" {
@@ -79,6 +185,7 @@ resource "aws_iam_role" "iam_for_lambda" {
             "ec2:DescribeSecurityGroups",
             "ec2:DescribeSubnets",
             "ec2:DescribeVpcs",
+            "elasticache:Connect",
             "logs:CreateLogGroup",
             "logs:CreateLogStream",
             "logs:PutLogEvents"
@@ -118,6 +225,11 @@ resource "aws_mq_broker" "rabbit_mq" {
   # security_groups     = [aws_security_group.rabbit_mq.id]
   publicly_accessible = true
 
+  # subnet_ids = [
+  #   aws_subnet.public_subnet_1.id,
+  #   aws_subnet.public_subnet_2.id,
+  # ]
+
   user {
     username = "admin"
     password = "ishouldmakethissecure"
@@ -131,11 +243,11 @@ resource "aws_default_vpc" "default" {
 }
 
 resource "aws_security_group" "rabbit_mq" {
-  vpc_id = aws_default_vpc.default.id
+  vpc_id = aws_vpc.main.id
 }
 
 resource "aws_secretsmanager_secret" "rabbit_mq_auth" {
-  name = "rabbit_mq_auth"
+  name = "rabbit-mq-auth"
 }
 
 resource "aws_secretsmanager_secret_version" "rabbit_mq_auth" {
@@ -144,6 +256,16 @@ resource "aws_secretsmanager_secret_version" "rabbit_mq_auth" {
     username = "admin",
     password = "ishouldmakethissecure"
   })
+}
+
+import {
+  to = aws_ecr_repository.faaas_gateway
+  id = "faaas_gateway"
+}
+
+import {
+  to = aws_ecr_repository.postgres_faaas_engine
+  id = "postgres_faaas_engine"
 }
 
 resource "aws_ecr_repository" "faaas_gateway" {
@@ -356,11 +478,6 @@ resource "aws_ecs_cluster" "main" {
   name = "main-cluster"
 }
 
-# Define ECR Repository
-resource "aws_ecr_repository" "app" {
-  name = "app-repo"
-}
-
 resource "aws_cloudwatch_log_group" "faaas_gateway" {
   name = local.gateway_log_group
 }
@@ -388,7 +505,7 @@ resource "aws_ecs_task_definition" "app" {
     environment = [
       {
         name  = "MQ_HOST"
-        value = "b-33245d09-61e4-4119-84ae-13dcdd945031.mq.eu-west-2.amazonaws.com"
+        value = "b-5a738d61-9443-4566-84e9-2c576774f230.mq.eu-west-2.amazonaws.com"
       },
       {
         name  = "MQ_PORT"
@@ -439,7 +556,7 @@ resource "aws_ecs_task_definition" "proxy_sql_pg" {
     environment = [
       {
         name  = "MQ_HOST"
-        value = "b-33245d09-61e4-4119-84ae-13dcdd945031.mq.eu-west-2.amazonaws.com"
+        value = "b-5a738d61-9443-4566-84e9-2c576774f230.mq.eu-west-2.amazonaws.com"
       },
       {
         name  = "MQ_PORT"

@@ -17,6 +17,7 @@ packages:
   - "benchmarks/perf-v8-event-loop-results-pprof"
   - "benchmarks/suites/bank"
   - "benchmarks/suites/hello-seq"
+  - "benchmarks/suites/pets"
   - "pkg/boss-faaas-engine"
   - "pkg/faaasc"
   - "pkg/faaastime"

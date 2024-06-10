@@ -1,4 +1,4 @@
-use std::{collections::HashMap, env, str::from_utf8};
+use std::{collections::HashMap, env};
 
 use amqprs::{
     callbacks::{DefaultChannelCallback, DefaultConnectionCallback},
@@ -71,7 +71,7 @@ async fn execute_query(client: &Client, ctx: &MqTaskContext) -> Result<MqValue> 
                     .map(|(col_index, col)| {
                         (
                             col.name().to_string(),
-                            MqValue::String(row.get(col_index).unwrap_or_default().into()),
+                            row.get(col_index).unwrap_or_default().into(),
                         )
                     })
                     .collect::<HashMap<String, MqValue>>(),

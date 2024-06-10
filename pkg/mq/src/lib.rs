@@ -13,6 +13,32 @@ pub enum MqValue {
     Bytes(Vec<u8>),
 }
 
+impl Into<MqValue> for &str {
+    fn into(self) -> MqValue {
+        if self == "true" {
+            return MqValue::Bool(true);
+        }
+
+        if self == "false" {
+            return MqValue::Bool(false);
+        }
+
+        if let Ok(i) = self.parse::<i32>() {
+            return MqValue::Int(i);
+        }
+
+        if let Ok(u) = self.parse::<u32>() {
+            return MqValue::Uint(u);
+        }
+
+        if let Ok(f) = self.parse::<f64>() {
+            return MqValue::Float(f);
+        }
+
+        MqValue::String(self.to_owned())
+    }
+}
+
 #[derive(Clone, Serialize, Deserialize)]
 pub struct MqTaskContext {
     pub id: String,

@@ -12,10 +12,13 @@
       "cache": false
     },
     "deploy": {
-      "dependsOn": ["^build", "^deploy"],
+      "dependsOn": ["^deploy", "build"],
       "cache": false
     },
     "generate": {},
+    "plan": {
+      "dependsOn": ["^build"]
+    },
     "start": {
       "dependsOn": ["build"],
       "cache": false,

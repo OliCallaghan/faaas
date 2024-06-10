@@ -1,5 +1,5 @@
 // This is the type which any "use async" function must implement.
-export type Task = {
+export type Task = CallableFunction & {
   proxy: string;
 };
 
@@ -11,7 +11,7 @@ export function continuation(
 ) {
   return {
     status: "continuation",
-    taskId: task.proxy,
+    task,
     taskArgs,
     taskScope,
   } as const;
@@ -32,7 +32,7 @@ export function result(data: any) {
 */
 export type FaaascInternalContext = {
   id: string;
-  data: string;
+  data: string[];
 };
 
 // Represents the state of the function invocation. Stores free variables
