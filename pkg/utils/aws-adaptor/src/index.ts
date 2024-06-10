@@ -5,9 +5,12 @@ import { Connection } from "rabbitmq-client";
 import { type Task, type Handler } from "@faaas/faaasc";
 import { computeProxySaving, publishDuration } from "./billing";
 
+const MQTaskQueueName = process.env.MQ_QUEUE ?? "task_invocations";
+const MQTaskQueueBinding = `${MQTaskQueueName}::/`;
+
 const MQInvocationEvent = z.object({
   rmqMessagesByQueue: z.object({
-    "task_invocations::/": z.array(
+    [MQTaskQueueBinding]: z.array(
       z.object({
         data: z.string(),
       }),
@@ -54,10 +57,11 @@ const pub = rabbit.createPublisher({
 export function buildEntrypoint(handlers: Record<string, Handler>) {
   async function entrypoint(event: unknown, ctx: Context) {
     try {
+      console.log(event);
       const mqInvocEvent = MQInvocationEvent.parse(event);
 
       const { rmqMessagesByQueue } = mqInvocEvent;
-      const { "task_invocations::/": msgs } = rmqMessagesByQueue;
+      const { [MQTaskQueueBinding]: msgs } = rmqMessagesByQueue;
 
       const mqTaskCtxs = msgs
         .map((msg) => msg.data)

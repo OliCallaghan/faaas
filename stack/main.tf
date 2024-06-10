@@ -74,6 +74,24 @@ resource "aws_security_group" "redis" {
   }
 }
 
+module "pets_proxy" {
+  source = "./modules/faaas-handler"
+
+  handler_name = "pets-proxy"
+  handler_zip  = "./node_modules/@faaas-bench/pets/dist/handler.zip"
+
+  vpc_id = aws_vpc.main.id
+  subnet_ids = [
+    aws_subnet.private_subnet_1.id,
+    aws_subnet.private_subnet_2.id,
+  ]
+
+  rabbit_mq_arn        = aws_mq_broker.rabbit_mq.arn
+  rabbit_mq_secret_arn = aws_secretsmanager_secret_version.rabbit_mq_auth.arn
+
+  redis_security_group_id = aws_security_group.redis.id
+}
+
 resource "aws_security_group" "lambda_sg" {
   name   = "lambda_sg"
   vpc_id = aws_vpc.main.id
