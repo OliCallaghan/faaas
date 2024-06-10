@@ -24,15 +24,11 @@ pub mod types {
         fn into(self) -> TaskContext {
             TaskContext {
                 id: self.id,
-                task_id: self.task_id,
+                task_id: self.task_id.clone(),
                 args: self.args.into_iter().map(|v| v.into()).collect(),
                 data: self.state.into_iter().map(|(k, v)| (k, v.into())).collect(),
-                continuation: self.continuation,
-                continuation_args: self
-                    .continuation_args
-                    .into_iter()
-                    .map(|v| v.into())
-                    .collect(),
+                continuation: Some(self.task_id),
+                continuation_args: vec![],
             }
         }
     }
@@ -55,14 +51,9 @@ pub mod types {
             MqTaskContext {
                 id: ctx.id,
                 task_id: ctx.task_id,
+                continuation_id: todo!("Need to sort out this continuation vs task id nonsense"),
                 args: ctx.args.into_iter().map(|v| v.into()).collect(),
                 state: ctx.data.into_iter().map(|(k, v)| (k, v.into())).collect(),
-                continuation: ctx.continuation,
-                continuation_args: ctx
-                    .continuation_args
-                    .into_iter()
-                    .map(|v| v.into())
-                    .collect(),
             }
         }
     }

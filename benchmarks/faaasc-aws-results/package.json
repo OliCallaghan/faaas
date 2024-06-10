@@ -1,0 +1,11 @@
+{
+  "name": "@faaas-bench/faaasc-aws-results",
+  "version": "1.0.0",
+  "description": "Results of analysing billing data for FaaS function deployed to AWS",
+  "scripts": {
+    "build": "poetry run python src/generate.py"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}

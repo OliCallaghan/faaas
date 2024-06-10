@@ -43,52 +43,44 @@ impl Into<MqValue> for &str {
 pub struct MqTaskContext {
     pub id: String,
     pub task_id: String,
+    pub continuation_id: String,
     pub args: Vec<MqValue>,
     pub state: HashMap<String, MqValue>,
-    pub continuation: Option<String>,
-    pub continuation_args: Vec<MqValue>,
 }
 
 impl MqTaskContext {
-    pub fn new(id: &str, task_id: &str) -> Self {
+    pub fn new(id: &str, task_id: &str, continuation_id: &str) -> Self {
         Self {
             id: id.to_owned(),
             task_id: task_id.to_owned(),
+            continuation_id: continuation_id.to_owned(),
             args: Vec::new(),
             state: Default::default(),
-            continuation: None,
-            continuation_args: Vec::new(),
         }
     }
 
-    pub fn new_with_data(id: &str, task_id: &str, data: String) -> Self {
+    pub fn new_with_data(id: &str, task_id: &str, continuation_id: &str, data: String) -> Self {
         Self {
             id: id.to_owned(),
             task_id: task_id.to_owned(),
+            continuation_id: continuation_id.to_owned(),
             args: vec![MqValue::String(data)],
             state: Default::default(),
-            continuation: None,
-            continuation_args: Vec::new(),
         }
     }
 
-    pub fn continuation(&self, task_id: &str, args: Vec<MqValue>) -> Self {
+    pub fn continuation(&self, task_id: &str, continuation_id: &str, args: Vec<MqValue>) -> Self {
         Self {
             id: self.id.clone(),
             task_id: task_id.to_owned(),
+            continuation_id: continuation_id.to_owned(),
             state: self.state.clone(),
             args,
-            continuation: None,
-            continuation_args: Vec::new(),
         }
     }
 
     pub fn set_continuation(&mut self, task_id: &str, args: Vec<MqValue>) {
-        self.continuation = Some(task_id.to_owned());
-        self.continuation_args = args;
+        // self.continuation = Some(task_id.to_owned());
+        // self.continuation_args = args;
     }
-}
-
-pub fn get_task_init_id(task_id: &str) -> String {
-    format!("{}_0", task_id)
 }

@@ -1,5 +1,6 @@
 [tool.pyright]
 include = [
+    "benchmarks/faaasc-aws-results/src",
     "benchmarks/perf-v8-event-loop-results/src",
     "benchmarks/perf-v8-event-loop-results-pprof/src",
     "diagrams/arch-overview-source/src",
@@ -22,6 +23,7 @@ venvPath = "."
 venv = ".venv"
 
 executionEnvironments = [
+    { root = "benchmarks/faaasc-aws-results/src" },
     { root = "benchmarks/perf-v8-event-loop-results/src" },
     { root = "benchmarks/perf-v8-event-loop-results-pprof/src" },
     { root = "diagrams/arch-overview-source/src" },
@@ -55,6 +57,7 @@ kaleido = "0.2.1"
 dot2tex = "^2.11.3"
 pydot = "^2.0.0"
 pygments = "^2.18.0"
+boto3 = "^1.34.122"
 
 [build-system]
 requires = ["poetry-core"]

@@ -14,7 +14,7 @@ use amqprs::tls::TlsAdaptor;
 use amqprs::{BasicProperties, Deliver};
 use anyhow::Result;
 use async_trait::async_trait;
-use faaasmq::{get_task_init_id, MqTaskContext};
+use faaasmq::MqTaskContext;
 use http_body_util::{BodyExt, Full};
 use hyper::body::Bytes;
 use hyper::server::conn::http1;
@@ -99,8 +99,7 @@ async fn publish_invoke(mq_chann: &Channel, id: &str, task_id: &str, data: Strin
     let mq_routing_key = format!("mq.invocations.tasks.{}", task_id);
     let mq_exchange_name = "amq.direct";
 
-    let task_init_id = get_task_init_id(task_id);
-    let invoc = MqTaskContext::new_with_data(id, &task_init_id, data);
+    let invoc = MqTaskContext::new_with_data(id, task_id, "handler_0", data);
     let invoc = serde_json::to_vec(&invoc).unwrap();
 
     // create arguments for basic_publish
@@ -113,7 +112,7 @@ async fn publish_invoke(mq_chann: &Channel, id: &str, task_id: &str, data: Strin
 
     println!(
         "Published {} to {} with task_init {}",
-        id, task_id, task_init_id
+        id, task_id, "handler_0"
     );
 
     Ok(())

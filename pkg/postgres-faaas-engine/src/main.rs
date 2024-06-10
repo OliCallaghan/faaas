@@ -119,7 +119,7 @@ async fn publish_result(mq_chann: &Channel, ctx: &MqTaskContext, res: MqValue) -
     let mq_routing_key = format!("mq.invocations.tasks.{}", task_id);
     let mq_exchange_name = "amq.direct";
 
-    let ctx = ctx.continuation(&task_cont_id, vec![res]);
+    let ctx = ctx.continuation(&task_id, &task_cont_id, vec![res]);
     let ctx = serde_json::to_vec(&ctx).unwrap();
 
     println!("Sending result: {:?}", ctx);

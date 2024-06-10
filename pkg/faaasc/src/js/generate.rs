@@ -249,7 +249,6 @@ impl Generation {
 
                 let (handler_next_ident, handler_next_split_id) =
                     self.handler_next.clone().unwrap();
-                let handler_task_id = self.handler_name.sym.as_str();
                 let handler_next_atom = format!(
                     "{}_{}",
                     handler_next_ident.sym.as_str(),
@@ -261,10 +260,6 @@ impl Generation {
                     expr: Box::new(Expr::Array(ArrayLit {
                         span: Default::default(),
                         elems: vec![
-                            Some(ExprOrSpread {
-                                spread: None,
-                                expr: Box::new(Expr::Lit(Lit::Str(handler_task_id.into()))),
-                            }),
                             Some(ExprOrSpread {
                                 spread: None,
                                 expr: Box::new(Expr::Lit(Lit::Str(handler_next_atom.into()))),

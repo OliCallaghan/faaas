@@ -19,10 +19,9 @@ type MQInvocationEvent = z.infer<typeof MQInvocationEvent>;
 const MQTaskContext = z.object({
   id: z.string(),
   task_id: z.string(),
+  continuation_id: z.string(),
   args: z.array(z.string()),
   state: z.record(z.string(), z.any()),
-  continuation: z.nullable(z.string()), // deprecated
-  continuation_args: z.array(z.any()), // deprecated
 });
 type MQTaskContext = z.infer<typeof MQTaskContext>;
 
@@ -80,8 +79,9 @@ export function buildEntrypoint(handlers: Record<string, Handler>) {
   async function handle(mqTaskCtx: MQTaskContext, ctx: Context): Promise<void> {
     console.log("Responding to invocation", mqTaskCtx.id);
 
-    const taskId = mqTaskCtx.task_id;
-    const handler = handlers[taskId];
+    // The continuation id to execute from the task id
+    const continuationId = mqTaskCtx.continuation_id;
+    const handler = handlers[continuationId];
 
     try {
       if (handler) {
@@ -97,14 +97,14 @@ export function buildEntrypoint(handlers: Record<string, Handler>) {
             await invokeProxyContinuation(
               mqTaskCtx,
               res.task.proxy,
-              res.taskArgs,
+              [mqTaskCtx.task_id, ...res.taskArgs],
               res.taskScope,
             );
           } else {
             await invokeLocalContinuation(
               mqTaskCtx,
               res.task,
-              res.taskArgs,
+              [mqTaskCtx.task_id, ...res.taskArgs],
               res.taskScope,
               ctx,
             );
@@ -131,7 +131,7 @@ export function buildEntrypoint(handlers: Record<string, Handler>) {
   ) {
     const taskLocalStart = performance.now();
 
-    const [_, nextTaskId, ...taskCallArgs] = taskArgs;
+    const [nextTaskId, nextContinuationId, ...taskCallArgs] = taskArgs;
     const res = await task(...taskCallArgs);
     const resSerialised = JSON.stringify(res);
 
@@ -140,9 +140,8 @@ export function buildEntrypoint(handlers: Record<string, Handler>) {
     const mqNextTaskCtx = {
       id: mqTaskCtx.id,
       task_id: nextTaskId,
+      continuation_id: nextContinuationId,
       state: taskScope,
-      continuation: null,
-      continuation_args: [],
       args: [resSerialised],
     } as MQTaskContext;
 
@@ -169,7 +168,7 @@ async function shouldProxy(
     return false;
   }
 
-  return saving > 0;
+  return true; // saving > 0;
 }
 
 async function invokeResponse(mqTaskCtx: MQTaskContext, data: string) {
@@ -196,9 +195,8 @@ async function invokeProxyContinuation(
   const mqContinuationTaskCtx: MQTaskContext = {
     id: mqTaskCtx.id,
     task_id: taskId,
+    continuation_id: taskId,
     args: taskArgs,
-    continuation: null,
-    continuation_args: [],
     state: taskScope,
   };
 

@@ -16,13 +16,13 @@ impl CallableGuest for Task {
 
         ctx.set("a", &Value::U32Val(a_old + 1));
 
-        let next_task = "io/sql/pg";
-        let next_args = [
-            Value::StrVal("SELECT * FROM pets".into()),
-            Value::StrVal("tasks/dec_pet".into()),
-        ];
-        ctx.set_continuation_id(next_task);
-        ctx.set_continuation_args(&next_args);
+        // let next_task = "io/sql/pg";
+        // let next_args = [
+        //     Value::StrVal("SELECT * FROM pets".into()),
+        //     Value::StrVal("tasks/dec_pet".into()),
+        // ];
+        // ctx.set_continuation_id(next_task);
+        // ctx.set_continuation_args(&next_args);
 
         Ok(ctx)
     }
