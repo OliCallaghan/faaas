@@ -1,0 +1,274 @@
+
+> @faaas-bench/faaasc-aws-results@1.0.0 build /Users/oli/Developer/faaas/benchmarks/faaasc-aws-results
+> poetry run python src/generate.py
+
+
+
+Query continuation DFs:
+
+Name: pets-http
+Empty DataFrame
+Columns: [continuationId, avgLocalDuration, stdLocalDuration, sumLocalDuration, countLocalInvocations]
+Index: []
+Empty DataFrame
+Columns: [continuationId, stdEstimatedSaving, avgEstimatedSaving, sumEstimatedSaving]
+Index: []
+Empty DataFrame
+Columns: [continuationId, stdEstimationTime, avgEstimationTime, sumEstimationTime]
+Index: []
+
+Name: pets-adaptive
+  continuationId countLocalInvocations stdLocalDuration avgLocalDuration  \
+0   proxy.sql.pg                   155          21.1899           4.1176   
+
+  sumLocalDuration  
+0          638.235  
+  continuationId stdEstimatedSaving avgEstimatedSaving sumEstimatedSaving
+0   proxy.sql.pg      0.00000007385      -0.0000002317        -0.00003638
+  continuationId stdEstimationTime avgEstimationTime sumEstimationTime
+0   proxy.sql.pg           14.4005            4.9419          775.8753
+
+Name: pets-local
+  continuationId countLocalInvocations stdLocalDuration avgLocalDuration  \
+0   proxy.sql.pg                   156          20.7232           3.8901   
+
+  sumLocalDuration  
+0         606.8485  
+Empty DataFrame
+Columns: [continuationId, stdEstimatedSaving, avgEstimatedSaving, sumEstimatedSaving]
+Index: []
+Empty DataFrame
+Columns: [continuationId, stdEstimationTime, avgEstimationTime, sumEstimationTime]
+Index: []
+
+Name: pets-proxy
+Empty DataFrame
+Columns: [continuationId, avgLocalDuration, stdLocalDuration, sumLocalDuration, countLocalInvocations]
+Index: []
+Empty DataFrame
+Columns: [continuationId, stdEstimatedSaving, avgEstimatedSaving, sumEstimatedSaving]
+Index: []
+Empty DataFrame
+Columns: [continuationId, stdEstimationTime, avgEstimationTime, sumEstimationTime]
+Index: []
+
+
+Query function DFs:
+
+
+Name: pets-http
+   stdBilledDuration  avgBilledDuration  sumBilledDuration  memorySize
+0                  0                  0                  0           0
+   stdPublishTime  avgPublishTime  sumPublishTime
+0               0               0               0
+
+
+Name: pets-adaptive
+   stdBilledDuration  avgBilledDuration  sumBilledDuration  memorySize
+0                  0                  0                  0           0
+   stdPublishTime  avgPublishTime  sumPublishTime
+0               0               0               0
+
+
+Name: pets-local
+   stdBilledDuration  avgBilledDuration  sumBilledDuration  memorySize
+0                  0                  0                  0           0
+   stdPublishTime  avgPublishTime  sumPublishTime
+0               0               0               0
+
+
+Name: pets-proxy
+   stdBilledDuration  avgBilledDuration  sumBilledDuration  memorySize
+0                  0                  0                  0           0
+   stdPublishTime  avgPublishTime  sumPublishTime
+0               0               0               0
+
+
+Query function DFs after internal join:
+
+
+Name: pets-http
+              stdBilledDuration  avgBilledDuration  sumBilledDuration  \
+functionName                                                            
+pets-http                     0                  0                  0   
+
+              memorySize  stdPublishTime  avgPublishTime  sumPublishTime  
+functionName                                                              
+pets-http              0               0               0               0  
+
+
+Name: pets-adaptive
+               stdBilledDuration  avgBilledDuration  sumBilledDuration  \
+functionName                                                             
+pets-adaptive                  0                  0                  0   
+
+               memorySize  stdPublishTime  avgPublishTime  sumPublishTime  
+functionName                                                               
+pets-adaptive           0               0               0               0  
+
+
+Name: pets-local
+              stdBilledDuration  avgBilledDuration  sumBilledDuration  \
+functionName                                                            
+pets-local                    0                  0                  0   
+
+              memorySize  stdPublishTime  avgPublishTime  sumPublishTime  
+functionName                                                              
+pets-local             0               0               0               0  
+
+
+Name: pets-proxy
+              stdBilledDuration  avgBilledDuration  sumBilledDuration  \
+functionName                                                            
+pets-proxy                    0                  0                  0   
+
+              memorySize  stdPublishTime  avgPublishTime  sumPublishTime  
+functionName                                                              
+pets-proxy             0               0               0               0  
+
+
+Local Continuation Functions DF
+                             avgLocalDuration stdLocalDuration  \
+functionName  continuationId                                     
+pets-adaptive proxy.sql.pg             4.1176          21.1899   
+pets-local    proxy.sql.pg             3.8901          20.7232   
+
+                             sumLocalDuration countLocalInvocations  \
+functionName  continuationId                                          
+pets-adaptive proxy.sql.pg            638.235                   155   
+pets-local    proxy.sql.pg           606.8485                   156   
+
+                             stdEstimatedSaving avgEstimatedSaving  \
+functionName  continuationId                                         
+pets-adaptive proxy.sql.pg        0.00000007385      -0.0000002317   
+pets-local    proxy.sql.pg                  NaN                NaN   
+
+                             sumEstimatedSaving stdEstimationTime  \
+functionName  continuationId                                        
+pets-adaptive proxy.sql.pg          -0.00003638           14.4005   
+pets-local    proxy.sql.pg                  NaN               NaN   
+
+                             avgEstimationTime sumEstimationTime  
+functionName  continuationId                                      
+pets-adaptive proxy.sql.pg              4.9419          775.8753  
+pets-local    proxy.sql.pg                 NaN               NaN  
+
+
+Local Continuation Functions DF after pivot
+               proxy.sql.pg_stdEstimatedSaving  \
+functionName                                     
+pets-adaptive                     7.385000e-08   
+pets-local                        0.000000e+00   
+
+               proxy.sql.pg_avgEstimatedSaving  \
+functionName                                     
+pets-adaptive                    -2.317000e-07   
+pets-local                        0.000000e+00   
+
+               proxy.sql.pg_sumEstimatedSaving  \
+functionName                                     
+pets-adaptive                        -0.000036   
+pets-local                            0.000000   
+
+               proxy.sql.pg_stdEstimationTime  proxy.sql.pg_avgEstimationTime  \
+functionName                                                                    
+pets-adaptive                         14.4005                          4.9419   
+pets-local                             0.0000                          0.0000   
+
+               proxy.sql.pg_sumEstimationTime  proxy.sql.pg_stdLocalDuration  \
+functionName                                                                   
+pets-adaptive                        775.8753                        21.1899   
+pets-local                             0.0000                        20.7232   
+
+               proxy.sql.pg_avgLocalDuration  proxy.sql.pg_sumLocalDuration  \
+functionName                                                                  
+pets-adaptive                         4.1176                       638.2350   
+pets-local                            3.8901                       606.8485   
+
+               proxy.sql.pg_countLocalInvocations  
+functionName                                       
+pets-adaptive                               155.0  
+pets-local                                  156.0  
+
+
+Overhead DF once joined with query_func_df
+               proxy.sql.pg_stdEstimatedSaving  \
+functionName                                     
+pets-adaptive                     7.385000e-08   
+pets-local                        0.000000e+00   
+
+               proxy.sql.pg_avgEstimatedSaving  \
+functionName                                     
+pets-adaptive                    -2.317000e-07   
+pets-local                        0.000000e+00   
+
+               proxy.sql.pg_sumEstimatedSaving  \
+functionName                                     
+pets-adaptive                        -0.000036   
+pets-local                            0.000000   
+
+               proxy.sql.pg_stdEstimationTime  proxy.sql.pg_avgEstimationTime  \
+functionName                                                                    
+pets-adaptive                         14.4005                          4.9419   
+pets-local                             0.0000                          0.0000   
+
+               proxy.sql.pg_sumEstimationTime  proxy.sql.pg_stdLocalDuration  \
+functionName                                                                   
+pets-adaptive                        775.8753                        21.1899   
+pets-local                             0.0000                        20.7232   
+
+               proxy.sql.pg_avgLocalDuration  proxy.sql.pg_sumLocalDuration  \
+functionName                                                                  
+pets-adaptive                         4.1176                       638.2350   
+pets-local                            3.8901                       606.8485   
+
+               proxy.sql.pg_countLocalInvocations  
+functionName                                       
+pets-adaptive                               155.0  
+pets-local                                  156.0  
+               sumBilledDuration  sumPublishTime  \
+functionName                                       
+pets-adaptive                  0             0.0   
+pets-http                      0             0.0   
+pets-local                     0             0.0   
+pets-proxy                     0             0.0   
+
+               proxy.sql.pg_sumLocalDuration  proxy.sql.pg_sumEstimationTime  \
+functionName                                                                   
+pets-adaptive                       638.2350                        775.8753   
+pets-http                             0.0000                          0.0000   
+pets-local                          606.8485                          0.0000   
+pets-proxy                            0.0000                          0.0000   
+
+               sumOtherDuration  
+functionName                     
+pets-adaptive        -1414.1103  
+pets-http                0.0000  
+pets-local            -606.8485  
+pets-proxy               0.0000  
+               sumPublishTime  proxy.sql.pg_sumLocalDuration  \
+functionName                                                   
+pets-adaptive             0.0                       638.2350   
+pets-http                 0.0                         0.0000   
+pets-local                0.0                       606.8485   
+pets-proxy                0.0                         0.0000   
+
+               proxy.sql.pg_sumEstimationTime  sumOtherDuration  
+functionName                                                     
+pets-adaptive                        775.8753        -1414.1103  
+pets-http                              0.0000            0.0000  
+pets-local                             0.0000         -606.8485  
+pets-proxy                             0.0000            0.0000  
+               sumPublishTime  proxy.sql.pg_sumLocalDuration  \
+functionName                                                   
+pets-adaptive             0.0                       638.2350   
+pets-http                 0.0                         0.0000   
+pets-local                0.0                       606.8485   
+pets-proxy                0.0                         0.0000   
+
+               proxy.sql.pg_sumEstimationTime  sumOtherDuration  
+functionName                                                     
+pets-adaptive                        775.8753        -1414.1103  
+pets-http                              0.0000            0.0000  
+pets-local                             0.0000         -606.8485  
+pets-proxy                             0.0000            0.0000  

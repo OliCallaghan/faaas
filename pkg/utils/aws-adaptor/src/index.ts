@@ -57,7 +57,6 @@ const pub = rabbit.createPublisher({
 export function buildEntrypoint(handlers: Record<string, Handler>) {
   async function entrypoint(event: unknown, ctx: Context) {
     try {
-      console.log(event);
       const mqInvocEvent = MQInvocationEvent.parse(event);
 
       const { rmqMessagesByQueue } = mqInvocEvent;
@@ -140,6 +139,16 @@ export function buildEntrypoint(handlers: Record<string, Handler>) {
     const resSerialised = JSON.stringify(res);
 
     const taskLocalEnd = performance.now();
+    const taskDuration = taskLocalEnd - taskLocalStart;
+
+    // Log the local continuation execution time to CloudWatch for analysis
+    console.log(
+      "Local continuation of:",
+      task.proxy,
+      "took:",
+      taskDuration,
+      "ms",
+    );
 
     const mqNextTaskCtx = {
       id: mqTaskCtx.id,
@@ -173,9 +182,17 @@ async function shouldProxy(
       "Unknown continuation execution strategy, defaulting to adaptive",
     );
 
+  const savingStart = performance.now();
   const saving = await computeProxySaving(task.proxy, ctx);
+  const savingEnd = performance.now();
 
-  console.log("Proxy saving", saving, "for", task.proxy);
+  console.log("Proxy saving estimated to save:", saving, "USD for", task.proxy);
+  console.log(
+    "Proxy saving computation took:",
+    savingEnd - savingStart,
+    "ms for:",
+    task.proxy,
+  );
 
   if (Math.random() < 0.1) {
     return false;
@@ -193,7 +210,7 @@ async function invokeResponse(mqTaskCtx: MQTaskContext, data: string) {
   await pub.send({ exchange, routingKey }, data);
   const publishEnd = performance.now();
 
-  console.log("Publish response took", publishEnd - publishStart, "ms");
+  console.log("Publish to MQ time:", publishEnd - publishStart, "ms");
 }
 
 async function invokeProxyContinuation(
@@ -217,7 +234,7 @@ async function invokeProxyContinuation(
   await pub.send({ exchange, routingKey }, mqContinuationTaskCtx);
   const publishEnd = performance.now();
 
-  console.log("Publish continuation took", publishEnd - publishStart, "ms");
+  console.log("Publish to MQ time:", publishEnd - publishStart, "ms");
 }
 
 async function invokeError(mqTaskCtx: MQTaskContext, err: Error) {
@@ -229,7 +246,7 @@ async function invokeError(mqTaskCtx: MQTaskContext, err: Error) {
   await pub.send({ exchange, routingKey }, err.toString());
   const publishEnd = performance.now();
 
-  console.log("Publish err response took", publishEnd - publishStart, "ms");
+  console.log("Publish to MQ time:", publishEnd - publishStart, "ms");
 }
 
 async function onShutdown() {
