@@ -90,129 +90,53 @@ module "pets_proxy" {
   rabbit_mq_secret_arn = aws_secretsmanager_secret_version.rabbit_mq_auth.arn
 
   redis_security_group_id = aws_security_group.redis.id
+
+  environment = {
+    FAAAS_STRATEGY = "proxy"
+  }
 }
 
-resource "aws_security_group" "lambda_sg" {
-  name   = "lambda_sg"
+module "pets_local" {
+  source = "./modules/faaas-handler"
+
+  handler_name = "pets-local"
+  handler_zip  = "./node_modules/@faaas-bench/pets/dist/handler.zip"
+
   vpc_id = aws_vpc.main.id
+  subnet_ids = [
+    aws_subnet.private_subnet_1.id,
+    aws_subnet.private_subnet_2.id,
+  ]
 
-  ingress {
-    from_port       = 0
-    to_port         = 0
-    protocol        = "-1"
-    security_groups = [aws_security_group.redis.id]
-    cidr_blocks     = ["0.0.0.0/0"]
-  }
+  rabbit_mq_arn        = aws_mq_broker.rabbit_mq.arn
+  rabbit_mq_secret_arn = aws_secretsmanager_secret_version.rabbit_mq_auth.arn
 
-  egress {
-    from_port   = 0
-    to_port     = 0
-    protocol    = "-1"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
+  redis_security_group_id = aws_security_group.redis.id
 
-  tags = {
-    Name = "lambda_sg"
+  environment = {
+    FAAAS_STRATEGY = "local"
   }
 }
 
+module "pets_adaptive" {
+  source = "./modules/faaas-handler"
 
+  handler_name = "pets-adaptive"
+  handler_zip  = "./node_modules/@faaas-bench/pets/dist/handler.zip"
 
-resource "aws_lambda_function" "handler" {
-  filename = "${local.build_path}/handler.zip"
-  handler  = "handler.entrypoint"
-  runtime  = "nodejs20.x"
-  role     = aws_iam_role.iam_for_lambda.arn
+  vpc_id = aws_vpc.main.id
+  subnet_ids = [
+    aws_subnet.private_subnet_1.id,
+    aws_subnet.private_subnet_2.id,
+  ]
 
-  memory_size = 256
+  rabbit_mq_arn        = aws_mq_broker.rabbit_mq.arn
+  rabbit_mq_secret_arn = aws_secretsmanager_secret_version.rabbit_mq_auth.arn
 
-  source_code_hash = filebase64sha256("${local.build_path}/handler.zip")
+  redis_security_group_id = aws_security_group.redis.id
 
-  function_name = "handler"
-  timeout       = 30
-
-  environment {
-    variables = {
-      MQ_HOST   = "b-5a738d61-9443-4566-84e9-2c576774f230.mq.eu-west-2.amazonaws.com"
-      MQ_PORT   = "5671"
-      MQ_USER   = "admin"
-      MQ_PASS   = "ishouldmakethissecure"
-      REDIS_URL = "rediss://redis-av1ecw.serverless.euw2.cache.amazonaws.com:6379"
-    }
-  }
-
-  vpc_config {
-    security_group_ids = [aws_security_group.lambda_sg.id]
-    subnet_ids = [
-      aws_subnet.private_subnet_1.id,
-      aws_subnet.private_subnet_2.id,
-    ]
-  }
-}
-
-resource "aws_lambda_event_source_mapping" "handler_rabbit_mq_event_source" {
-  batch_size       = 1
-  event_source_arn = aws_mq_broker.rabbit_mq.arn
-  enabled          = true
-  function_name    = aws_lambda_function.handler.arn
-  queues           = ["task_invocations"]
-
-  source_access_configuration {
-    type = "VIRTUAL_HOST"
-    uri  = "/"
-  }
-
-  source_access_configuration {
-    type = "BASIC_AUTH"
-    uri  = aws_secretsmanager_secret_version.rabbit_mq_auth.arn
-  }
-}
-
-resource "aws_iam_role" "iam_for_lambda" {
-  name = "iam_for_lambda"
-
-  assume_role_policy = <<EOF
-    {
-    "Version": "2012-10-17",
-    "Statement": [
-        {
-        "Action": "sts:AssumeRole",
-        "Principal": {
-            "Service": "lambda.amazonaws.com"
-        },
-        "Effect": "Allow",
-        "Sid": ""
-        }
-    ]
-    }
-    EOF
-
-  inline_policy {
-    name = "rabbitmq_access"
-
-    policy = jsonencode({
-      "Version" : "2012-10-17",
-      "Statement" : [
-        {
-          "Action" : [
-            "mq:DescribeBroker",
-            "secretsmanager:GetSecretValue",
-            "ec2:CreateNetworkInterface",
-            "ec2:DeleteNetworkInterface",
-            "ec2:DescribeNetworkInterfaces",
-            "ec2:DescribeSecurityGroups",
-            "ec2:DescribeSubnets",
-            "ec2:DescribeVpcs",
-            "elasticache:Connect",
-            "logs:CreateLogGroup",
-            "logs:CreateLogStream",
-            "logs:PutLogEvents"
-          ],
-          "Resource" : "*",
-          "Effect" : "Allow"
-        }
-      ]
-    })
+  environment = {
+    FAAAS_STRATEGY = "adaptive"
   }
 }
 

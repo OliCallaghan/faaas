@@ -158,12 +158,21 @@ export function buildEntrypoint(handlers: Record<string, Handler>) {
   return entrypoint;
 }
 
+const { FAAAS_STRATEGY = "adaptive" } = process.env;
+
 // To implement with cost estimation
 async function shouldProxy(
   task: Task,
   _taskArgs: string[],
   ctx: Context,
 ): Promise<boolean> {
+  if (FAAAS_STRATEGY == "proxy") return true;
+  if (FAAAS_STRATEGY == "local") return false;
+  if (FAAAS_STRATEGY != "adaptive")
+    console.error(
+      "Unknown continuation execution strategy, defaulting to adaptive",
+    );
+
   const saving = await computeProxySaving(task.proxy, ctx);
 
   console.log("Proxy saving", saving, "for", task.proxy);

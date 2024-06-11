@@ -37,14 +37,14 @@ resource "aws_lambda_function" "faaas_handler" {
   timeout       = 30
 
   environment {
-    variables = {
+    variables = merge({
       MQ_HOST   = "b-5a738d61-9443-4566-84e9-2c576774f230.mq.eu-west-2.amazonaws.com"
       MQ_PORT   = "5671"
       MQ_USER   = "admin"
       MQ_PASS   = "ishouldmakethissecure"
       MQ_QUEUE  = "${var.handler_name}-queue"
       REDIS_URL = "rediss://redis-av1ecw.serverless.euw2.cache.amazonaws.com:6379"
-    }
+    }, var.environment)
   }
 
   vpc_config {

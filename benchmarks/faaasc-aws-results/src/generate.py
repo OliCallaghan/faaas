@@ -8,7 +8,7 @@ logs_client = client('logs')
 
 def start_invoc_query(logGroupName: str, time_start: datetime, time_end: datetime):
     return logs_client.start_query(
-        logGroupName="/aws/lambda/handler",
+        logGroupName="/aws/lambda/pets-local",
         startTime=int(time_start.timestamp()),
         endTime=int(time_end.timestamp()),
         queryString="""
@@ -20,7 +20,7 @@ def start_invoc_query(logGroupName: str, time_start: datetime, time_end: datetim
 
 def start_duration_query(logGroupName: str, time_start: datetime, time_end: datetime):
     return logs_client.start_query(
-        logGroupName="/aws/lambda/handler",
+        logGroupName="/aws/lambda/pets-local",
         startTime=int(time_start.timestamp()),
         endTime=int(time_end.timestamp()),
         queryString="""
