@@ -12,7 +12,7 @@
       "cache": false
     },
     "deploy": {
-      "dependsOn": ["^deploy", "build"],
+      "dependsOn": ["^deploy", "^build", "build"],
       "cache": false
     },
     "generate": {},

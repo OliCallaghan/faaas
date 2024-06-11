@@ -8,7 +8,7 @@ use swc_ecma_ast::{
 use super::{Generate, GenerateWithTarget, Generation};
 
 impl Generate for Module {
-    fn generate(&mut self) -> Result<()> {
+    fn generate(&mut self, adaptor: &str) -> Result<()> {
         let mut target = Vec::new();
 
         for item in &self.body {
@@ -20,7 +20,7 @@ impl Generate for Module {
         }
 
         self.body.insert(0, generate_import_decl());
-        self.body.insert(0, generate_import_adaptor_decl());
+        self.body.insert(0, generate_import_adaptor_decl(adaptor));
         self.body.push(generate_entrypoint(&target));
 
         Ok(())
@@ -57,7 +57,7 @@ fn generate_import_decl() -> ModuleItem {
     }))
 }
 
-fn generate_import_adaptor_decl() -> ModuleItem {
+fn generate_import_adaptor_decl(adaptor: &str) -> ModuleItem {
     ModuleItem::ModuleDecl(ModuleDecl::Import(ImportDecl {
         span: Default::default(),
         specifiers: vec![ImportSpecifier::Named(ImportNamedSpecifier {
@@ -66,7 +66,7 @@ fn generate_import_adaptor_decl() -> ModuleItem {
             imported: None,
             is_type_only: false,
         })],
-        src: Box::new("@faaas/aws-adaptor".into()),
+        src: Box::new(adaptor.into()),
         type_only: Default::default(),
         with: Default::default(),
         phase: Default::default(),
@@ -79,6 +79,9 @@ fn generate_entrypoint(gens: &Vec<Generation>) -> ModuleItem {
         props: gens
             .iter()
             .map(|gen| PropOrSpread::Prop(Box::new(Prop::Shorthand(gen.to_module_item_ident()))))
+            .chain([PropOrSpread::Prop(Box::new(Prop::Shorthand(
+                "handler".into(),
+            )))])
             .collect(),
     });
 

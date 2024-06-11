@@ -78,7 +78,7 @@ module "pets_proxy" {
   source = "./modules/faaas-handler"
 
   handler_name = "pets-proxy"
-  handler_zip  = "./node_modules/@faaas-bench/pets/dist/handler.zip"
+  handler_zip  = "./node_modules/@faaas-bench/pets/dist/mq/handler.zip"
 
   vpc_id = aws_vpc.main.id
   subnet_ids = [
@@ -100,7 +100,7 @@ module "pets_local" {
   source = "./modules/faaas-handler"
 
   handler_name = "pets-local"
-  handler_zip  = "./node_modules/@faaas-bench/pets/dist/handler.zip"
+  handler_zip  = "./node_modules/@faaas-bench/pets/dist/mq/handler.zip"
 
   vpc_id = aws_vpc.main.id
   subnet_ids = [
@@ -122,7 +122,7 @@ module "pets_adaptive" {
   source = "./modules/faaas-handler"
 
   handler_name = "pets-adaptive"
-  handler_zip  = "./node_modules/@faaas-bench/pets/dist/handler.zip"
+  handler_zip  = "./node_modules/@faaas-bench/pets/dist/mq/handler.zip"
 
   vpc_id = aws_vpc.main.id
   subnet_ids = [
@@ -138,6 +138,45 @@ module "pets_adaptive" {
   environment = {
     FAAAS_STRATEGY = "adaptive"
   }
+}
+
+resource "aws_lambda_function" "pets_http" {
+  filename = "./node_modules/@faaas-bench/pets/dist/http/handler.zip"
+  handler  = "handler.entrypoint"
+  runtime  = "nodejs20.x"
+  role     = aws_iam_role.pets_http.arn
+
+  memory_size = 256
+
+  source_code_hash = filebase64sha256("./node_modules/@faaas-bench/pets/dist/http/handler.zip")
+
+  function_name = "pets-http"
+  timeout       = 30
+}
+
+resource "aws_iam_role" "pets_http" {
+  name = "faaas-handler-iam-pets-http"
+
+  assume_role_policy = <<EOF
+    {
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+        "Action": "sts:AssumeRole",
+        "Principal": {
+            "Service": "lambda.amazonaws.com"
+        },
+        "Effect": "Allow",
+        "Sid": ""
+        }
+    ]
+    }
+    EOF
+}
+
+resource "aws_lambda_function_url" "http_pets" {
+  function_name      = aws_lambda_function.pets_http.function_name
+  authorization_type = "NONE"
 }
 
 resource "aws_iam_role" "iam_for_ecs" {

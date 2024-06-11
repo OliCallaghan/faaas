@@ -140,6 +140,9 @@ importers:
       '@faaas/aws-adaptor':
         specifier: workspace:^
         version: link:../../../pkg/utils/aws-adaptor
+      '@faaas/aws-http-adaptor':
+        specifier: workspace:^
+        version: link:../../../pkg/utils/aws-http-adaptor
       '@faaas/faaasc':
         specifier: workspace:^
         version: link:../../../pkg/faaasc
@@ -332,6 +335,25 @@ importers:
       zod:
         specifier: ^3.23.8
         version: 3.23.8
+
+  pkg/utils/aws-http-adaptor:
+    dependencies:
+      aws-lambda:
+        specifier: ^1.0.7
+        version: 1.0.7
+    devDependencies:
+      '@faaas/faaasc':
+        specifier: workspace:^
+        version: link:../../faaasc
+      '@faaas/tsconfig':
+        specifier: workspace:^
+        version: link:../tsconfig
+      '@types/aws-lambda':
+        specifier: ^8.10.138
+        version: 8.10.138
+      typescript:
+        specifier: ^5.4.4
+        version: 5.4.4
 
   pkg/utils/faaasman:
     dependencies:

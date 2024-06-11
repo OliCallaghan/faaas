@@ -1,0 +1,26 @@
+config:
+  target: https://fhzap75r7fqnyjxpbgpuj36suy0vyvso.lambda-url.eu-west-2.on.aws
+  phases:
+    - duration: 5
+      arrivalRate: 1
+      rampTo: 10
+      name: Warm up phase
+    - duration: 10
+      arrivalRate: 10
+      name: Maximum AWS Lambda instance load
+    - duration: 5
+      arrivalRate: 10
+      rampTo: 1
+      name: Decrease load
+  plugins:
+    expect: {}
+    apdex: {}
+    metrics-by-endpoint:
+      useOnlyRequestNames: true
+    fake-data: {}
+scenarios:
+  - flow:
+      - post:
+          url: "/"
+          json:
+            name: "bob"

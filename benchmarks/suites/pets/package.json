@@ -2,11 +2,9 @@
   "name": "@faaas-bench/pets",
   "version": "1.0.0",
   "description": "Pets example lambda",
-  "main": "dist/handler.js",
+  "main": "src/index.ts",
   "scripts": {
-    "generate": "faaasc src/handler.ts gen/handler.ts",
-    "build": "esbuild gen/handler.ts --platform=node --bundle --outdir=dist",
-    "deploy": "zip -j -r dist/handler.zip dist/handler.js"
+    "build": "./build.sh"
   },
   "keywords": [],
   "author": "",
@@ -17,6 +15,7 @@
   },
   "devDependencies": {
     "@faaas/aws-adaptor": "workspace:^",
+    "@faaas/aws-http-adaptor": "workspace:^",
     "@faaas/faaasc": "workspace:^",
     "esbuild": "^0.20.2"
   }

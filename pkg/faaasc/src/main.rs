@@ -1,5 +1,3 @@
-use std::io::Write;
-
 use anyhow::Result;
 
 use clap::Parser as ClapParser;
@@ -25,6 +23,9 @@ use js::graph::ToGraphvizGraph;
 #[derive(ClapParser)]
 #[clap(name = "faaasc")]
 struct Args {
+    #[arg(short, long, default_value = "@faaas/aws-adaptor")]
+    adaptor: String,
+
     #[clap(value_parser, default_value = "-")]
     input: Input,
 
@@ -80,7 +81,7 @@ fn main() -> Result<()> {
         ],
     )?;
 
-    m.generate()?;
+    m.generate(&args.adaptor)?;
 
     let mut emitter = Emitter {
         cfg: Default::default(),

@@ -45,7 +45,7 @@ def await_query_results(query_response):
 time_start = datetime.now() - timedelta(minutes=15)
 time_end = datetime.now()
 
-functionNames = ["pets-local", "pets-proxy", "pets-adaptive"]
+functionNames = ["pets-http", "pets-local", "pets-proxy", "pets-adaptive"]
 functionLogGroups = [f"/aws/lambda/{functionName}" for functionName in functionNames]
 
 query_responses = [(

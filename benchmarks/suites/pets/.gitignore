@@ -1,3 +1,3 @@
 assets/
-gen/*
-!gen/.gitkeep
+gen/{mq,http}/*
+!gen/{mq,http}/.gitkeep

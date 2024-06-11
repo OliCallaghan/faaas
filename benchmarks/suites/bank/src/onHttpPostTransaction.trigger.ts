@@ -16,7 +16,7 @@ const sql = database({
 });
 
 export async function handler(ctx: Context) {
-  const { src, dst, amount } = JSON.parse(ctx.data);
+  const { src, dst, amount } = JSON.parse(ctx.data[0]);
 
   ("use async");
   const srcAcc = await sql(`SELECT balance FROM accounts WHERE id == '${src}'`);

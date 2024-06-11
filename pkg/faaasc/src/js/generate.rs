@@ -20,7 +20,7 @@ pub mod gen_stmt;
 use super::capture::FreeVariables;
 
 pub trait Generate {
-    fn generate(&mut self) -> Result<()>;
+    fn generate(&mut self, adaptor: &str) -> Result<()>;
 }
 
 pub trait GenerateWithTarget {
