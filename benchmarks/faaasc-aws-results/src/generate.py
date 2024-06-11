@@ -1,6 +1,6 @@
 from boto3 import client
 from datetime import datetime, timedelta
-from pandas import DataFrame
+from pandas import DataFrame, concat
 
 from model_aws import aws_invocation_cost, aws_invocation_rate, model_aws_billed_time
 
@@ -8,7 +8,7 @@ logs_client = client('logs')
 
 def start_invoc_query(logGroupName: str, time_start: datetime, time_end: datetime):
     return logs_client.start_query(
-        logGroupName="/aws/lambda/pets-local",
+        logGroupName=logGroupName,
         startTime=int(time_start.timestamp()),
         endTime=int(time_end.timestamp()),
         queryString="""
@@ -20,7 +20,7 @@ def start_invoc_query(logGroupName: str, time_start: datetime, time_end: datetim
 
 def start_duration_query(logGroupName: str, time_start: datetime, time_end: datetime):
     return logs_client.start_query(
-        logGroupName="/aws/lambda/pets-local",
+        logGroupName=logGroupName,
         startTime=int(time_start.timestamp()),
         endTime=int(time_end.timestamp()),
         queryString="""
@@ -42,21 +42,16 @@ def await_query_results(query_response):
 
     return results
 
-time_start = datetime.now() - timedelta(hours=1)
+time_start = datetime.now() - timedelta(minutes=15)
 time_end = datetime.now()
 
-invoc_query_response = start_invoc_query(
-    "/aws/lambda/handler",
-    time_start,
-    time_end)
+functionNames = ["pets-local", "pets-proxy", "pets-adaptive"]
+functionLogGroups = [f"/aws/lambda/{functionName}" for functionName in functionNames]
 
-duration_query_response = start_duration_query(
-    "/aws/lambda/handler",
-    time_start,
-    time_end)
-
-invoc_results = await_query_results(invoc_query_response)
-duration_results = await_query_results(duration_query_response)
+query_responses = [(
+    start_invoc_query(logGroup, time_start, time_end),
+    start_duration_query(logGroup, time_start, time_end)
+) for logGroup in functionLogGroups]
 
 def query_result_to_df(results):
     data = results["results"]
@@ -66,11 +61,18 @@ def query_result_to_df(results):
         columns=[str(cell["field"]) for cell in data[0]] # type: ignore
     )
 
-invoc_df = query_result_to_df(invoc_results)
-durations_df = query_result_to_df(duration_results)
+query_dfs = [(
+    query_result_to_df(await_query_results(invoc_resp)),
+    query_result_to_df(await_query_results(duration_resp))
+) for invoc_resp, duration_resp in query_responses]
 
-billing_df = invoc_df.join(durations_df, how="outer")
-billing_df["functionName"] = ["handler"]
+for invoc_df, duration_df in query_dfs:
+    print(invoc_df)
+    print(duration_df)
+
+billing_dfs = [invoc_df.join(duration_df, how="outer") for invoc_df, duration_df in query_dfs]
+billing_df = concat(billing_dfs)
+billing_df["functionName"] = functionNames
 
 # Cast to integer types
 billing_df["invocations"] = billing_df["invocations"].astype(int)
@@ -88,7 +90,9 @@ print(billing_df[["totalCost", "invocationCost", "billedCost"]])
 import seaborn as sns
 import matplotlib as mpl
 
-tex = False
+col_width = 2.96289
+
+tex = True
 if tex: mpl.use("pgf")
 
 import matplotlib.pyplot as plt
@@ -106,16 +110,17 @@ if tex: mpl.rcParams.update({
 })
 
 # Create the stacked bar chart
-plt.figure(figsize=(10, 6))
-# sns.barplot(x="functionName", y="Cost", hue="CostType", data=melted_df, estimator=sum)
+fig, ax = plt.subplots(figsize=(col_width, col_width * 1.5))
 
-billing_breakdown_df = billing_df[["invocationCost", "billedCost"]]
-billing_breakdown_df.plot.bar(stacked=True)
+billing_breakdown_df = billing_df[["invocationCost", "billedCost", "functionName"]].copy()
+billing_breakdown_df.set_index("functionName", inplace=True)
+billing_breakdown_df.plot.bar(stacked=True, ax=ax)
 
 # Add labels and title
 plt.xlabel("Function Name")
 plt.ylabel("Cost (USD)")
-plt.title("Cost breakdown of functions by invocation and billed duration")
+plt.title("Cost breakdown by function")
 
 # Display the plot
-plt.show()
+if tex: plt.savefig("assets/aws-results.pgf", bbox_inches="tight")
+else: plt.show()

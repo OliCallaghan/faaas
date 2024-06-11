@@ -21,6 +21,10 @@ importers:
         specifier: ^1.13.2
         version: 1.13.2
 
+  benchmarks/faaasc-artillery: {}
+
+  benchmarks/faaasc-aws-results: {}
+
   benchmarks/perf-v8-event-loop:
     dependencies:
       '@faaas/perf-v8-event-loop-db':
@@ -193,6 +197,10 @@ importers:
       '@faaas/pricing':
         specifier: workspace:^
         version: link:../diagrams/pricing
+    devDependencies:
+      '@faaas-bench/faaasc-aws-results':
+        specifier: workspace:^
+        version: link:../benchmarks/faaasc-aws-results
 
   pkg/boss-faaas-engine: {}
 

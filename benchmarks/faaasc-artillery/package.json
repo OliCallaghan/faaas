@@ -3,7 +3,9 @@
   "version": "1.0.0",
   "description": "Artillery to benchmark faaasc artifacts",
   "main": "artillery.yaml",
-  "scripts": {},
+  "scripts": {
+    "build": "./run.sh"
+  },
   "keywords": [],
   "author": "",
   "license": "ISC"

@@ -23,6 +23,6 @@ scenarios:
       - post:
           url: "/"
           qs:
-            task_id: "handler"
+            task_id: "pets-adaptive"
           json:
             name: "bob"

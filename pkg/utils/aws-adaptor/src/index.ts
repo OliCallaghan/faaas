@@ -181,7 +181,7 @@ async function shouldProxy(
     return false;
   }
 
-  return true; // saving > 0;
+  return saving > 0;
 }
 
 async function invokeResponse(mqTaskCtx: MQTaskContext, data: string) {
