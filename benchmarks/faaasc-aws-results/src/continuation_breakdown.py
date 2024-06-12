@@ -13,8 +13,34 @@ from queries import (
     query_result_to_df
 )
 
-functionNames = ["pets-http", "pets-adaptive", "pets-local", "pets-proxy"]
-functionDisplayNames = ["AWS Lambda\n(Baseline)", "Adaptive Split", "Never Split", "Always Split\n(2 Invocations)"]
+functionNames = [
+    "pets-http",
+    "pets-local",
+    "pets-proxy",
+    "pets-adaptive",
+    # "warehouse-order-http",
+    # "warehouse-order-local",
+    # "warehouse-order-proxy",
+    # "warehouse-order-adaptive",
+    # "warehouse-report-http",
+    # "warehouse-report-local",
+    # "warehouse-report-proxy",
+    # "warehouse-report-adaptive"
+]
+functionDisplayNames = [
+    "\\texttt{pets} (AWS Lambda)",
+    "\\texttt{pets} (Never Split)",
+    "\\texttt{pets} (Always Split)",
+    "\\texttt{pets} (Adaptive Split)",
+    # "\\texttt{warehouse-order} (AWS Lambda)",
+    # "\\texttt{warehouse-order} (Never Split)",
+    # "\\texttt{warehouse-order} (Always Split)",
+    # "\\texttt{warehouse-order} (Adaptive Split)",
+    # "\\texttt{warehouse-report} (AWS Lambda)",
+    # "\\texttt{warehouse-report} (Never Split)",
+    # "\\texttt{warehouse-report} (Always Split)",
+    # "\\texttt{warehouse-report} (Adaptive Split)",
+]
 
 functionLogGroups = [f"/aws/lambda/{functionName}" for functionName in functionNames]
 
@@ -27,10 +53,15 @@ overhead_cols = ["continuationId", "stdEstimationTime", "avgEstimationTime", "su
 
 
 def execute_queries(time_start: datetime, time_end: datetime):
-    query_func_dfs = [(
-        query_result_to_df(await_query_results(start_duration_query(logGroup, time_start, time_end)), invoc_duration_cols, fill_zeros=True),
-        query_result_to_df(await_query_results(start_query_publish_to_amq_time(logGroup, time_start, time_end)), publish_to_amq_cols, fill_zeros=True)
+    query_func_resp = [(
+        start_duration_query(logGroup, time_start, time_end),
+        start_query_publish_to_amq_time(logGroup, time_start, time_end)
     ) for logGroup in functionLogGroups]
+
+    query_func_dfs = [(
+        query_result_to_df(await_query_results(duration_resp), invoc_duration_cols, fill_zeros=True),
+        query_result_to_df(await_query_results(publish_resp), publish_to_amq_cols, fill_zeros=True)
+    ) for duration_resp, publish_resp in query_func_resp]
 
     query_responses = [(
         start_local_continuation_duration_query(logGroup, time_start, time_end),
@@ -48,7 +79,7 @@ def execute_queries(time_start: datetime, time_end: datetime):
 
 
 def generate_continuation_breakdown(time_experiment: datetime):
-    time_start = time_experiment - timedelta(minutes=10)
+    time_start = time_experiment - timedelta(minutes=20)
     time_end = time_experiment
 
     query_func_dfs, query_cont_dfs = execute_queries(time_start, time_end)
@@ -143,9 +174,9 @@ def generate_continuation_breakdown(time_experiment: datetime):
     overhead_compute_estimate_labelled_df = overhead_compute_estimate_df.copy()
 
     for cont_id in continuation_ids:
-        overhead_compute_estimate_labelled_df[f"Estimating duration of {cont_id}"] = \
+        overhead_compute_estimate_labelled_df[f"Estimating duration of\n{cont_id}"] = \
             overhead_compute_estimate_labelled_df[column_by_cont_id(cont_id, "sumEstimationTime")]
-        overhead_compute_estimate_labelled_df[f"Locally executing {cont_id}"] = \
+        overhead_compute_estimate_labelled_df[f"Locally executing\n{cont_id}"] = \
             overhead_compute_estimate_labelled_df[column_by_cont_id(cont_id, "sumLocalDuration")]
 
         overhead_compute_estimate_labelled_df.drop(columns=[column_by_cont_id(cont_id, "sumEstimationTime")], inplace=True)
@@ -176,15 +207,15 @@ def generate_continuation_breakdown(time_experiment: datetime):
     import matplotlib.pyplot as plt
     sns.set_theme()
 
-    fig, ax = plt.subplots(figsize=(col_width, col_width * 1.5))
+    fig, ax = plt.subplots(figsize=(col_width * 0.8, col_width * 1.5))
 
     # Plot with error bars
-    overhead_compute_estimate_labelled_df.plot.bar(stacked=True, title="Continuation Breakdown", ax=ax).legend(loc='lower center', bbox_to_anchor=(0.5, -0.7))
+    overhead_compute_estimate_labelled_df.plot.bar(stacked=True, title="Continuation Breakdown", ax=ax).legend(loc='lower center', bbox_to_anchor=(0.5, -1.0))
 
     # Add labels and title
     plt.xlabel("Function splitting strategy")
     plt.ylabel("Duration (ms)")
-    plt.title("Breakdown of duration billed section\nby function splitting strategy")
+    plt.title("Breakdown of duration billed section\nby function splitting strategy\nfor OLTP function workloads")
 
     if tex: plt.savefig("assets/aws-strategy-duration-breakdown.pgf", bbox_inches="tight")
     else: plt.show()

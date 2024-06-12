@@ -18,10 +18,10 @@ export function continuation(
 }
 
 // Denotes a result to the function invocation
-export function result(data: any) {
+export function result(data: any, options = { raw: false }) {
   return {
     status: "done",
-    data: JSON.stringify(data),
+    data: options.raw ? data : JSON.stringify(data),
   } as const;
 }
 

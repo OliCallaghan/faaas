@@ -217,10 +217,11 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
 
     // Connect to RabbitMQ invocation queue
     let mq_node_id = Uuid::new_v4().to_string();
-    let mq_routing_key = "mq.invocations.proxy.sql.pg";
+    let mq_routing_key = format!("mq.invocations.proxy.sql.pg.{}", pg_db);
     let mq_exchange_name = "amq.direct";
 
-    let mq_queue_decl_args = QueueDeclareArguments::new("sql_invocations").finish();
+    let mq_queue_name = format!("proxy-sql-pg-{}", pg_db);
+    let mq_queue_decl_args = QueueDeclareArguments::new(&mq_queue_name).finish();
 
     let (resp_queue_name, _, _) = mq_chann
         .queue_declare(mq_queue_decl_args)
@@ -233,7 +234,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
         .queue_bind(QueueBindArguments::new(
             &resp_queue_name,
             mq_exchange_name,
-            mq_routing_key,
+            &mq_routing_key,
         ))
         .await
         .unwrap();

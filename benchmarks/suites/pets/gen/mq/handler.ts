@@ -7,7 +7,7 @@ const sql = database({
     port: 5432,
     username: "faaasuser",
     password: "securepassword",
-    database: "postgres",
+    database: "petstore",
     ssl: {
         rejectUnauthorized: false
     }

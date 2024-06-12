@@ -1,0 +1,29 @@
+config:
+  target: https://q6hpb2bpe5mhppuk36zv5qpmva0putdt.lambda-url.eu-west-2.on.aws
+  http:
+    timeout: 30
+  phases:
+    - duration: 10
+      arrivalRate: 1
+      rampTo: 5
+      name: Warm up phase
+    - duration: 20
+      arrivalRate: 5
+      name: Maximum AWS Lambda instance load
+    - duration: 10
+      arrivalRate: 5
+      rampTo: 1
+      name: Decrease load
+  plugins:
+    expect: {}
+    apdex: {}
+    metrics-by-endpoint:
+      useOnlyRequestNames: true
+    fake-data: {}
+  processor: "./payload.mjs"
+scenarios:
+  - flow:
+      - post:
+          url: "/"
+          beforeRequest: "preparePayload"
+          json: "{{ payload }}"

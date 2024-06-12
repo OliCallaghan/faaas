@@ -14,8 +14,15 @@ from queries import (
     query_result_to_df
 )
 
-functionNames = ["pets-adaptive", "pets-proxy"]
-functionDisplayNames = ["Adaptive Split", "Always Proxy\n(2 Invocations)"]
+functionNames = ["pets-proxy", "pets-adaptive", "warehouse-order-local", "warehouse-order-adaptive", "warehouse-report-local", "warehouse-report-adaptive"]
+functionDisplayNames = [
+    "\\texttt{pets} (Always Split)",
+    "\\texttt{pets} (Adaptive Split)",
+    "\\texttt{warehouse-order} (Never Split)",
+    "\\texttt{warehouse-order} (Adaptive Split)",
+    "\\texttt{warehouse-report} (Never Split)",
+    "\\texttt{warehouse-report} (Adaptive Split)",
+]
 
 functionLogGroups = [f"/aws/lambda/{functionName}" for functionName in functionNames]
 
@@ -28,10 +35,15 @@ overhead_cols = ["continuationId", "stdEstimationTime", "avgEstimationTime", "su
 
 
 def execute_queries(time_start: datetime, time_end: datetime):
-    query_func_dfs = [(
-        query_result_to_df(await_query_results(start_invoc_query(logGroup, time_start, time_end)), billed_invocs_cols, fill_zeros=True),
-        query_result_to_df(await_query_results(start_duration_query(logGroup, time_start, time_end)), billed_duration_cols, fill_zeros=True)
+    query_func_resp = [(
+        start_invoc_query(logGroup, time_start, time_end),
+        start_duration_query(logGroup, time_start, time_end),
     ) for logGroup in functionLogGroups]
+
+    query_func_dfs = [(
+        query_result_to_df(await_query_results(invoc_resp), billed_invocs_cols, fill_zeros=True),
+        query_result_to_df(await_query_results(duration_resp), billed_duration_cols, fill_zeros=True)
+    ) for invoc_resp, duration_resp in query_func_resp]
 
     query_responses = [(
         start_local_continuation_duration_query(logGroup, time_start, time_end),
@@ -49,7 +61,7 @@ def execute_queries(time_start: datetime, time_end: datetime):
 
 
 def generate_estimation_accuracy(time_experiment: datetime):
-    time_start = time_experiment - timedelta(minutes=10)
+    time_start = time_experiment - timedelta(minutes=20)
     time_end = time_experiment
 
     query_func_dfs, query_cont_dfs = execute_queries(time_start, time_end)
@@ -133,7 +145,7 @@ def generate_estimation_accuracy(time_experiment: datetime):
     efficiency_df: DataFrame = overhead_df[["Invocation Cost", "Duration Cost"]].copy() # type: ignore
 
     for cont_id in continuation_ids:
-        efficiency_df[f"Calculated {cont_id} overhead"] = -overhead_df[column_by_cont_id(cont_id, "sumEstimatedSaving")]
+        efficiency_df[f"Calculated {cont_id} overhead"] = abs(overhead_df[column_by_cont_id(cont_id, "sumEstimatedSaving")])
 
     efficiency_df["Strategy"] = efficiency_df.index
     efficiency_df["Strategy"] = efficiency_df["Strategy"].apply({

@@ -20,6 +20,7 @@ packages:
   - "benchmarks/suites/bank"
   - "benchmarks/suites/hello-seq"
   - "benchmarks/suites/pets"
+  - "benchmarks/suites/warehouse"
   - "pkg/boss-faaas-engine"
   - "pkg/faaasc"
   - "pkg/faaastime"

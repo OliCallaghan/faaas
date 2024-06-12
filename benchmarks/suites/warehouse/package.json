@@ -1,0 +1,24 @@
+{
+  "name": "@faaas-bench/warehouse",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "build": "./build.sh"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@faaas/aws-adaptor": "workspace:^",
+    "@faaas/aws-http-adaptor": "workspace:^",
+    "@faaas/faaasc": "workspace:^",
+    "@faaas/tsconfig": "workspace:^",
+    "esbuild": "^0.20.2"
+  },
+  "dependencies": {
+    "@faaas/handler": "workspace:^",
+    "@faaas/sql": "workspace:^",
+    "handlebars": "^4.7.8"
+  }
+}

@@ -2,10 +2,17 @@ from boto3 import client
 from datetime import datetime, timedelta
 from botocore.endpoint import threading
 from pandas import DataFrame
+from pandas.core.groupby.groupby import Callable
 
 logs_client = client('logs')
 
+q_count = 0
+p_count = 0
+
 def start_invoc_query(logGroupName: str, time_start: datetime, time_end: datetime):
+    global q_count
+    q_count += 1
+
     return logs_client.start_query(
         logGroupName=logGroupName,
         startTime=int(time_start.timestamp()),
@@ -18,6 +25,9 @@ def start_invoc_query(logGroupName: str, time_start: datetime, time_end: datetim
     )
 
 def start_duration_query(logGroupName: str, time_start: datetime, time_end: datetime):
+    global q_count
+    q_count += 1
+
     return logs_client.start_query(
         logGroupName=logGroupName,
         startTime=int(time_start.timestamp()),
@@ -33,6 +43,9 @@ def start_duration_query(logGroupName: str, time_start: datetime, time_end: date
     )
 
 def start_local_continuation_duration_query(logGroupName: str, time_start: datetime, time_end: datetime):
+    global q_count
+    q_count += 1
+
     return logs_client.start_query(
         logGroupName=logGroupName,
         startTime=int(time_start.timestamp()),
@@ -48,6 +61,9 @@ def start_local_continuation_duration_query(logGroupName: str, time_start: datet
     )
 
 def start_compute_continuation_estimate_duration_query(logGroupName: str, time_start: datetime, time_end: datetime):
+    global q_count
+    q_count += 1
+
     return logs_client.start_query(
         logGroupName=logGroupName,
         startTime=int(time_start.timestamp()),
@@ -63,6 +79,9 @@ def start_compute_continuation_estimate_duration_query(logGroupName: str, time_s
     )
 
 def start_compute_continuation_estimate_overhead_query(logGroupName: str, time_start: datetime, time_end: datetime):
+    global q_count
+    q_count += 1
+
     return logs_client.start_query(
         logGroupName=logGroupName,
         startTime=int(time_start.timestamp()),
@@ -78,6 +97,9 @@ def start_compute_continuation_estimate_overhead_query(logGroupName: str, time_s
     )
 
 def start_query_publish_to_amq_time(logGroupName: str, time_start: datetime, time_end: datetime):
+    global q_count
+    q_count += 1
+
     return logs_client.start_query(
         logGroupName=logGroupName,
         startTime=int(time_start.timestamp()),
@@ -93,6 +115,12 @@ def start_query_publish_to_amq_time(logGroupName: str, time_start: datetime, tim
 
 def await_query_results(query_response):
     from time import sleep
+
+    global p_count
+
+    print(f"Executing query {p_count}/{q_count}")
+    p_count += 1
+
     query_id = query_response["queryId"]
     results = logs_client.get_query_results(queryId=query_id)
 

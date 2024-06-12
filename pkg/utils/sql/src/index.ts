@@ -7,7 +7,8 @@ export function database(options: Options<{}>) {
     return sql.unsafe(query);
   }
 
-  exec.proxy = "proxy.sql.pg";
+  const db = options.database ?? "default";
+  exec.proxy = `proxy.sql.pg.${db}`;
 
   return exec;
 }

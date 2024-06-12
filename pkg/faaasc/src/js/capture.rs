@@ -44,8 +44,15 @@ impl FreeVariables {
         let id = used_ident.to_id();
 
         // TODO: Capture globals so that they don't need to manually be escaped here.
-        if ["sql", "listUserPets", "getUsername", "result", "console"]
-            .contains(&used_ident.sym.as_str())
+        if [
+            "sql",
+            "listUserPets",
+            "getUsername",
+            "result",
+            "console",
+            "template",
+        ]
+        .contains(&used_ident.sym.as_str())
         {
             return;
         }

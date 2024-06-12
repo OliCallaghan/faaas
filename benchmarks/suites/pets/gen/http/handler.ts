@@ -7,7 +7,7 @@ const sql = database({
     port: 5432,
     username: "faaasuser",
     password: "securepassword",
-    database: "postgres",
+    database: "petstore",
     ssl: {
         rejectUnauthorized: false
     }
@@ -42,12 +42,12 @@ export async function handler_0(ctx: FaaascInternalContext, state: FaaascInterna
         "handler_1",
         ...rows
     ], {
-        name,
-        foo
+        foo,
+        name
     });
 }
 export async function handler_1(ctx: FaaascInternalContext, state: FaaascInternalState) {
-    const { name, foo } = state;
+    const { foo, name } = state;
     const rows = JSON.parse(ctx.data[0]);
     let sumAge = 0;
     for (const row of rows){

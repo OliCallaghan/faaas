@@ -154,6 +154,182 @@ resource "aws_lambda_function" "pets_http" {
   timeout       = 30
 }
 
+###############
+
+module "warehouse_order_from_supplier_proxy" {
+  source = "./modules/faaas-handler"
+
+  handler_name = "warehouse-order-proxy"
+  handler_zip  = "./node_modules/@faaas-bench/warehouse/dist/order-from-supplier/mq/handler.zip"
+
+  vpc_id = aws_vpc.main.id
+  subnet_ids = [
+    aws_subnet.private_subnet_1.id,
+    aws_subnet.private_subnet_2.id,
+  ]
+
+  rabbit_mq_arn        = aws_mq_broker.rabbit_mq.arn
+  rabbit_mq_secret_arn = aws_secretsmanager_secret_version.rabbit_mq_auth.arn
+
+  redis_security_group_id = aws_security_group.redis.id
+
+  environment = {
+    FAAAS_STRATEGY = "proxy"
+  }
+}
+
+module "warehouse_order_from_supplier_local" {
+  source = "./modules/faaas-handler"
+
+  handler_name = "warehouse-order-local"
+  handler_zip  = "./node_modules/@faaas-bench/warehouse/dist/order-from-supplier/mq/handler.zip"
+
+  vpc_id = aws_vpc.main.id
+  subnet_ids = [
+    aws_subnet.private_subnet_1.id,
+    aws_subnet.private_subnet_2.id,
+  ]
+
+  rabbit_mq_arn        = aws_mq_broker.rabbit_mq.arn
+  rabbit_mq_secret_arn = aws_secretsmanager_secret_version.rabbit_mq_auth.arn
+
+  redis_security_group_id = aws_security_group.redis.id
+
+  environment = {
+    FAAAS_STRATEGY = "local"
+  }
+}
+
+module "warehouse_order_from_supplier_adaptive" {
+  source = "./modules/faaas-handler"
+
+  handler_name = "warehouse-order-adaptive"
+  handler_zip  = "./node_modules/@faaas-bench/warehouse/dist/order-from-supplier/mq/handler.zip"
+
+  vpc_id = aws_vpc.main.id
+  subnet_ids = [
+    aws_subnet.private_subnet_1.id,
+    aws_subnet.private_subnet_2.id,
+  ]
+
+  rabbit_mq_arn        = aws_mq_broker.rabbit_mq.arn
+  rabbit_mq_secret_arn = aws_secretsmanager_secret_version.rabbit_mq_auth.arn
+
+  redis_security_group_id = aws_security_group.redis.id
+
+  environment = {
+    FAAAS_STRATEGY = "adaptive"
+  }
+}
+
+resource "aws_lambda_function" "warehouse_order_from_supplier_http" {
+  filename = "./node_modules/@faaas-bench/warehouse/dist/order-from-supplier/http/handler.zip"
+  handler  = "handler.entrypoint"
+  runtime  = "nodejs20.x"
+  role     = aws_iam_role.pets_http.arn
+
+  memory_size = 256
+
+  source_code_hash = filebase64sha256("./node_modules/@faaas-bench/warehouse/dist/order-from-supplier/http/handler.zip")
+
+  function_name = "warehouse-order-http"
+  timeout       = 30
+}
+
+resource "aws_lambda_function_url" "warehouse_order_from_supplier_http" {
+  function_name      = aws_lambda_function.warehouse_order_from_supplier_http.function_name
+  authorization_type = "NONE"
+}
+
+###############
+
+module "warehouse_pricing_summary_report_proxy" {
+  source = "./modules/faaas-handler"
+
+  handler_name = "warehouse-report-proxy"
+  handler_zip  = "./node_modules/@faaas-bench/warehouse/dist/pricing-summary-report/mq/handler.zip"
+
+  vpc_id = aws_vpc.main.id
+  subnet_ids = [
+    aws_subnet.private_subnet_1.id,
+    aws_subnet.private_subnet_2.id,
+  ]
+
+  rabbit_mq_arn        = aws_mq_broker.rabbit_mq.arn
+  rabbit_mq_secret_arn = aws_secretsmanager_secret_version.rabbit_mq_auth.arn
+
+  redis_security_group_id = aws_security_group.redis.id
+
+  environment = {
+    FAAAS_STRATEGY = "proxy"
+  }
+}
+
+module "warehouse_pricing_summary_report_local" {
+  source = "./modules/faaas-handler"
+
+  handler_name = "warehouse-report-local"
+  handler_zip  = "./node_modules/@faaas-bench/warehouse/dist/pricing-summary-report/mq/handler.zip"
+
+  vpc_id = aws_vpc.main.id
+  subnet_ids = [
+    aws_subnet.private_subnet_1.id,
+    aws_subnet.private_subnet_2.id,
+  ]
+
+  rabbit_mq_arn        = aws_mq_broker.rabbit_mq.arn
+  rabbit_mq_secret_arn = aws_secretsmanager_secret_version.rabbit_mq_auth.arn
+
+  redis_security_group_id = aws_security_group.redis.id
+
+  environment = {
+    FAAAS_STRATEGY = "local"
+  }
+}
+
+module "warehouse_pricing_summary_report_adaptive" {
+  source = "./modules/faaas-handler"
+
+  handler_name = "warehouse-report-adaptive"
+  handler_zip  = "./node_modules/@faaas-bench/warehouse/dist/pricing-summary-report/mq/handler.zip"
+
+  vpc_id = aws_vpc.main.id
+  subnet_ids = [
+    aws_subnet.private_subnet_1.id,
+    aws_subnet.private_subnet_2.id,
+  ]
+
+  rabbit_mq_arn        = aws_mq_broker.rabbit_mq.arn
+  rabbit_mq_secret_arn = aws_secretsmanager_secret_version.rabbit_mq_auth.arn
+
+  redis_security_group_id = aws_security_group.redis.id
+
+  environment = {
+    FAAAS_STRATEGY = "adaptive"
+  }
+}
+
+resource "aws_lambda_function" "warehouse_pricing_summary_report_http" {
+  filename = "./node_modules/@faaas-bench/warehouse/dist/pricing-summary-report/http/handler.zip"
+  handler  = "handler.entrypoint"
+  runtime  = "nodejs20.x"
+  role     = aws_iam_role.pets_http.arn
+
+  memory_size = 256
+
+  source_code_hash = filebase64sha256("./node_modules/@faaas-bench/warehouse/dist/pricing-summary-report/http/handler.zip")
+
+  function_name = "warehouse-report-http"
+  timeout       = 30
+}
+
+resource "aws_lambda_function_url" "warehouse_pricing_summary_report_http" {
+  function_name      = aws_lambda_function.warehouse_pricing_summary_report_http.function_name
+  authorization_type = "NONE"
+}
+
+##############
+
 resource "aws_iam_role" "pets_http" {
   name = "faaas-handler-iam-pets-http"
 
@@ -522,77 +698,6 @@ resource "aws_ecs_task_definition" "app" {
   }
 }
 
-# Define ECS Task Definition
-resource "aws_ecs_task_definition" "proxy_sql_pg" {
-  family                   = "proxy-sql-pg"
-  execution_role_arn       = aws_iam_role.ecs_task_execution_role.arn
-  network_mode             = "awsvpc"
-  requires_compatibilities = ["FARGATE"]
-  cpu                      = "256"
-  memory                   = "512"
-
-  container_definitions = jsonencode([{
-    name  = "proxy-sql-pg"
-    image = "${aws_ecr_repository.postgres_faaas_engine.repository_url}:latest"
-    environment = [
-      {
-        name  = "MQ_HOST"
-        value = "b-5a738d61-9443-4566-84e9-2c576774f230.mq.eu-west-2.amazonaws.com"
-      },
-      {
-        name  = "MQ_PORT"
-        value = "5671"
-      },
-      {
-        name  = "MQ_USER"
-        value = "admin"
-      },
-      {
-        name  = "MQ_PASS"
-        value = "ishouldmakethissecure"
-      },
-      {
-        name  = "PG_HOST"
-        value = "postgres-db.cno4eviwxzxv.eu-west-2.rds.amazonaws.com"
-      },
-      {
-        name  = "PG_PORT"
-        value = "5432"
-      },
-      {
-        name  = "PG_USER"
-        value = "faaasuser"
-      },
-      {
-        name  = "PG_PASS"
-        value = "securepassword"
-      },
-      {
-        name  = "PG_DB"
-        value = "postgres"
-      }
-    ]
-    logConfiguration = {
-      logDriver = "awslogs"
-      options = {
-        "awslogs-create-group" : "true"
-        "awslogs-group" : local.proxy_sql_pg_log_group
-        "awslogs-region" : "eu-west-2"
-        "awslogs-stream-prefix" : "ecs"
-      }
-    }
-  }])
-
-  runtime_platform {
-    operating_system_family = "LINUX"
-    cpu_architecture        = "ARM64"
-  }
-
-  tags = {
-    Name = "proxy-sql-pg-task"
-  }
-}
-
 # Create Application Load Balancer
 resource "aws_lb" "app" {
   name               = "app-lb"
@@ -674,26 +779,58 @@ resource "aws_ecs_service" "app" {
   }
 }
 
-resource "aws_ecs_service" "proxy_sql_pg" {
-  name                 = "proxy-sql-pg-service"
-  cluster              = aws_ecs_cluster.main.id
-  task_definition      = aws_ecs_task_definition.proxy_sql_pg.arn
-  desired_count        = 1
-  launch_type          = "FARGATE"
-  force_new_deployment = true
-
-  network_configuration {
-    subnets = [
-      aws_subnet.private_subnet_1.id,
-      aws_subnet.private_subnet_2.id
-    ]
-    security_groups  = [aws_security_group.ecs_sg.id]
-    assign_public_ip = false
+locals {
+  mq = {
+    host = "b-5a738d61-9443-4566-84e9-2c576774f230.mq.eu-west-2.amazonaws.com"
+    port = 5671
+    user = "admin"
+    pass = "ishouldmakethissecure"
   }
 
-  tags = {
-    Name = "proxy-sql-pg-service"
+  pg = {
+    host = aws_db_instance.postgres.address
+    port = aws_db_instance.postgres.port
+    user = aws_db_instance.postgres.username
+    pass = aws_db_instance.postgres.password
   }
+}
+
+module "pg_proxy_petstore" {
+  source = "./modules/faaas-pg-proxy"
+
+  cluster_id = aws_ecs_cluster.main.id
+  db_name    = "petstore"
+
+  execution_role_arn = aws_iam_role.ecs_task_execution_role.arn
+  repository_url     = aws_ecr_repository.postgres_faaas_engine.repository_url
+
+  mq = local.mq
+  pg = local.pg
+
+  subnets = [
+    aws_subnet.private_subnet_1.id,
+    aws_subnet.private_subnet_2.id
+  ]
+  security_groups = [aws_security_group.ecs_sg.id]
+}
+
+module "pg_proxy_tpch" {
+  source = "./modules/faaas-pg-proxy"
+
+  cluster_id = aws_ecs_cluster.main.id
+  db_name    = "tpch"
+
+  execution_role_arn = aws_iam_role.ecs_task_execution_role.arn
+  repository_url     = aws_ecr_repository.postgres_faaas_engine.repository_url
+
+  mq = local.mq
+  pg = local.pg
+
+  subnets = [
+    aws_subnet.private_subnet_1.id,
+    aws_subnet.private_subnet_2.id
+  ]
+  security_groups = [aws_security_group.ecs_sg.id]
 }
 
 variable "aws_region" {
@@ -740,7 +877,6 @@ resource "aws_db_instance" "postgres" {
   allocated_storage      = 20
   engine                 = "postgres"
   engine_version         = "16.3"
-  instance_class         = "db.t3.micro"
   username               = "faaasuser"
   password               = "securepassword"
   parameter_group_name   = "default.postgres16"
@@ -748,6 +884,9 @@ resource "aws_db_instance" "postgres" {
   db_subnet_group_name   = aws_db_subnet_group.postgres.name
   vpc_security_group_ids = [aws_security_group.postgres.id]
   skip_final_snapshot    = true
+
+  apply_immediately = true
+  instance_class    = "db.t3.medium"
 
   tags = {
     Name = "postgres-db"
