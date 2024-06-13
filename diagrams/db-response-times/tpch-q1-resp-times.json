@@ -1,0 +1,94 @@
+[
+  {
+    "continuationId": "proxy.sql.pg.tpch",
+    "duration": "8780.418922000012"
+  },
+  {
+    "continuationId": "proxy.sql.pg.tpch",
+    "duration": "9609.68267"
+  },
+  {
+    "continuationId": "proxy.sql.pg.tpch",
+    "duration": "9018.439996000001"
+  },
+  {
+    "continuationId": "proxy.sql.pg.tpch",
+    "duration": "12406.974544"
+  },
+  {
+    "continuationId": "proxy.sql.pg.tpch",
+    "duration": "9040.558985000003"
+  },
+  {
+    "continuationId": "proxy.sql.pg.tpch",
+    "duration": "9339.173934999853"
+  },
+  {
+    "continuationId": "proxy.sql.pg.tpch",
+    "duration": "9825.507571999915"
+  },
+  {
+    "continuationId": "proxy.sql.pg.tpch",
+    "duration": "14792.604202999995"
+  },
+  {
+    "continuationId": "proxy.sql.pg.tpch",
+    "duration": "14723.79297900002"
+  },
+  {
+    "continuationId": "proxy.sql.pg.tpch",
+    "duration": "15523.31724199999"
+  },
+  {
+    "continuationId": "proxy.sql.pg.tpch",
+    "duration": "14812.941454000014"
+  },
+  {
+    "continuationId": "proxy.sql.pg.tpch",
+    "duration": "15272.082238000003"
+  },
+  {
+    "continuationId": "proxy.sql.pg.tpch",
+    "duration": "14518.659874999998"
+  },
+  {
+    "continuationId": "proxy.sql.pg.tpch",
+    "duration": "14991.936696999997"
+  },
+  {
+    "continuationId": "proxy.sql.pg.tpch",
+    "duration": "15139.959313"
+  },
+  {
+    "continuationId": "proxy.sql.pg.tpch",
+    "duration": "15136.260513999994"
+  },
+  {
+    "continuationId": "proxy.sql.pg.tpch",
+    "duration": "15103.990353000001"
+  },
+  {
+    "continuationId": "proxy.sql.pg.tpch",
+    "duration": "16545.893153"
+  },
+  {
+    "continuationId": "proxy.sql.pg.tpch",
+    "duration": "20728.365806"
+  },
+  {
+    "continuationId": "proxy.sql.pg.tpch",
+    "duration": "19244.402990000002"
+  },
+  {
+    "continuationId": "proxy.sql.pg.tpch",
+    "duration": "17631.766918"
+  },
+  {
+    "continuationId": "proxy.sql.pg.tpch",
+    "duration": "17803.685955999998"
+  },
+  {
+    "continuationId": "proxy.sql.pg.tpch",
+    "duration": "18176.144220000002"
+  }
+]

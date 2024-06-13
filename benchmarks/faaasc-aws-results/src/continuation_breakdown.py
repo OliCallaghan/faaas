@@ -78,10 +78,7 @@ def execute_queries(time_start: datetime, time_end: datetime):
     return query_func_dfs, query_cont_dfs
 
 
-def generate_continuation_breakdown(time_experiment: datetime):
-    time_start = time_experiment - timedelta(minutes=20)
-    time_end = time_experiment
-
+def generate_continuation_breakdown(time_start: datetime, time_end: datetime):
     query_func_dfs, query_cont_dfs = execute_queries(time_start, time_end)
 
     for duration_df, estimate_df, overhead_df in query_cont_dfs:

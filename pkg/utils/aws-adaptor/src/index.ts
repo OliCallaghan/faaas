@@ -3,7 +3,7 @@ import { z } from "zod";
 import { Connection } from "rabbitmq-client";
 
 import { type Task, type Handler } from "@faaas/faaasc";
-import { computeProxySaving, publishDuration } from "./billing";
+import { computeProxyProfitability, publishDuration } from "./billing";
 
 const MQTaskQueueName = process.env.MQ_QUEUE ?? "task_invocations";
 const MQTaskQueueBinding = `${MQTaskQueueName}::/`;
@@ -182,23 +182,19 @@ async function shouldProxy(
       "Unknown continuation execution strategy, defaulting to adaptive",
     );
 
-  const savingStart = performance.now();
-  const saving = await computeProxySaving(task.proxy, ctx);
-  const savingEnd = performance.now();
+  const start = performance.now();
+  const { prob, saving } = await computeProxyProfitability(task.proxy, ctx);
+  const elapsed = performance.now() - start;
 
+  console.log("Proxy profitability likelihood:", prob);
   console.log("Proxy saving estimated to save:", saving, "USD for", task.proxy);
-  console.log(
-    "Proxy saving computation took:",
-    savingEnd - savingStart,
-    "ms for:",
-    task.proxy,
-  );
+  console.log("Proxy saving computation took:", elapsed, "ms for:", task.proxy);
 
   if (Math.random() < 0.1) {
     return false;
   }
 
-  return saving > 0;
+  return prob > 0.95;
 }
 
 async function invokeResponse(mqTaskCtx: MQTaskContext, data: string) {

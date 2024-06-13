@@ -9,6 +9,7 @@
   },
   "dependencies": {
     "@faaas-bench/hello-seq": "workspace:^",
+    "@faaas-diagrams/db-response-times": "workspace:^",
     "@faaas/arch-overview-source": "workspace:^",
     "@faaas/arch-overview-split": "workspace:^",
     "@faaas/aws-faaas-arch": "workspace:^",

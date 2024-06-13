@@ -12,6 +12,13 @@ provider "aws" {
   region = "eu-west-2"
 }
 
+locals {
+  faaas_monitor = {
+    repository_url = aws_ecr_repository.faaas_monitor.repository_url
+    version        = "latest"
+  }
+}
+
 resource "aws_elasticache_serverless_cache" "redis" {
   engine = "redis"
   name   = "redis"
@@ -80,6 +87,8 @@ module "pets_proxy" {
   handler_name = "pets-proxy"
   handler_zip  = "./node_modules/@faaas-bench/pets/dist/mq/handler.zip"
 
+  monitor_image = local.faaas_monitor
+
   vpc_id = aws_vpc.main.id
   subnet_ids = [
     aws_subnet.private_subnet_1.id,
@@ -102,6 +111,8 @@ module "pets_local" {
   handler_name = "pets-local"
   handler_zip  = "./node_modules/@faaas-bench/pets/dist/mq/handler.zip"
 
+  monitor_image = local.faaas_monitor
+
   vpc_id = aws_vpc.main.id
   subnet_ids = [
     aws_subnet.private_subnet_1.id,
@@ -123,6 +134,9 @@ module "pets_adaptive" {
 
   handler_name = "pets-adaptive"
   handler_zip  = "./node_modules/@faaas-bench/pets/dist/mq/handler.zip"
+
+  monitor_image   = local.faaas_monitor
+  monitor_enabled = true
 
   vpc_id = aws_vpc.main.id
   subnet_ids = [
@@ -162,6 +176,8 @@ module "warehouse_order_from_supplier_proxy" {
   handler_name = "warehouse-order-proxy"
   handler_zip  = "./node_modules/@faaas-bench/warehouse/dist/order-from-supplier/mq/handler.zip"
 
+  monitor_image = local.faaas_monitor
+
   vpc_id = aws_vpc.main.id
   subnet_ids = [
     aws_subnet.private_subnet_1.id,
@@ -184,6 +200,8 @@ module "warehouse_order_from_supplier_local" {
   handler_name = "warehouse-order-local"
   handler_zip  = "./node_modules/@faaas-bench/warehouse/dist/order-from-supplier/mq/handler.zip"
 
+  monitor_image = local.faaas_monitor
+
   vpc_id = aws_vpc.main.id
   subnet_ids = [
     aws_subnet.private_subnet_1.id,
@@ -205,6 +223,9 @@ module "warehouse_order_from_supplier_adaptive" {
 
   handler_name = "warehouse-order-adaptive"
   handler_zip  = "./node_modules/@faaas-bench/warehouse/dist/order-from-supplier/mq/handler.zip"
+
+  monitor_image   = local.faaas_monitor
+  monitor_enabled = true
 
   vpc_id = aws_vpc.main.id
   subnet_ids = [
@@ -249,6 +270,8 @@ module "warehouse_pricing_summary_report_proxy" {
   handler_name = "warehouse-report-proxy"
   handler_zip  = "./node_modules/@faaas-bench/warehouse/dist/pricing-summary-report/mq/handler.zip"
 
+  monitor_image = local.faaas_monitor
+
   vpc_id = aws_vpc.main.id
   subnet_ids = [
     aws_subnet.private_subnet_1.id,
@@ -271,6 +294,8 @@ module "warehouse_pricing_summary_report_local" {
   handler_name = "warehouse-report-local"
   handler_zip  = "./node_modules/@faaas-bench/warehouse/dist/pricing-summary-report/mq/handler.zip"
 
+  monitor_image = local.faaas_monitor
+
   vpc_id = aws_vpc.main.id
   subnet_ids = [
     aws_subnet.private_subnet_1.id,
@@ -292,6 +317,9 @@ module "warehouse_pricing_summary_report_adaptive" {
 
   handler_name = "warehouse-report-adaptive"
   handler_zip  = "./node_modules/@faaas-bench/warehouse/dist/pricing-summary-report/mq/handler.zip"
+
+  monitor_image   = local.faaas_monitor
+  monitor_enabled = true
 
   vpc_id = aws_vpc.main.id
   subnet_ids = [
@@ -436,6 +464,15 @@ resource "aws_ecr_repository" "faaas_gateway" {
 
 resource "aws_ecr_repository" "postgres_faaas_engine" {
   name                 = "postgres_faaas_engine"
+  image_tag_mutability = "MUTABLE"
+
+  image_scanning_configuration {
+    scan_on_push = true
+  }
+}
+
+resource "aws_ecr_repository" "faaas_monitor" {
+  name                 = "faaas_monitor"
   image_tag_mutability = "MUTABLE"
 
   image_scanning_configuration {

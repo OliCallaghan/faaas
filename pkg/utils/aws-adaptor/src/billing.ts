@@ -1,6 +1,8 @@
 import { Context } from "aws-lambda";
 import { createClient } from "redis";
 
+import { weibull3, weibull3cdf, weibull3median } from "@faaas/resp-estimator";
+
 const AWS_ARM_COST_PER_GB_SEC = 0.0000133334;
 const AWS_X86_COST_PER_GB_SEC = 0.0000166667;
 
@@ -72,76 +74,75 @@ export async function publishDuration(
   await client.append(`tasks:${task}:durations`, msStr);
 }
 
-async function fetchDurations(task: string): Promise<number[]> {
+interface WeibullParameters {
+  loc: number;
+  scale: number;
+  shape: number;
+}
+
+async function fetchParameters(
+  fn: string,
+  task: string,
+): Promise<WeibullParameters> {
   try {
     const client = await clientConn;
-    const durationsKey = `tasks:${task}:durations`;
 
-    const sampleCnt = 4;
-    const sampleLst = await client.strLen(durationsKey);
-    const sampleFst = Math.max(sampleLst - sampleCnt * 4, 0);
+    const paramsStr = await client.get(`tasks:${fn}:${task}:params`);
+    const params = JSON.parse(paramsStr ?? "{}");
 
-    const durationsRaw = await client.getRange(
-      durationsKey,
-      sampleFst,
-      sampleLst,
-    );
-    const durations = durationsRaw.match(/.{4}/g)?.map((x) => parseInt(x)) ?? [
-      0,
-    ];
-
-    return durations;
+    return {
+      loc: parseFloat(params.loc),
+      scale: parseFloat(params.scale),
+      shape: parseFloat(params.shape),
+    };
   } catch (err) {
     console.error("Error accessing redis", err);
 
-    return [0];
+    return {
+      loc: 0,
+      scale: 0,
+      shape: 0,
+    };
   }
+}
+
+function computeProfitThreshold(
+  memAllocMB: number,
+  warmupTime: number,
+): number {
+  const baseCt = isArm() ? AWS_ARM_COST_PER_GB_SEC : AWS_X86_COST_PER_GB_SEC;
+  const Ct = baseCt * (memAllocMB / 1024);
+
+  return (Ct * warmupTime + AWS_INVOCATION_COST) / Ct;
 }
 
 /**
     Compute the saving of proxying a function.
 */
-export async function computeProxySaving(
+export async function computeProxyProfitability(
   task: string,
   ctx: Context,
-): Promise<number> {
+): Promise<{ prob: number; saving: number }> {
   const memAllocMB = parseInt(ctx.memoryLimitInMB);
-  const taskEstimatedTimesMs = await fetchDurations(task);
+  const warmupTime = randomGaussian(20, 5) / 1000; // TODO: Tune this number
 
-  const taskAvgTimeMs = avg(taskEstimatedTimesMs);
-  const taskStdTimeMs = std(taskEstimatedTimesMs);
-  const taskSampledTimeMs = randomGaussian(taskAvgTimeMs, taskStdTimeMs);
+  const profitThreshold = computeProfitThreshold(memAllocMB, warmupTime);
+  console.log("Profitable to split if t <", profitThreshold);
 
-  console.log("Task times", taskEstimatedTimesMs);
+  const { loc, scale, shape } = await fetchParameters(ctx.functionName, task);
+  console.log("Proxy(", task, ") ~ W(", shape, loc, scale, ")");
 
-  const warmupTime = randomGaussian(20, 5); // TODO: Tune this number
-  console.log(
-    "Sampled task time",
-    taskSampledTimeMs,
-    `from N(${taskAvgTimeMs}, ${taskStdTimeMs})`,
-  );
-  console.log("Sampled warmup time", warmupTime);
+  const dist = weibull3(loc, scale, shape);
+  const mean = weibull3median(dist); // approximation that mean ~ median for continuous functions
+  const prob = 1 - weibull3cdf(dist, profitThreshold);
 
-  // Compute the cost savings of proxying the function
-  const invocationCost = computeInvocationCost(warmupTime);
-  const executionCost = computeExecutionCost(memAllocMB, taskSampledTimeMs);
+  const saving =
+    computeExecutionCost(memAllocMB, mean) - computeInvocationCost(warmupTime);
 
-  return executionCost - invocationCost;
-}
-
-function avg(vals: number[]): number {
-  if (vals.length == 0) throw new Error("Cannot compute average of empty list");
-
-  return vals.reduce((a, b) => a + b, 0) / vals.length;
-}
-
-function std(vals: number[]): number {
-  if (vals.length == 0) throw new Error("Cannot compute std of empty list");
-
-  const squareOfMeans = avg(vals) ** 2;
-  const meanofSquares = avg(vals.map((val) => val * val));
-
-  return Math.sqrt(meanofSquares - squareOfMeans);
+  return {
+    prob,
+    saving,
+  };
 }
 
 function randomGaussian(mean: number, std: number): number {

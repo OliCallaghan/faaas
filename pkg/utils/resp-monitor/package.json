@@ -1,0 +1,12 @@
+{
+  "name": "@faaas/resp-monitor",
+  "version": "1.0.0",
+  "description": "",
+  "scripts": {
+    "build": "./build.sh",
+    "test": "poetry run python src/monitor.py"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}

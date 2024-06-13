@@ -188,6 +188,8 @@ importers:
 
   diagrams/aws-lambda-slot-placement: {}
 
+  diagrams/db-response-times: {}
+
   diagrams/double-billing-problem: {}
 
   diagrams/faaas-arch: {}
@@ -201,6 +203,9 @@ importers:
       '@faaas-bench/hello-seq':
         specifier: workspace:^
         version: link:../benchmarks/suites/hello-seq
+      '@faaas-diagrams/db-response-times':
+        specifier: workspace:^
+        version: link:../diagrams/db-response-times
       '@faaas/arch-overview-source':
         specifier: workspace:^
         version: link:../diagrams/arch-overview-source
@@ -338,6 +343,9 @@ importers:
 
   pkg/utils/aws-adaptor:
     dependencies:
+      '@faaas/resp-estimator':
+        specifier: workspace:^
+        version: link:../resp-estimator
       aws-lambda:
         specifier: ^1.0.7
         version: 1.0.7
@@ -419,6 +427,17 @@ importers:
       '@faaas/faaasc':
         specifier: workspace:^
         version: link:../../faaasc
+
+  pkg/utils/resp-estimator:
+    devDependencies:
+      '@faaas/tsconfig':
+        specifier: workspace:^
+        version: link:../tsconfig
+      typescript:
+        specifier: ^5.4.4
+        version: 5.4.4
+
+  pkg/utils/resp-monitor: {}
 
   pkg/utils/sql:
     dependencies:

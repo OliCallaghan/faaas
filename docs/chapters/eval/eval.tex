@@ -1,10 +1,46 @@
 \chapter{Evaluation}
 
+In this chapter, the \faaas{} stack is evaluated in terms of its cost savings and overhead on OLTP, OLAP and mixed workloads. The evaluation is first completed running \faaas{} stack on AWS Lambda, and later generalised to a generic model derived from the model's billing parameters.
+
+\section{Benchmarking suites}
+In this section we will introduce the programs which the \faaas{} stack was evaluated against. There are a set of benchmarks which exist for serverless functions, however they are typically targetted at evaluating \faas{} platforms themselves and their intrinsic properties, so focus much more closely on microbenchmarks.
+
+The \faaas{} stack specifically tackles the double-billing problem described in Section \ref{sec:double-billing-problem}, and so programs that illustrate this problem are of interest. The evaluation programs are segregated into those which execute predominantly OLAP and OLTP workloads, and those which execute a mix of both.
+
+\subsection{OLAP workloads}
+In order to benchmark a representative OLAP workload, we define a set of serverless functions within the context of the warehouse described in the TPC-H benchmark. The TPC-H benchmark is a `decision support benchmark' that models a warehouse, and is widely used to evaluate the performance of OLAP databases. Whilst the purpose of this research is not to benchmarking the database itself, this benchmarking set provides a representative context for the types of queries which are executed in the OLAP domain.
+
+\subsection{OLTP workloads}
+In order to benchmark a representative OLTP workload, we define a set of serverless functions that execute OLTP queries against a database, and return the results. Specifically, we define a function that executes banking transactions within the context of a bank, and a function that queries the ages of a set of pets.
+
+\subsection{Existing microbenchmarking suites}
+\todo[inline]{They work and \faaas{} doesnt affect their results when running on Lambda.}
+
+\subsection{Banking suite}
+\todo[inline]{The need to implement the banking suite.}
+
+\section{\faaas{} stack on AWS Lambda}
+\todo[inline]{Introduce the faaas stack running on AWS Lambda.}
+
+\subsection{OLTP Workloads}
+They don't work well with \faaas{} stack. This is a result of high invocation costs relative to the duration cost billed when executing the function.
+
+\todo[inline]{Talk about how if the invocation cost decreases, then OLTP workloads become more likely.}
+
 \begin{figure}
     \begin{center}
         \input{node_modules/@faaas-bench/faaasc-aws-results/assets/aws-strategy-breakdown.pgf}
     \end{center}
     \caption{OLTP \faaasc{} functions running in AWS, billing breakdown by segment.}
+\end{figure}
+
+\subsection{OLAP Workloads}
+
+\begin{figure}
+    \begin{center}
+        \input{node_modules/@faaas-bench/faaasc-aws-results/assets/aws-strategy-breakdown-olap.pgf}
+    \end{center}
+    \caption{OLAP \faaasc{} functions running in AWS, billing breakdown by segment.}
 \end{figure}
 
 \begin{figure}
@@ -20,3 +56,5 @@
     \end{center}
     \caption{OLTP \faaasc{} functions running in AWS, billing breakdown specifically of the duration segment of billed.}
 \end{figure}
+
+17:10 - 17:30

@@ -14,6 +14,19 @@ variable "handler_zip" {
   type        = string
 }
 
+variable "monitor_enabled" {
+  type    = bool
+  default = false
+}
+
+variable "monitor_image" {
+  description = "Path to the monitor ZIP archive"
+  type = object({
+    repository_url = string
+    version        = string
+  })
+}
+
 variable "rabbit_mq_arn" {
   description = "RabbitMQ ARN"
   type        = string

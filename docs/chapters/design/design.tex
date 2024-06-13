@@ -10,7 +10,16 @@ Additionally, in Section \ref{sec:faas-async-service-response-time-modelling} we
 
 \section{Parameterised cost model for \faas{} platforms}
 \label{sec:faas-param-cost-model}
-\todo[inline]{Parameterised cost model}
+
+In this section, we will model the costs of invoking serverless functions on a generic \faas{} platform. We will use this model to determine the cost of ending an invocation early and reinvoking the continuation at a later time.
+
+\subsection{Function billing model}
+
+Equation \ref{eq:faas-billing-model} can be characterised by a function of: a flat-rate invocation cost ($C_i$), and a rate ($C_r$) per unit of time ($G$) charged over the total invocation time ($t$), from the start of a function to the point at which it returns a response, with a minimum billable cost $C_{min}$.
+
+\begin{equation} \label{eq:faas-billing-model}
+C_t = C_i + \max\left(C_{min},\ceil*{\frac{t}{G}} C_r\right)
+\end{equation}
 
 \section{Asynchronous service response time modelling}
 \label{sec:faas-async-service-response-time-modelling}
@@ -95,3 +104,20 @@ This scope is captured into a serialized context, and stored so that the continu
 \todo[inline]{Describe the different algorithms used to optimise the cost of splitting.}
 
 \section{Message passing}
+
+\section{Response time modelling}
+
+\begin{figure}
+    \begin{center}
+        \input{node_modules/@faaas-diagrams/db-response-times/assets/tpch-q1-resp-times.pgf}
+    \end{center}
+    \caption{TPC-H query 1 responses time superimposed with fitted Weibull distribution, executed on a Postgres AWS RDS \texttt{t3.medium} instance called from AWS lambda.}
+\end{figure}
+
+
+\begin{figure}
+    \begin{center}
+        \input{node_modules/@faaas-diagrams/db-response-times/assets/tpch-q2-resp-times.pgf}
+    \end{center}
+    \caption{TPC-H query 2 responses time superimposed with fitted Weibull distribution, executed on a Postgres AWS RDS \texttt{t3.medium} instance called from AWS lambda.}
+\end{figure}

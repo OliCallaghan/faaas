@@ -1,0 +1,968 @@
+[
+    {
+        "@timestamp": "2024-06-13 12:52:04.737",
+        "@message": "2024-06-13T12:52:04.737Z\t33b2e32b-74dd-4fb5-a2af-9f16e1eebef1\tINFO\tLocal continuation of: proxy.sql.pg.tpch took: 659.538601 ms\n",
+        "continuationId": "proxy.sql.pg.tpch",
+        "duration": "659.538601"
+    },
+    {
+        "@timestamp": "2024-06-13 11:21:14.206",
+        "@message": "2024-06-13T11:21:14.206Z\t7a502c28-4bbc-43cd-81e7-0d7339554097\tINFO\tLocal continuation of: proxy.sql.pg.tpch took: 342.3989189999993 ms\n",
+        "continuationId": "proxy.sql.pg.tpch",
+        "duration": "342.3989189999993"
+    },
+    {
+        "@timestamp": "2024-06-13 11:21:13.831",
+        "@message": "2024-06-13T11:21:13.831Z\ta4ff21b0-acac-4323-bfe6-02606f781fa3\tINFO\tLocal continuation of: proxy.sql.pg.tpch took: 247.9918900000048 ms\n",
+        "continuationId": "proxy.sql.pg.tpch",
+        "duration": "247.9918900000048"
+    },
+    {
+        "@timestamp": "2024-06-13 11:21:13.552",
+        "@message": "2024-06-13T11:21:13.552Z\t17fd622c-9383-40f6-a865-306d0f943be1\tINFO\tLocal continuation of: proxy.sql.pg.tpch took: 307.593922 ms\n",
+        "continuationId": "proxy.sql.pg.tpch",
+        "duration": "307.593922"
+    },
+    {
+        "@timestamp": "2024-06-13 11:21:13.225",
+        "@message": "2024-06-13T11:21:13.225Z\t4178acc4-6605-4cb3-a72f-62749224a98f\tINFO\tLocal continuation of: proxy.sql.pg.tpch took: 274.80470900000364 ms\n",
+        "continuationId": "proxy.sql.pg.tpch",
+        "duration": "274.80470900000364"
+    },
+    {
+        "@timestamp": "2024-06-13 11:21:12.917",
+        "@message": "2024-06-13T11:21:12.917Z\te27b39ac-0fea-4031-aa27-c1df1596a27f\tINFO\tLocal continuation of: proxy.sql.pg.tpch took: 354.66806599999836 ms\n",
+        "continuationId": "proxy.sql.pg.tpch",
+        "duration": "354.66806599999836"
+    },
+    {
+        "@timestamp": "2024-06-13 11:21:12.532",
+        "@message": "2024-06-13T11:21:12.532Z\t3bcc0e24-32cb-48b0-ae26-f905317c03a2\tINFO\tLocal continuation of: proxy.sql.pg.tpch took: 308.4401419999922 ms\n",
+        "continuationId": "proxy.sql.pg.tpch",
+        "duration": "308.4401419999922"
+    },
+    {
+        "@timestamp": "2024-06-13 11:21:12.205",
+        "@message": "2024-06-13T11:21:12.205Z\t040bec69-9b75-4912-bb0f-1a0597697562\tINFO\tLocal continuation of: proxy.sql.pg.tpch took: 480.3966900000014 ms\n",
+        "continuationId": "proxy.sql.pg.tpch",
+        "duration": "480.3966900000014"
+    },
+    {
+        "@timestamp": "2024-06-13 11:21:11.685",
+        "@message": "2024-06-13T11:21:11.685Z\te02d53d3-ddf2-42b4-999f-7af087f3be8c\tINFO\tLocal continuation of: proxy.sql.pg.tpch took: 456.84373600000254 ms\n",
+        "continuationId": "proxy.sql.pg.tpch",
+        "duration": "456.84373600000254"
+    },
+    {
+        "@timestamp": "2024-06-13 11:21:11.179",
+        "@message": "2024-06-13T11:21:11.179Z\ta179bc83-099d-43c1-aab4-a9c0e023146b\tINFO\tLocal continuation of: proxy.sql.pg.tpch took: 470.48331699999835 ms\n",
+        "continuationId": "proxy.sql.pg.tpch",
+        "duration": "470.48331699999835"
+    },
+    {
+        "@timestamp": "2024-06-13 11:21:10.673",
+        "@message": "2024-06-13T11:21:10.673Z\t1f5dd69e-21f6-46c8-b824-b1ddad27201d\tINFO\tLocal continuation of: proxy.sql.pg.tpch took: 430.56027500000346 ms\n",
+        "continuationId": "proxy.sql.pg.tpch",
+        "duration": "430.56027500000346"
+    },
+    {
+        "@timestamp": "2024-06-13 11:21:10.178",
+        "@message": "2024-06-13T11:21:10.178Z\ta369255f-ef02-40d5-aabe-6530b046df49\tINFO\tLocal continuation of: proxy.sql.pg.tpch took: 432.1810519999999 ms\n",
+        "continuationId": "proxy.sql.pg.tpch",
+        "duration": "432.1810519999999"
+    },
+    {
+        "@timestamp": "2024-06-13 11:21:09.729",
+        "@message": "2024-06-13T11:21:09.729Z\t1583d6ab-ecca-4533-90ba-985ab0cd8ae4\tINFO\tLocal continuation of: proxy.sql.pg.tpch took: 345.8649860000005 ms\n",
+        "continuationId": "proxy.sql.pg.tpch",
+        "duration": "345.8649860000005"
+    },
+    {
+        "@timestamp": "2024-06-13 11:21:09.315",
+        "@message": "2024-06-13T11:21:09.315Z\t1d50155d-659d-4b7a-84ff-91412841ea3c\tINFO\tLocal continuation of: proxy.sql.pg.tpch took: 409.885491999994 ms\n",
+        "continuationId": "proxy.sql.pg.tpch",
+        "duration": "409.885491999994"
+    },
+    {
+        "@timestamp": "2024-06-13 11:21:08.889",
+        "@message": "2024-06-13T11:21:08.889Z\tecf68ece-4850-4df0-8d5b-5b0796df8070\tINFO\tLocal continuation of: proxy.sql.pg.tpch took: 413.1165950000068 ms\n",
+        "continuationId": "proxy.sql.pg.tpch",
+        "duration": "413.1165950000068"
+    },
+    {
+        "@timestamp": "2024-06-13 11:21:08.442",
+        "@message": "2024-06-13T11:21:08.442Z\tc1b55773-854e-42fb-a62d-2261c22d7797\tINFO\tLocal continuation of: proxy.sql.pg.tpch took: 395.126820999998 ms\n",
+        "continuationId": "proxy.sql.pg.tpch",
+        "duration": "395.126820999998"
+    },
+    {
+        "@timestamp": "2024-06-13 11:21:08.029",
+        "@message": "2024-06-13T11:21:08.029Z\t5b6cc148-9601-4c2e-8189-58e10c4eb923\tINFO\tLocal continuation of: proxy.sql.pg.tpch took: 404.54204000000027 ms\n",
+        "continuationId": "proxy.sql.pg.tpch",
+        "duration": "404.54204000000027"
+    },
+    {
+        "@timestamp": "2024-06-13 11:21:07.601",
+        "@message": "2024-06-13T11:21:07.601Z\tee012d07-80f7-471f-8ddc-eed7b791e9d0\tINFO\tLocal continuation of: proxy.sql.pg.tpch took: 394.9536220000009 ms\n",
+        "continuationId": "proxy.sql.pg.tpch",
+        "duration": "394.9536220000009"
+    },
+    {
+        "@timestamp": "2024-06-13 11:21:07.190",
+        "@message": "2024-06-13T11:21:07.190Z\t30c62a6f-9da4-46c1-abd2-6334b100b0ce\tINFO\tLocal continuation of: proxy.sql.pg.tpch took: 468.09685800000443 ms\n",
+        "continuationId": "proxy.sql.pg.tpch",
+        "duration": "468.09685800000443"
+    },
+    {
+        "@timestamp": "2024-06-13 11:21:06.664",
+        "@message": "2024-06-13T11:21:06.664Z\tb6f84ea2-36d6-4791-b353-c08d8f1046bc\tINFO\tLocal continuation of: proxy.sql.pg.tpch took: 341.019779000002 ms\n",
+        "continuationId": "proxy.sql.pg.tpch",
+        "duration": "341.019779000002"
+    },
+    {
+        "@timestamp": "2024-06-13 11:21:06.260",
+        "@message": "2024-06-13T11:21:06.260Z\t6d0ce307-d394-45ba-b90b-1a854be7cd6b\tINFO\tLocal continuation of: proxy.sql.pg.tpch took: 494.1791630000007 ms\n",
+        "continuationId": "proxy.sql.pg.tpch",
+        "duration": "494.1791630000007"
+    },
+    {
+        "@timestamp": "2024-06-13 11:21:05.725",
+        "@message": "2024-06-13T11:21:05.725Z\tf0816693-e2b0-4215-b68f-6cba5e57b60e\tINFO\tLocal continuation of: proxy.sql.pg.tpch took: 522.1576669999995 ms\n",
+        "continuationId": "proxy.sql.pg.tpch",
+        "duration": "522.1576669999995"
+    },
+    {
+        "@timestamp": "2024-06-13 11:21:05.140",
+        "@message": "2024-06-13T11:21:05.140Z\ta6383304-84d9-4cf4-8d6c-7e74552cf9e3\tINFO\tLocal continuation of: proxy.sql.pg.tpch took: 495.92109700000583 ms\n",
+        "continuationId": "proxy.sql.pg.tpch",
+        "duration": "495.92109700000583"
+    },
+    {
+        "@timestamp": "2024-06-13 11:21:04.610",
+        "@message": "2024-06-13T11:21:04.610Z\t417d9add-f2d5-4a0d-aef5-96784fbd7366\tINFO\tLocal continuation of: proxy.sql.pg.tpch took: 606.9517879999985 ms\n",
+        "continuationId": "proxy.sql.pg.tpch",
+        "duration": "606.9517879999985"
+    },
+    {
+        "@timestamp": "2024-06-13 11:21:03.948",
+        "@message": "2024-06-13T11:21:03.948Z\t7b97c390-dcfa-4bdc-888c-2f407447df5a\tINFO\tLocal continuation of: proxy.sql.pg.tpch took: 443.0552499999976 ms\n",
+        "continuationId": "proxy.sql.pg.tpch",
+        "duration": "443.0552499999976"
+    },
+    {
+        "@timestamp": "2024-06-13 11:21:03.489",
+        "@message": "2024-06-13T11:21:03.489Z\td7f78df5-fbdc-4c70-92da-50615f95f198\tINFO\tLocal continuation of: proxy.sql.pg.tpch took: 345.5083719999966 ms\n",
+        "continuationId": "proxy.sql.pg.tpch",
+        "duration": "345.5083719999966"
+    },
+    {
+        "@timestamp": "2024-06-13 11:21:03.110",
+        "@message": "2024-06-13T11:21:03.110Z\t03829bb3-abee-415f-8786-276e47901e57\tINFO\tLocal continuation of: proxy.sql.pg.tpch took: 284.6479590000017 ms\n",
+        "continuationId": "proxy.sql.pg.tpch",
+        "duration": "284.6479590000017"
+    },
+    {
+        "@timestamp": "2024-06-13 11:21:02.807",
+        "@message": "2024-06-13T11:21:02.807Z\t3af1e364-c571-48b7-9bd7-78bce3811d1b\tINFO\tLocal continuation of: proxy.sql.pg.tpch took: 482.42542899999535 ms\n",
+        "continuationId": "proxy.sql.pg.tpch",
+        "duration": "482.42542899999535"
+    },
+    {
+        "@timestamp": "2024-06-13 11:21:02.307",
+        "@message": "2024-06-13T11:21:02.307Z\t27367dc3-d813-46c4-ae4e-70749930fa99\tINFO\tLocal continuation of: proxy.sql.pg.tpch took: 335.6674339999954 ms\n",
+        "continuationId": "proxy.sql.pg.tpch",
+        "duration": "335.6674339999954"
+    },
+    {
+        "@timestamp": "2024-06-13 11:21:01.912",
+        "@message": "2024-06-13T11:21:01.912Z\t00a60e92-1c0c-432e-9aa6-6e67216f49a8\tINFO\tLocal continuation of: proxy.sql.pg.tpch took: 407.4958540000007 ms\n",
+        "continuationId": "proxy.sql.pg.tpch",
+        "duration": "407.4958540000007"
+    },
+    {
+        "@timestamp": "2024-06-13 11:21:01.435",
+        "@message": "2024-06-13T11:21:01.435Z\t5aeb1df9-6ad4-4c91-a419-10c5e80a7ead\tINFO\tLocal continuation of: proxy.sql.pg.tpch took: 411.23770199999854 ms\n",
+        "continuationId": "proxy.sql.pg.tpch",
+        "duration": "411.23770199999854"
+    },
+    {
+        "@timestamp": "2024-06-13 11:21:00.973",
+        "@message": "2024-06-13T11:21:00.973Z\tb524d4f9-347e-408e-b5e6-251d19f34836\tINFO\tLocal continuation of: proxy.sql.pg.tpch took: 390.55356400000164 ms\n",
+        "continuationId": "proxy.sql.pg.tpch",
+        "duration": "390.55356400000164"
+    },
+    {
+        "@timestamp": "2024-06-13 11:21:00.511",
+        "@message": "2024-06-13T11:21:00.511Z\tfff618f8-5c69-4377-93fc-42f65c91dd49\tINFO\tLocal continuation of: proxy.sql.pg.tpch took: 386.7545290000053 ms\n",
+        "continuationId": "proxy.sql.pg.tpch",
+        "duration": "386.7545290000053"
+    },
+    {
+        "@timestamp": "2024-06-13 11:21:00.069",
+        "@message": "2024-06-13T11:21:00.069Z\t5e286ef9-4c95-4de7-b4d6-fe549a874af1\tINFO\tLocal continuation of: proxy.sql.pg.tpch took: 381.5563400000028 ms\n",
+        "continuationId": "proxy.sql.pg.tpch",
+        "duration": "381.5563400000028"
+    },
+    {
+        "@timestamp": "2024-06-13 11:20:59.661",
+        "@message": "2024-06-13T11:20:59.661Z\t9f1b23bb-3d0e-4d8e-8954-e1039266f43b\tINFO\tLocal continuation of: proxy.sql.pg.tpch took: 331.97982899999624 ms\n",
+        "continuationId": "proxy.sql.pg.tpch",
+        "duration": "331.97982899999624"
+    },
+    {
+        "@timestamp": "2024-06-13 11:20:59.298",
+        "@message": "2024-06-13T11:20:59.298Z\t78d21286-1824-44a5-82c6-39545e68e0bb\tINFO\tLocal continuation of: proxy.sql.pg.tpch took: 292.9972140000027 ms\n",
+        "continuationId": "proxy.sql.pg.tpch",
+        "duration": "292.9972140000027"
+    },
+    {
+        "@timestamp": "2024-06-13 11:20:58.980",
+        "@message": "2024-06-13T11:20:58.980Z\t2f821d22-2092-48be-b082-249e3d37e26b\tINFO\tLocal continuation of: proxy.sql.pg.tpch took: 297.3936759999997 ms\n",
+        "continuationId": "proxy.sql.pg.tpch",
+        "duration": "297.3936759999997"
+    },
+    {
+        "@timestamp": "2024-06-13 11:20:58.610",
+        "@message": "2024-06-13T11:20:58.610Z\td874d1d8-4ff6-4143-b65c-e2bd5cb5c521\tINFO\tLocal continuation of: proxy.sql.pg.tpch took: 305.2140389999986 ms\n",
+        "continuationId": "proxy.sql.pg.tpch",
+        "duration": "305.2140389999986"
+    },
+    {
+        "@timestamp": "2024-06-13 11:20:58.281",
+        "@message": "2024-06-13T11:20:58.281Z\t3b13f214-bea1-4c3e-a7fa-04eaebb678b0\tINFO\tLocal continuation of: proxy.sql.pg.tpch took: 296.04439699999784 ms\n",
+        "continuationId": "proxy.sql.pg.tpch",
+        "duration": "296.04439699999784"
+    },
+    {
+        "@timestamp": "2024-06-13 11:20:57.966",
+        "@message": "2024-06-13T11:20:57.966Z\t6a25964b-da8b-4d4a-85a9-8d68a604e1be\tINFO\tLocal continuation of: proxy.sql.pg.tpch took: 343.4213080000045 ms\n",
+        "continuationId": "proxy.sql.pg.tpch",
+        "duration": "343.4213080000045"
+    },
+    {
+        "@timestamp": "2024-06-13 11:20:57.578",
+        "@message": "2024-06-13T11:20:57.578Z\t1dacf9cc-db9b-4665-90aa-b276b6887c58\tINFO\tLocal continuation of: proxy.sql.pg.tpch took: 453.8358900000021 ms\n",
+        "continuationId": "proxy.sql.pg.tpch",
+        "duration": "453.8358900000021"
+    },
+    {
+        "@timestamp": "2024-06-13 11:20:57.105",
+        "@message": "2024-06-13T11:20:57.105Z\ta89a846a-bfc5-47d8-a363-f67e515d35f2\tINFO\tLocal continuation of: proxy.sql.pg.tpch took: 377.1580860000031 ms\n",
+        "continuationId": "proxy.sql.pg.tpch",
+        "duration": "377.1580860000031"
+    },
+    {
+        "@timestamp": "2024-06-13 11:20:56.711",
+        "@message": "2024-06-13T11:20:56.711Z\tb863eba2-6336-4ce6-912a-be4d8caa1172\tINFO\tLocal continuation of: proxy.sql.pg.tpch took: 347.24900499999785 ms\n",
+        "continuationId": "proxy.sql.pg.tpch",
+        "duration": "347.24900499999785"
+    },
+    {
+        "@timestamp": "2024-06-13 11:20:56.329",
+        "@message": "2024-06-13T11:20:56.329Z\t3d7516f7-5da4-4092-9b43-1a0611626d25\tINFO\tLocal continuation of: proxy.sql.pg.tpch took: 426.9891920000009 ms\n",
+        "continuationId": "proxy.sql.pg.tpch",
+        "duration": "426.9891920000009"
+    },
+    {
+        "@timestamp": "2024-06-13 11:20:55.833",
+        "@message": "2024-06-13T11:20:55.833Z\t019f0fa5-4071-491d-9749-7c2f2dd341eb\tINFO\tLocal continuation of: proxy.sql.pg.tpch took: 287.04406700000254 ms\n",
+        "continuationId": "proxy.sql.pg.tpch",
+        "duration": "287.04406700000254"
+    },
+    {
+        "@timestamp": "2024-06-13 11:20:55.499",
+        "@message": "2024-06-13T11:20:55.499Z\t65fc428b-0c30-4986-9c99-44e8606564fa\tINFO\tLocal continuation of: proxy.sql.pg.tpch took: 432.9654270000028 ms\n",
+        "continuationId": "proxy.sql.pg.tpch",
+        "duration": "432.9654270000028"
+    },
+    {
+        "@timestamp": "2024-06-13 11:20:55.030",
+        "@message": "2024-06-13T11:20:55.030Z\t3cff9e71-52e4-4576-a906-04b7ad19e99d\tINFO\tLocal continuation of: proxy.sql.pg.tpch took: 307.46613100000104 ms\n",
+        "continuationId": "proxy.sql.pg.tpch",
+        "duration": "307.46613100000104"
+    },
+    {
+        "@timestamp": "2024-06-13 11:20:54.655",
+        "@message": "2024-06-13T11:20:54.655Z\t9949809a-73c1-40e4-8b15-fff420665649\tINFO\tLocal continuation of: proxy.sql.pg.tpch took: 311.12148400000297 ms\n",
+        "continuationId": "proxy.sql.pg.tpch",
+        "duration": "311.12148400000297"
+    },
+    {
+        "@timestamp": "2024-06-13 11:20:54.326",
+        "@message": "2024-06-13T11:20:54.326Z\t85b9fcc3-3e03-43ee-ac83-c75438e789ba\tINFO\tLocal continuation of: proxy.sql.pg.tpch took: 301.43076600000495 ms\n",
+        "continuationId": "proxy.sql.pg.tpch",
+        "duration": "301.43076600000495"
+    },
+    {
+        "@timestamp": "2024-06-13 11:20:54.006",
+        "@message": "2024-06-13T11:20:54.006Z\t97ed1948-5848-4b0b-bf71-a3df73bfaff5\tINFO\tLocal continuation of: proxy.sql.pg.tpch took: 298.09090200000355 ms\n",
+        "continuationId": "proxy.sql.pg.tpch",
+        "duration": "298.09090200000355"
+    },
+    {
+        "@timestamp": "2024-06-13 11:20:53.679",
+        "@message": "2024-06-13T11:20:53.679Z\t21c44abe-fede-42cc-b5f2-4ef12bc937b7\tINFO\tLocal continuation of: proxy.sql.pg.tpch took: 355.2470590000012 ms\n",
+        "continuationId": "proxy.sql.pg.tpch",
+        "duration": "355.2470590000012"
+    },
+    {
+        "@timestamp": "2024-06-13 11:20:53.285",
+        "@message": "2024-06-13T11:20:53.285Z\tc0c1f23f-11b3-4026-bc37-60c6da97f6ae\tINFO\tLocal continuation of: proxy.sql.pg.tpch took: 480.5929150000011 ms\n",
+        "continuationId": "proxy.sql.pg.tpch",
+        "duration": "480.5929150000011"
+    },
+    {
+        "@timestamp": "2024-06-13 11:20:52.783",
+        "@message": "2024-06-13T11:20:52.783Z\te45a0480-b710-4972-9114-8ba0324c2036\tINFO\tLocal continuation of: proxy.sql.pg.tpch took: 259.41729399999895 ms\n",
+        "continuationId": "proxy.sql.pg.tpch",
+        "duration": "259.41729399999895"
+    },
+    {
+        "@timestamp": "2024-06-13 11:20:52.505",
+        "@message": "2024-06-13T11:20:52.505Z\t5a81bc90-8f27-4421-98c8-ef185f7cf3d2\tINFO\tLocal continuation of: proxy.sql.pg.tpch took: 339.7666850000023 ms\n",
+        "continuationId": "proxy.sql.pg.tpch",
+        "duration": "339.7666850000023"
+    },
+    {
+        "@timestamp": "2024-06-13 11:20:52.148",
+        "@message": "2024-06-13T11:20:52.148Z\t3c01b366-2a52-482b-ae92-1e29e70eef0e\tINFO\tLocal continuation of: proxy.sql.pg.tpch took: 403.04739100000006 ms\n",
+        "continuationId": "proxy.sql.pg.tpch",
+        "duration": "403.04739100000006"
+    },
+    {
+        "@timestamp": "2024-06-13 11:20:51.716",
+        "@message": "2024-06-13T11:20:51.716Z\t5af4764c-be70-4e58-a0d1-89b82ffdff71\tINFO\tLocal continuation of: proxy.sql.pg.tpch took: 452.22276100000454 ms\n",
+        "continuationId": "proxy.sql.pg.tpch",
+        "duration": "452.22276100000454"
+    },
+    {
+        "@timestamp": "2024-06-13 11:20:51.218",
+        "@message": "2024-06-13T11:20:51.218Z\t55e27721-8d52-4dc9-b142-6cc363cf2049\tINFO\tLocal continuation of: proxy.sql.pg.tpch took: 450.5355019999988 ms\n",
+        "continuationId": "proxy.sql.pg.tpch",
+        "duration": "450.5355019999988"
+    },
+    {
+        "@timestamp": "2024-06-13 11:20:50.726",
+        "@message": "2024-06-13T11:20:50.726Z\t90de2dc6-8f6d-46f5-8742-d414d2630b70\tINFO\tLocal continuation of: proxy.sql.pg.tpch took: 322.72736799999984 ms\n",
+        "continuationId": "proxy.sql.pg.tpch",
+        "duration": "322.72736799999984"
+    },
+    {
+        "@timestamp": "2024-06-13 11:20:50.337",
+        "@message": "2024-06-13T11:20:50.337Z\t7e5a4b35-20d2-41c5-8fe3-b2c16cc14ca7\tINFO\tLocal continuation of: proxy.sql.pg.tpch took: 407.1082660000029 ms\n",
+        "continuationId": "proxy.sql.pg.tpch",
+        "duration": "407.1082660000029"
+    },
+    {
+        "@timestamp": "2024-06-13 11:20:49.891",
+        "@message": "2024-06-13T11:20:49.891Z\t0fce6e87-4a09-4f67-bf2d-c9c002d7435d\tINFO\tLocal continuation of: proxy.sql.pg.tpch took: 289.55503200000385 ms\n",
+        "continuationId": "proxy.sql.pg.tpch",
+        "duration": "289.55503200000385"
+    },
+    {
+        "@timestamp": "2024-06-13 11:20:49.534",
+        "@message": "2024-06-13T11:20:49.534Z\tb17143ef-cf19-4ebf-b10c-c0cbd1ede8de\tINFO\tLocal continuation of: proxy.sql.pg.tpch took: 469.636848999995 ms\n",
+        "continuationId": "proxy.sql.pg.tpch",
+        "duration": "469.636848999995"
+    },
+    {
+        "@timestamp": "2024-06-13 11:20:49.035",
+        "@message": "2024-06-13T11:20:49.035Z\t7a90fb38-8c1d-44a5-8d62-81a9dc531f99\tINFO\tLocal continuation of: proxy.sql.pg.tpch took: 327.8453509999963 ms\n",
+        "continuationId": "proxy.sql.pg.tpch",
+        "duration": "327.8453509999963"
+    },
+    {
+        "@timestamp": "2024-06-13 11:20:48.683",
+        "@message": "2024-06-13T11:20:48.683Z\tb4ac40fc-7f08-48e3-a715-4046b60e08d2\tINFO\tLocal continuation of: proxy.sql.pg.tpch took: 436.59406700000545 ms\n",
+        "continuationId": "proxy.sql.pg.tpch",
+        "duration": "436.59406700000545"
+    },
+    {
+        "@timestamp": "2024-06-13 11:20:48.226",
+        "@message": "2024-06-13T11:20:48.226Z\t1747ad94-d182-4474-824a-ebd4963883bc\tINFO\tLocal continuation of: proxy.sql.pg.tpch took: 336.9034279999978 ms\n",
+        "continuationId": "proxy.sql.pg.tpch",
+        "duration": "336.9034279999978"
+    },
+    {
+        "@timestamp": "2024-06-13 11:20:47.854",
+        "@message": "2024-06-13T11:20:47.854Z\t1f521dda-ae49-4f05-b89d-4153500d7772\tINFO\tLocal continuation of: proxy.sql.pg.tpch took: 348.51932600000146 ms\n",
+        "continuationId": "proxy.sql.pg.tpch",
+        "duration": "348.51932600000146"
+    },
+    {
+        "@timestamp": "2024-06-13 11:20:47.489",
+        "@message": "2024-06-13T11:20:47.489Z\t879f1c7c-856c-4e7a-8b80-8e3f607abca1\tINFO\tLocal continuation of: proxy.sql.pg.tpch took: 304.83844500000123 ms\n",
+        "continuationId": "proxy.sql.pg.tpch",
+        "duration": "304.83844500000123"
+    },
+    {
+        "@timestamp": "2024-06-13 11:20:47.157",
+        "@message": "2024-06-13T11:20:47.157Z\t3412acf5-87ea-407b-bbc6-02cc1f1b7458\tINFO\tLocal continuation of: proxy.sql.pg.tpch took: 293.6014989999967 ms\n",
+        "continuationId": "proxy.sql.pg.tpch",
+        "duration": "293.6014989999967"
+    },
+    {
+        "@timestamp": "2024-06-13 11:20:46.848",
+        "@message": "2024-06-13T11:20:46.848Z\t554ae4b2-7954-45fc-813f-6bff6086a416\tINFO\tLocal continuation of: proxy.sql.pg.tpch took: 342.0958780000001 ms\n",
+        "continuationId": "proxy.sql.pg.tpch",
+        "duration": "342.0958780000001"
+    },
+    {
+        "@timestamp": "2024-06-13 11:20:46.479",
+        "@message": "2024-06-13T11:20:46.479Z\t25935b8c-9978-4d5a-a848-4fb3aa7eb554\tINFO\tLocal continuation of: proxy.sql.pg.tpch took: 335.31961500000034 ms\n",
+        "continuationId": "proxy.sql.pg.tpch",
+        "duration": "335.31961500000034"
+    },
+    {
+        "@timestamp": "2024-06-13 11:20:46.073",
+        "@message": "2024-06-13T11:20:46.073Z\t2099faea-04df-426c-852a-7a8ad09f364e\tINFO\tLocal continuation of: proxy.sql.pg.tpch took: 405.9069040000031 ms\n",
+        "continuationId": "proxy.sql.pg.tpch",
+        "duration": "405.9069040000031"
+    },
+    {
+        "@timestamp": "2024-06-13 11:20:45.629",
+        "@message": "2024-06-13T11:20:45.629Z\ta29b8d41-efe3-402e-946b-8633583dbab2\tINFO\tLocal continuation of: proxy.sql.pg.tpch took: 420.2584609999976 ms\n",
+        "continuationId": "proxy.sql.pg.tpch",
+        "duration": "420.2584609999976"
+    },
+    {
+        "@timestamp": "2024-06-13 11:20:45.138",
+        "@message": "2024-06-13T11:20:45.138Z\t3fdb2a32-44d9-4603-b142-9e6de579805f\tINFO\tLocal continuation of: proxy.sql.pg.tpch took: 433.0399580000012 ms\n",
+        "continuationId": "proxy.sql.pg.tpch",
+        "duration": "433.0399580000012"
+    },
+    {
+        "@timestamp": "2024-06-13 11:20:44.672",
+        "@message": "2024-06-13T11:20:44.672Z\td5b0e4e8-b313-4ce8-9567-f9952b46e4ed\tINFO\tLocal continuation of: proxy.sql.pg.tpch took: 324.7273490000007 ms\n",
+        "continuationId": "proxy.sql.pg.tpch",
+        "duration": "324.7273490000007"
+    },
+    {
+        "@timestamp": "2024-06-13 11:20:44.288",
+        "@message": "2024-06-13T11:20:44.288Z\tc2d14054-8d9f-471f-8070-125653ba875d\tINFO\tLocal continuation of: proxy.sql.pg.tpch took: 402.4359970000005 ms\n",
+        "continuationId": "proxy.sql.pg.tpch",
+        "duration": "402.4359970000005"
+    },
+    {
+        "@timestamp": "2024-06-13 11:20:43.850",
+        "@message": "2024-06-13T11:20:43.850Z\t8dc5117d-a706-4ff3-a730-93e703a7aea1\tINFO\tLocal continuation of: proxy.sql.pg.tpch took: 465.79696200000035 ms\n",
+        "continuationId": "proxy.sql.pg.tpch",
+        "duration": "465.79696200000035"
+    },
+    {
+        "@timestamp": "2024-06-13 11:20:43.360",
+        "@message": "2024-06-13T11:20:43.360Z\td522050f-34b2-49a1-9da0-4557c2448c8c\tINFO\tLocal continuation of: proxy.sql.pg.tpch took: 331.82138300000224 ms\n",
+        "continuationId": "proxy.sql.pg.tpch",
+        "duration": "331.82138300000224"
+    },
+    {
+        "@timestamp": "2024-06-13 11:20:42.951",
+        "@message": "2024-06-13T11:20:42.951Z\t4a426da9-8dbb-47f9-b7a5-13abf8ee1f1f\tINFO\tLocal continuation of: proxy.sql.pg.tpch took: 423.1847590000034 ms\n",
+        "continuationId": "proxy.sql.pg.tpch",
+        "duration": "423.1847590000034"
+    },
+    {
+        "@timestamp": "2024-06-13 11:20:42.512",
+        "@message": "2024-06-13T11:20:42.512Z\t5d60a163-3ed1-49aa-9ee8-c7e579d80352\tINFO\tLocal continuation of: proxy.sql.pg.tpch took: 544.8069660000037 ms\n",
+        "continuationId": "proxy.sql.pg.tpch",
+        "duration": "544.8069660000037"
+    },
+    {
+        "@timestamp": "2024-06-13 11:20:41.950",
+        "@message": "2024-06-13T11:20:41.950Z\tf272a9d4-d050-448a-83bd-d20eb9740799\tINFO\tLocal continuation of: proxy.sql.pg.tpch took: 326.6107239999983 ms\n",
+        "continuationId": "proxy.sql.pg.tpch",
+        "duration": "326.6107239999983"
+    },
+    {
+        "@timestamp": "2024-06-13 11:20:41.600",
+        "@message": "2024-06-13T11:20:41.600Z\t5d7a6c2c-8bdc-4c65-a030-8229bd9c3ab9\tINFO\tLocal continuation of: proxy.sql.pg.tpch took: 296.30907599999773 ms\n",
+        "continuationId": "proxy.sql.pg.tpch",
+        "duration": "296.30907599999773"
+    },
+    {
+        "@timestamp": "2024-06-13 11:20:41.278",
+        "@message": "2024-06-13T11:20:41.278Z\t5c383033-7496-4a33-bd12-3e4920d0e408\tINFO\tLocal continuation of: proxy.sql.pg.tpch took: 292.6629269999976 ms\n",
+        "continuationId": "proxy.sql.pg.tpch",
+        "duration": "292.6629269999976"
+    },
+    {
+        "@timestamp": "2024-06-13 11:20:40.969",
+        "@message": "2024-06-13T11:20:40.969Z\t962064b3-7b1b-4c9a-a561-77a68e70073c\tINFO\tLocal continuation of: proxy.sql.pg.tpch took: 286.11755500000436 ms\n",
+        "continuationId": "proxy.sql.pg.tpch",
+        "duration": "286.11755500000436"
+    },
+    {
+        "@timestamp": "2024-06-13 11:20:40.628",
+        "@message": "2024-06-13T11:20:40.628Z\t091c3dc1-88db-46f6-b3d1-5973869b5306\tINFO\tLocal continuation of: proxy.sql.pg.tpch took: 325.62612100000115 ms\n",
+        "continuationId": "proxy.sql.pg.tpch",
+        "duration": "325.62612100000115"
+    },
+    {
+        "@timestamp": "2024-06-13 11:20:40.244",
+        "@message": "2024-06-13T11:20:40.244Z\tb284c2c8-9d56-46ea-adc8-6149e5e0ae05\tINFO\tLocal continuation of: proxy.sql.pg.tpch took: 241.28225799999927 ms\n",
+        "continuationId": "proxy.sql.pg.tpch",
+        "duration": "241.28225799999927"
+    },
+    {
+        "@timestamp": "2024-06-13 11:20:39.935",
+        "@message": "2024-06-13T11:20:39.935Z\te5ab7b25-f670-426e-9a7f-41f065e97a7d\tINFO\tLocal continuation of: proxy.sql.pg.tpch took: 288.8971240000028 ms\n",
+        "continuationId": "proxy.sql.pg.tpch",
+        "duration": "288.8971240000028"
+    },
+    {
+        "@timestamp": "2024-06-13 11:20:39.610",
+        "@message": "2024-06-13T11:20:39.610Z\t158edc7b-57a6-4ca8-9bdd-43d3892764ca\tINFO\tLocal continuation of: proxy.sql.pg.tpch took: 304.71133100000225 ms\n",
+        "continuationId": "proxy.sql.pg.tpch",
+        "duration": "304.71133100000225"
+    },
+    {
+        "@timestamp": "2024-06-13 11:20:39.232",
+        "@message": "2024-06-13T11:20:39.232Z\tc5d97355-1d05-4419-9c38-97b0bff46f4c\tINFO\tLocal continuation of: proxy.sql.pg.tpch took: 366.83094100000017 ms\n",
+        "continuationId": "proxy.sql.pg.tpch",
+        "duration": "366.83094100000017"
+    },
+    {
+        "@timestamp": "2024-06-13 11:20:38.832",
+        "@message": "2024-06-13T11:20:38.832Z\t85e891d5-080a-4119-a923-10d926c340f5\tINFO\tLocal continuation of: proxy.sql.pg.tpch took: 287.6631430000016 ms\n",
+        "continuationId": "proxy.sql.pg.tpch",
+        "duration": "287.6631430000016"
+    },
+    {
+        "@timestamp": "2024-06-13 11:20:38.517",
+        "@message": "2024-06-13T11:20:38.517Z\t762ec7c1-313b-43c0-85de-347eae347605\tINFO\tLocal continuation of: proxy.sql.pg.tpch took: 270.14637100000255 ms\n",
+        "continuationId": "proxy.sql.pg.tpch",
+        "duration": "270.14637100000255"
+    },
+    {
+        "@timestamp": "2024-06-13 11:20:38.230",
+        "@message": "2024-06-13T11:20:38.230Z\t89fcb2a7-a559-4f7c-a935-03ddafc59833\tINFO\tLocal continuation of: proxy.sql.pg.tpch took: 245.06973199999993 ms\n",
+        "continuationId": "proxy.sql.pg.tpch",
+        "duration": "245.06973199999993"
+    },
+    {
+        "@timestamp": "2024-06-13 11:20:37.968",
+        "@message": "2024-06-13T11:20:37.968Z\tef1cdf88-3aae-4074-b932-9fcf7e55e5dc\tINFO\tLocal continuation of: proxy.sql.pg.tpch took: 342.350615000003 ms\n",
+        "continuationId": "proxy.sql.pg.tpch",
+        "duration": "342.350615000003"
+    },
+    {
+        "@timestamp": "2024-06-13 11:20:37.554",
+        "@message": "2024-06-13T11:20:37.554Z\t8e9446c0-91b8-4f07-a410-e72a2fdebd35\tINFO\tLocal continuation of: proxy.sql.pg.tpch took: 289.3342069999999 ms\n",
+        "continuationId": "proxy.sql.pg.tpch",
+        "duration": "289.3342069999999"
+    },
+    {
+        "@timestamp": "2024-06-13 11:20:37.242",
+        "@message": "2024-06-13T11:20:37.242Z\tf4eab2bc-7355-4ee9-beb1-3ca899701bcb\tINFO\tLocal continuation of: proxy.sql.pg.tpch took: 457.209605 ms\n",
+        "continuationId": "proxy.sql.pg.tpch",
+        "duration": "457.209605"
+    },
+    {
+        "@timestamp": "2024-06-13 11:20:36.756",
+        "@message": "2024-06-13T11:20:36.756Z\t74581f13-60eb-42e5-8d8a-d3a82f949618\tINFO\tLocal continuation of: proxy.sql.pg.tpch took: 349.4861119999987 ms\n",
+        "continuationId": "proxy.sql.pg.tpch",
+        "duration": "349.4861119999987"
+    },
+    {
+        "@timestamp": "2024-06-13 11:20:36.372",
+        "@message": "2024-06-13T11:20:36.372Z\t85b91b27-ba7a-4dec-8cd1-8d22954b9a16\tINFO\tLocal continuation of: proxy.sql.pg.tpch took: 444.6701150000008 ms\n",
+        "continuationId": "proxy.sql.pg.tpch",
+        "duration": "444.6701150000008"
+    },
+    {
+        "@timestamp": "2024-06-13 11:20:35.911",
+        "@message": "2024-06-13T11:20:35.911Z\t8be7dc43-8e3b-4200-b717-27c14f2b95cc\tINFO\tLocal continuation of: proxy.sql.pg.tpch took: 329.1843549999976 ms\n",
+        "continuationId": "proxy.sql.pg.tpch",
+        "duration": "329.1843549999976"
+    },
+    {
+        "@timestamp": "2024-06-13 11:20:35.518",
+        "@message": "2024-06-13T11:20:35.518Z\tfb865371-a2f3-493e-8d68-68b85fb7a29d\tINFO\tLocal continuation of: proxy.sql.pg.tpch took: 355.52862000000096 ms\n",
+        "continuationId": "proxy.sql.pg.tpch",
+        "duration": "355.52862000000096"
+    },
+    {
+        "@timestamp": "2024-06-13 11:20:35.093",
+        "@message": "2024-06-13T11:20:35.093Z\t9ffb973f-6f78-4518-899a-28e6f7f302c3\tINFO\tLocal continuation of: proxy.sql.pg.tpch took: 382.4870259999989 ms\n",
+        "continuationId": "proxy.sql.pg.tpch",
+        "duration": "382.4870259999989"
+    },
+    {
+        "@timestamp": "2024-06-13 11:20:34.637",
+        "@message": "2024-06-13T11:20:34.637Z\t52da08b6-4fd7-4a56-9673-457ddbae3859\tINFO\tLocal continuation of: proxy.sql.pg.tpch took: 552.8824679999998 ms\n",
+        "continuationId": "proxy.sql.pg.tpch",
+        "duration": "552.8824679999998"
+    },
+    {
+        "@timestamp": "2024-06-13 11:20:34.024",
+        "@message": "2024-06-13T11:20:34.024Z\td91b6342-5b87-40c4-9e55-b97e83dd6ee4\tINFO\tLocal continuation of: proxy.sql.pg.tpch took: 419.32888500000263 ms\n",
+        "continuationId": "proxy.sql.pg.tpch",
+        "duration": "419.32888500000263"
+    },
+    {
+        "@timestamp": "2024-06-13 11:20:33.579",
+        "@message": "2024-06-13T11:20:33.579Z\t2da0d6bc-8496-4990-9e95-5190a9998038\tINFO\tLocal continuation of: proxy.sql.pg.tpch took: 330.85220800000025 ms\n",
+        "continuationId": "proxy.sql.pg.tpch",
+        "duration": "330.85220800000025"
+    },
+    {
+        "@timestamp": "2024-06-13 11:20:33.216",
+        "@message": "2024-06-13T11:20:33.216Z\t12442a28-f1f1-4de6-ab91-4a6ad238c815\tINFO\tLocal continuation of: proxy.sql.pg.tpch took: 368.5308809999988 ms\n",
+        "continuationId": "proxy.sql.pg.tpch",
+        "duration": "368.5308809999988"
+    },
+    {
+        "@timestamp": "2024-06-13 11:20:32.829",
+        "@message": "2024-06-13T11:20:32.829Z\ta863f4f9-78b8-4b59-9ca0-ce836d1101ee\tINFO\tLocal continuation of: proxy.sql.pg.tpch took: 480.91421900000205 ms\n",
+        "continuationId": "proxy.sql.pg.tpch",
+        "duration": "480.91421900000205"
+    },
+    {
+        "@timestamp": "2024-06-13 11:20:32.300",
+        "@message": "2024-06-13T11:20:32.300Z\t01f81e54-b507-4d76-8196-aa5dd12b92bc\tINFO\tLocal continuation of: proxy.sql.pg.tpch took: 333.813600999998 ms\n",
+        "continuationId": "proxy.sql.pg.tpch",
+        "duration": "333.813600999998"
+    },
+    {
+        "@timestamp": "2024-06-13 11:20:31.934",
+        "@message": "2024-06-13T11:20:31.934Z\t152fe608-175e-49dd-9502-82b0171a1cb1\tINFO\tLocal continuation of: proxy.sql.pg.tpch took: 387.9947749999992 ms\n",
+        "continuationId": "proxy.sql.pg.tpch",
+        "duration": "387.9947749999992"
+    },
+    {
+        "@timestamp": "2024-06-13 11:20:31.521",
+        "@message": "2024-06-13T11:20:31.521Z\t599bb3d1-0096-41b4-9ce4-1e1afcdd7958\tINFO\tLocal continuation of: proxy.sql.pg.tpch took: 492.1880889999993 ms\n",
+        "continuationId": "proxy.sql.pg.tpch",
+        "duration": "492.1880889999993"
+    },
+    {
+        "@timestamp": "2024-06-13 11:20:31.011",
+        "@message": "2024-06-13T11:20:31.011Z\t9f78c142-d358-40e9-a035-96c5128d0998\tINFO\tLocal continuation of: proxy.sql.pg.tpch took: 542.827698000001 ms\n",
+        "continuationId": "proxy.sql.pg.tpch",
+        "duration": "542.827698000001"
+    },
+    {
+        "@timestamp": "2024-06-13 11:20:30.446",
+        "@message": "2024-06-13T11:20:30.446Z\t8a2c6355-1795-4342-a7c4-b22dbd37a36d\tINFO\tLocal continuation of: proxy.sql.pg.tpch took: 318.1516899999988 ms\n",
+        "continuationId": "proxy.sql.pg.tpch",
+        "duration": "318.1516899999988"
+    },
+    {
+        "@timestamp": "2024-06-13 11:20:30.088",
+        "@message": "2024-06-13T11:20:30.088Z\tf2842e56-d12b-416a-b1e7-09d9dbc1c7e9\tINFO\tLocal continuation of: proxy.sql.pg.tpch took: 465.21052300000156 ms\n",
+        "continuationId": "proxy.sql.pg.tpch",
+        "duration": "465.21052300000156"
+    },
+    {
+        "@timestamp": "2024-06-13 11:20:29.564",
+        "@message": "2024-06-13T11:20:29.564Z\tf473c2ba-ba20-4c6e-9a60-81f6f5ea1c16\tINFO\tLocal continuation of: proxy.sql.pg.tpch took: 380.68692700000247 ms\n",
+        "continuationId": "proxy.sql.pg.tpch",
+        "duration": "380.68692700000247"
+    },
+    {
+        "@timestamp": "2024-06-13 11:20:29.114",
+        "@message": "2024-06-13T11:20:29.114Z\t425afa65-25b7-40e7-8050-f90ecb0405ea\tINFO\tLocal continuation of: proxy.sql.pg.tpch took: 289.9548470000009 ms\n",
+        "continuationId": "proxy.sql.pg.tpch",
+        "duration": "289.9548470000009"
+    },
+    {
+        "@timestamp": "2024-06-13 11:20:28.752",
+        "@message": "2024-06-13T11:20:28.752Z\td8427e94-44ff-4876-9e76-81ec4e3f8e3e\tINFO\tLocal continuation of: proxy.sql.pg.tpch took: 346.53491199999917 ms\n",
+        "continuationId": "proxy.sql.pg.tpch",
+        "duration": "346.53491199999917"
+    },
+    {
+        "@timestamp": "2024-06-13 11:20:28.387",
+        "@message": "2024-06-13T11:20:28.387Z\td1f531af-5c63-4c94-9ded-4bec81ae02a9\tINFO\tLocal continuation of: proxy.sql.pg.tpch took: 460.95213499999954 ms\n",
+        "continuationId": "proxy.sql.pg.tpch",
+        "duration": "460.95213499999954"
+    },
+    {
+        "@timestamp": "2024-06-13 11:20:27.911",
+        "@message": "2024-06-13T11:20:27.911Z\t62ea7b72-f12a-42d9-8e17-e08da5c4a4b5\tINFO\tLocal continuation of: proxy.sql.pg.tpch took: 424.26651899999706 ms\n",
+        "continuationId": "proxy.sql.pg.tpch",
+        "duration": "424.26651899999706"
+    },
+    {
+        "@timestamp": "2024-06-13 11:20:27.468",
+        "@message": "2024-06-13T11:20:27.468Z\tfcade8b6-8434-4663-9dda-35bff2f1058c\tINFO\tLocal continuation of: proxy.sql.pg.tpch took: 424.6645219999991 ms\n",
+        "continuationId": "proxy.sql.pg.tpch",
+        "duration": "424.6645219999991"
+    },
+    {
+        "@timestamp": "2024-06-13 11:20:26.984",
+        "@message": "2024-06-13T11:20:26.984Z\t43211fca-933b-420f-8b70-81cdccf24819\tINFO\tLocal continuation of: proxy.sql.pg.tpch took: 376.9546389999996 ms\n",
+        "continuationId": "proxy.sql.pg.tpch",
+        "duration": "376.9546389999996"
+    },
+    {
+        "@timestamp": "2024-06-13 11:20:26.578",
+        "@message": "2024-06-13T11:20:26.578Z\ta6646cf6-91d1-4a3c-a20b-d21cd49fde44\tINFO\tLocal continuation of: proxy.sql.pg.tpch took: 507.2368180000012 ms\n",
+        "continuationId": "proxy.sql.pg.tpch",
+        "duration": "507.2368180000012"
+    },
+    {
+        "@timestamp": "2024-06-13 11:20:26.048",
+        "@message": "2024-06-13T11:20:26.048Z\t6d774b65-a7ce-4c78-be57-f0065bd2ca36\tINFO\tLocal continuation of: proxy.sql.pg.tpch took: 363.39066399999865 ms\n",
+        "continuationId": "proxy.sql.pg.tpch",
+        "duration": "363.39066399999865"
+    },
+    {
+        "@timestamp": "2024-06-13 11:20:25.654",
+        "@message": "2024-06-13T11:20:25.654Z\t614c6caa-43da-4e73-b8e5-b0088641a76a\tINFO\tLocal continuation of: proxy.sql.pg.tpch took: 430.47215300000244 ms\n",
+        "continuationId": "proxy.sql.pg.tpch",
+        "duration": "430.47215300000244"
+    },
+    {
+        "@timestamp": "2024-06-13 11:20:25.165",
+        "@message": "2024-06-13T11:20:25.165Z\t6534d6af-1236-4d24-9d9c-bc75cb53dafc\tINFO\tLocal continuation of: proxy.sql.pg.tpch took: 355.7244329999994 ms\n",
+        "continuationId": "proxy.sql.pg.tpch",
+        "duration": "355.7244329999994"
+    },
+    {
+        "@timestamp": "2024-06-13 11:20:24.752",
+        "@message": "2024-06-13T11:20:24.752Z\t83da596c-3f1d-4981-b7af-4773c4e7d550\tINFO\tLocal continuation of: proxy.sql.pg.tpch took: 328.06106600000203 ms\n",
+        "continuationId": "proxy.sql.pg.tpch",
+        "duration": "328.06106600000203"
+    },
+    {
+        "@timestamp": "2024-06-13 11:20:24.358",
+        "@message": "2024-06-13T11:20:24.358Z\t2e66ce2b-edb5-4059-bc28-f45859cc3c23\tINFO\tLocal continuation of: proxy.sql.pg.tpch took: 392.7992180000001 ms\n",
+        "continuationId": "proxy.sql.pg.tpch",
+        "duration": "392.7992180000001"
+    },
+    {
+        "@timestamp": "2024-06-13 11:20:23.894",
+        "@message": "2024-06-13T11:20:23.894Z\td11c9c39-1689-4ef8-a091-c1dd204e975d\tINFO\tLocal continuation of: proxy.sql.pg.tpch took: 409.68942400000014 ms\n",
+        "continuationId": "proxy.sql.pg.tpch",
+        "duration": "409.68942400000014"
+    },
+    {
+        "@timestamp": "2024-06-13 11:20:23.410",
+        "@message": "2024-06-13T11:20:23.410Z\tc2c3da19-e20f-44e4-b8ab-c52644331925\tINFO\tLocal continuation of: proxy.sql.pg.tpch took: 300.36065099999905 ms\n",
+        "continuationId": "proxy.sql.pg.tpch",
+        "duration": "300.36065099999905"
+    },
+    {
+        "@timestamp": "2024-06-13 11:20:23.091",
+        "@message": "2024-06-13T11:20:23.091Z\t98a28dd0-f629-409c-bc1f-f8a60235c861\tINFO\tLocal continuation of: proxy.sql.pg.tpch took: 386.34481100000085 ms\n",
+        "continuationId": "proxy.sql.pg.tpch",
+        "duration": "386.34481100000085"
+    },
+    {
+        "@timestamp": "2024-06-13 11:20:22.686",
+        "@message": "2024-06-13T11:20:22.686Z\te486c726-2f27-40cb-a62e-3d8937ae636b\tINFO\tLocal continuation of: proxy.sql.pg.tpch took: 400.59388000000035 ms\n",
+        "continuationId": "proxy.sql.pg.tpch",
+        "duration": "400.59388000000035"
+    },
+    {
+        "@timestamp": "2024-06-13 11:20:22.259",
+        "@message": "2024-06-13T11:20:22.259Z\t75198102-71bd-4bbe-bfd7-01a3524964d9\tINFO\tLocal continuation of: proxy.sql.pg.tpch took: 373.60851100000036 ms\n",
+        "continuationId": "proxy.sql.pg.tpch",
+        "duration": "373.60851100000036"
+    },
+    {
+        "@timestamp": "2024-06-13 11:20:21.834",
+        "@message": "2024-06-13T11:20:21.834Z\t28bde0ae-a2bb-45c2-a7b5-7c90632befa6\tINFO\tLocal continuation of: proxy.sql.pg.tpch took: 426.570337000001 ms\n",
+        "continuationId": "proxy.sql.pg.tpch",
+        "duration": "426.570337000001"
+    },
+    {
+        "@timestamp": "2024-06-13 11:20:21.387",
+        "@message": "2024-06-13T11:20:21.387Z\t683dd140-cd9e-45c0-a973-2941bcebfd45\tINFO\tLocal continuation of: proxy.sql.pg.tpch took: 522.3341710000004 ms\n",
+        "continuationId": "proxy.sql.pg.tpch",
+        "duration": "522.3341710000004"
+    },
+    {
+        "@timestamp": "2024-06-13 11:20:20.841",
+        "@message": "2024-06-13T11:20:20.841Z\tea68d022-8151-4158-8ebb-2589eabb62fe\tINFO\tLocal continuation of: proxy.sql.pg.tpch took: 348.85741100000087 ms\n",
+        "continuationId": "proxy.sql.pg.tpch",
+        "duration": "348.85741100000087"
+    },
+    {
+        "@timestamp": "2024-06-13 11:20:20.457",
+        "@message": "2024-06-13T11:20:20.457Z\t0322022c-5f72-4c33-93c4-3f08d09f1bf3\tINFO\tLocal continuation of: proxy.sql.pg.tpch took: 487.3255960000006 ms\n",
+        "continuationId": "proxy.sql.pg.tpch",
+        "duration": "487.3255960000006"
+    },
+    {
+        "@timestamp": "2024-06-13 11:20:19.933",
+        "@message": "2024-06-13T11:20:19.933Z\t1b75b7d6-19b9-43cc-8a1a-bf743b66e390\tINFO\tLocal continuation of: proxy.sql.pg.tpch took: 345.68769500000053 ms\n",
+        "continuationId": "proxy.sql.pg.tpch",
+        "duration": "345.68769500000053"
+    },
+    {
+        "@timestamp": "2024-06-13 11:20:19.556",
+        "@message": "2024-06-13T11:20:19.556Z\t6a285651-8295-4f82-b213-94a472200f3f\tINFO\tLocal continuation of: proxy.sql.pg.tpch took: 491.4413229999991 ms\n",
+        "continuationId": "proxy.sql.pg.tpch",
+        "duration": "491.4413229999991"
+    },
+    {
+        "@timestamp": "2024-06-13 11:20:18.997",
+        "@message": "2024-06-13T11:20:18.997Z\t0a41d5df-a8de-44b8-b147-eb5f1603b8e7\tINFO\tLocal continuation of: proxy.sql.pg.tpch took: 373.67538500000046 ms\n",
+        "continuationId": "proxy.sql.pg.tpch",
+        "duration": "373.67538500000046"
+    },
+    {
+        "@timestamp": "2024-06-13 11:20:18.568",
+        "@message": "2024-06-13T11:20:18.568Z\t4e538d12-e195-43ce-afde-d674f2cf2ca6\tINFO\tLocal continuation of: proxy.sql.pg.tpch took: 283.08903199999986 ms\n",
+        "continuationId": "proxy.sql.pg.tpch",
+        "duration": "283.08903199999986"
+    },
+    {
+        "@timestamp": "2024-06-13 11:20:18.212",
+        "@message": "2024-06-13T11:20:18.212Z\t41a97bee-99ad-4877-b4b4-6b2560347499\tINFO\tLocal continuation of: proxy.sql.pg.tpch took: 383.37284399999953 ms\n",
+        "continuationId": "proxy.sql.pg.tpch",
+        "duration": "383.37284399999953"
+    },
+    {
+        "@timestamp": "2024-06-13 11:20:17.811",
+        "@message": "2024-06-13T11:20:17.811Z\t83e3b635-ef9a-48b6-82f7-71645e7acee8\tINFO\tLocal continuation of: proxy.sql.pg.tpch took: 267.5426470000002 ms\n",
+        "continuationId": "proxy.sql.pg.tpch",
+        "duration": "267.5426470000002"
+    },
+    {
+        "@timestamp": "2024-06-13 11:20:17.515",
+        "@message": "2024-06-13T11:20:17.515Z\td2ec88d6-d36a-4224-b147-44a2cfeee975\tINFO\tLocal continuation of: proxy.sql.pg.tpch took: 369.970166000001 ms\n",
+        "continuationId": "proxy.sql.pg.tpch",
+        "duration": "369.970166000001"
+    },
+    {
+        "@timestamp": "2024-06-13 11:20:17.114",
+        "@message": "2024-06-13T11:20:17.114Z\te026e7bf-4b08-42c0-b51e-9bc9563fa571\tINFO\tLocal continuation of: proxy.sql.pg.tpch took: 407.70090100000016 ms\n",
+        "continuationId": "proxy.sql.pg.tpch",
+        "duration": "407.70090100000016"
+    },
+    {
+        "@timestamp": "2024-06-13 11:20:16.687",
+        "@message": "2024-06-13T11:20:16.687Z\ta88f99f3-f555-412c-b67f-e5374db06712\tINFO\tLocal continuation of: proxy.sql.pg.tpch took: 263.3112880000008 ms\n",
+        "continuationId": "proxy.sql.pg.tpch",
+        "duration": "263.3112880000008"
+    },
+    {
+        "@timestamp": "2024-06-13 11:20:16.368",
+        "@message": "2024-06-13T11:20:16.368Z\t2835ca5c-db42-4310-943a-0f721a109c82\tINFO\tLocal continuation of: proxy.sql.pg.tpch took: 282.08829200000037 ms\n",
+        "continuationId": "proxy.sql.pg.tpch",
+        "duration": "282.08829200000037"
+    },
+    {
+        "@timestamp": "2024-06-13 11:20:16.058",
+        "@message": "2024-06-13T11:20:16.058Z\t06f4363e-3ad9-4bfe-8435-142a8fcafc27\tINFO\tLocal continuation of: proxy.sql.pg.tpch took: 312.7408410000007 ms\n",
+        "continuationId": "proxy.sql.pg.tpch",
+        "duration": "312.7408410000007"
+    },
+    {
+        "@timestamp": "2024-06-13 11:20:15.721",
+        "@message": "2024-06-13T11:20:15.721Z\t85552585-5455-4fa1-8cdf-41d5c317956a\tINFO\tLocal continuation of: proxy.sql.pg.tpch took: 356.4969869999986 ms\n",
+        "continuationId": "proxy.sql.pg.tpch",
+        "duration": "356.4969869999986"
+    },
+    {
+        "@timestamp": "2024-06-13 11:20:15.342",
+        "@message": "2024-06-13T11:20:15.342Z\tf443f993-d8ad-414d-8bb7-f1aedeb4b499\tINFO\tLocal continuation of: proxy.sql.pg.tpch took: 397.1437619999997 ms\n",
+        "continuationId": "proxy.sql.pg.tpch",
+        "duration": "397.1437619999997"
+    },
+    {
+        "@timestamp": "2024-06-13 11:20:14.920",
+        "@message": "2024-06-13T11:20:14.920Z\ta8448b43-78d4-47c0-925c-ca604bbd8ecb\tINFO\tLocal continuation of: proxy.sql.pg.tpch took: 352.0751359999995 ms\n",
+        "continuationId": "proxy.sql.pg.tpch",
+        "duration": "352.0751359999995"
+    },
+    {
+        "@timestamp": "2024-06-13 11:20:14.519",
+        "@message": "2024-06-13T11:20:14.519Z\tf838e9ce-f643-4abe-bbe6-4e99e87d73cf\tINFO\tLocal continuation of: proxy.sql.pg.tpch took: 388.910629 ms\n",
+        "continuationId": "proxy.sql.pg.tpch",
+        "duration": "388.910629"
+    },
+    {
+        "@timestamp": "2024-06-13 11:20:14.093",
+        "@message": "2024-06-13T11:20:14.093Z\tfc0de905-1fc5-4ce6-b009-faa04c4297ee\tINFO\tLocal continuation of: proxy.sql.pg.tpch took: 428.35350299999936 ms\n",
+        "continuationId": "proxy.sql.pg.tpch",
+        "duration": "428.35350299999936"
+    },
+    {
+        "@timestamp": "2024-06-13 11:20:13.613",
+        "@message": "2024-06-13T11:20:13.613Z\t1fa4e635-41ea-4a44-b169-0700c88bb1ba\tINFO\tLocal continuation of: proxy.sql.pg.tpch took: 390.52289500000006 ms\n",
+        "continuationId": "proxy.sql.pg.tpch",
+        "duration": "390.52289500000006"
+    },
+    {
+        "@timestamp": "2024-06-13 11:20:13.171",
+        "@message": "2024-06-13T11:20:13.171Z\t8189cbf2-df73-4a65-853a-a7712f320d3e\tINFO\tLocal continuation of: proxy.sql.pg.tpch took: 323.1075009999995 ms\n",
+        "continuationId": "proxy.sql.pg.tpch",
+        "duration": "323.1075009999995"
+    },
+    {
+        "@timestamp": "2024-06-13 11:20:12.812",
+        "@message": "2024-06-13T11:20:12.812Z\t260a1240-ea13-4b92-9d2a-6e00c755c626\tINFO\tLocal continuation of: proxy.sql.pg.tpch took: 544.3767159999998 ms\n",
+        "continuationId": "proxy.sql.pg.tpch",
+        "duration": "544.3767159999998"
+    },
+    {
+        "@timestamp": "2024-06-13 11:20:12.245",
+        "@message": "2024-06-13T11:20:12.245Z\t66dfa1cb-7310-4ff0-8c9a-11b56f411e69\tINFO\tLocal continuation of: proxy.sql.pg.tpch took: 399.32736900000054 ms\n",
+        "continuationId": "proxy.sql.pg.tpch",
+        "duration": "399.32736900000054"
+    },
+    {
+        "@timestamp": "2024-06-13 11:20:11.816",
+        "@message": "2024-06-13T11:20:11.816Z\t493fa8fd-a50a-4331-8cd4-8783ce34b8d1\tINFO\tLocal continuation of: proxy.sql.pg.tpch took: 449.4727240000002 ms\n",
+        "continuationId": "proxy.sql.pg.tpch",
+        "duration": "449.4727240000002"
+    },
+    {
+        "@timestamp": "2024-06-13 11:20:11.295",
+        "@message": "2024-06-13T11:20:11.295Z\t5bf90c87-dc6f-4d0a-9ff0-6668d028a9d7\tINFO\tLocal continuation of: proxy.sql.pg.tpch took: 448.08299200000056 ms\n",
+        "continuationId": "proxy.sql.pg.tpch",
+        "duration": "448.08299200000056"
+    },
+    {
+        "@timestamp": "2024-06-13 11:20:10.818",
+        "@message": "2024-06-13T11:20:10.818Z\tbf366e3c-751b-4716-b8f2-274ffe139137\tINFO\tLocal continuation of: proxy.sql.pg.tpch took: 269.9394470000002 ms\n",
+        "continuationId": "proxy.sql.pg.tpch",
+        "duration": "269.9394470000002"
+    },
+    {
+        "@timestamp": "2024-06-13 11:20:10.525",
+        "@message": "2024-06-13T11:20:10.525Z\t8e640721-ee63-4a9d-a588-470e51d7f3d0\tINFO\tLocal continuation of: proxy.sql.pg.tpch took: 445.35277099999985 ms\n",
+        "continuationId": "proxy.sql.pg.tpch",
+        "duration": "445.35277099999985"
+    },
+    {
+        "@timestamp": "2024-06-13 11:20:09.799",
+        "@message": "2024-06-13T11:20:09.799Z\t1f0ebf43-89de-4a64-9548-5fbbb4fe5046\tINFO\tLocal continuation of: proxy.sql.pg.tpch took: 235.00271199999997 ms\n",
+        "continuationId": "proxy.sql.pg.tpch",
+        "duration": "235.00271199999997"
+    },
+    {
+        "@timestamp": "2024-06-13 11:20:09.539",
+        "@message": "2024-06-13T11:20:09.539Z\tcb549d8b-5ad6-4aa9-a9a4-a1d408096c8f\tINFO\tLocal continuation of: proxy.sql.pg.tpch took: 295.67266199999995 ms\n",
+        "continuationId": "proxy.sql.pg.tpch",
+        "duration": "295.67266199999995"
+    },
+    {
+        "@timestamp": "2024-06-13 11:20:08.844",
+        "@message": "2024-06-13T11:20:08.844Z\t16fcb685-923d-4cc4-8022-a6d3a0cf733f\tINFO\tLocal continuation of: proxy.sql.pg.tpch took: 326.3880290000002 ms\n",
+        "continuationId": "proxy.sql.pg.tpch",
+        "duration": "326.3880290000002"
+    },
+    {
+        "@timestamp": "2024-06-13 11:20:08.449",
+        "@message": "2024-06-13T11:20:08.449Z\t5ac6ada4-453a-4d30-8b63-d89de0204163\tINFO\tLocal continuation of: proxy.sql.pg.tpch took: 303.905851 ms\n",
+        "continuationId": "proxy.sql.pg.tpch",
+        "duration": "303.905851"
+    },
+    {
+        "@timestamp": "2024-06-13 11:20:07.969",
+        "@message": "2024-06-13T11:20:07.969Z\tc6f12578-60c2-4bd5-b0dc-e2de6851b4ec\tINFO\tLocal continuation of: proxy.sql.pg.tpch took: 343.732391 ms\n",
+        "continuationId": "proxy.sql.pg.tpch",
+        "duration": "343.732391"
+    },
+    {
+        "@timestamp": "2024-06-13 11:20:07.472",
+        "@message": "2024-06-13T11:20:07.472Z\tadf11db0-c4f7-4d34-bfe0-ba005fc691a6\tINFO\tLocal continuation of: proxy.sql.pg.tpch took: 557.180726 ms\n",
+        "continuationId": "proxy.sql.pg.tpch",
+        "duration": "557.180726"
+    }
+]

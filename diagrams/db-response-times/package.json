@@ -1,0 +1,12 @@
+{
+  "name": "@faaas-diagrams/db-response-times",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "build": "poetry run python src/generate.py"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}

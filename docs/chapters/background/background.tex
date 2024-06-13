@@ -87,11 +87,7 @@ FaaSM employs a similar approach to container based isolation, using CGroups and
 \section{\faas{} billing models}
 \label{sec:faas-billing-models}
 
-The \faas{} billing model is a complex model built around a number of factors that vary between cloud providers. Despite their intricacies and differences, the prevailing common billing model, referred to in Equation \ref{eq:faas-billing-model} can be characterised by a function of: a flat-rate invocation cost ($C_i$), and a rate ($C_r$) per unit of time ($G$) charged over the total invocation time ($t$), from the start of a function to the point at which it returns a response, with a minimum billable cost $C_{min}$.
-
-\begin{equation} \label{eq:faas-billing-model}
-C_t = C_i + \max\left(C_{min},\ceil*{\frac{t}{G}} C_r\right)
-\end{equation}
+The \faas{} billing model is a complex model built around a number of factors that vary between cloud providers. Despite their intricacies and differences, the prevailing common billing model, referred to in Equation \ref{eq:faas-billing-model}.
 
 All the major cloud providers scale their charged rate per unit of time linearly with resource allocation.
 
