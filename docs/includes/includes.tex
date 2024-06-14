@@ -22,6 +22,15 @@
 \usepackage{listings}
 \usepackage{minted}
 
+% For algorithms
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+
+\renewcommand{\algorithmicrequire}{\textbf{Input:}}
+\renewcommand{\algorithmicensure}{\textbf{Output:}}
+\algnewcommand\algorithmicforeach{\textbf{for each}}
+\algdef{S}[FOR]{ForEach}[1]{\algorithmicforeach\ #1\ \algorithmicdo}
+
 \usepackage{todonotes} % Because you're a lazy bastard
 \usepackage{csquotes} % Not sure what this is for
 \usepackage{siunitx} % For SI units
@@ -37,6 +46,12 @@
 
 % For equations
 \usepackage{mathtools}
+\usepackage{stackengine}
+
+% For type signatures
+\newtheorem{signature}{Type Signature}
+
+\def\delequal{\mathrel{\ensurestackMath{\stackon[1pt]{=}{\scriptstyle\Delta}}}}
 
 \DeclarePairedDelimiter\ceil{\lceil}{\rceil}
 \DeclarePairedDelimiter\floor{\lfloor}{\rfloor}

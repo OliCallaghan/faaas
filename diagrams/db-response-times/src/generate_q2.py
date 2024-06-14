@@ -15,7 +15,7 @@ mpl.use("pgf")
 import matplotlib.pyplot as plt
 sns.set_theme()
 
-fig, ax = plt.subplots(figsize=(col_width * 0.8, col_width))
+fig, ax = plt.subplots(figsize=(col_width * 0.8, col_width * 0.8))
 
 df['duration'].plot(kind='hist', bins=35, edgecolor='black', ax=ax, density=True, label="TCP-H Query 2")
 
@@ -38,7 +38,7 @@ weibull_pdf = weibull_min.pdf(x, shape, thresh, scale)
 ax.plot(x, weibull_pdf, label='Weibull Distribution', color='red')
 
 # Add a legend
-ax.legend(loc='lower center', bbox_to_anchor=(0.5, -0.5))
+ax.legend(loc='lower center', bbox_to_anchor=(0.5, -0.7))
 
 plt.xlabel('Response Time (ms)')
 plt.ylabel('Frequency')

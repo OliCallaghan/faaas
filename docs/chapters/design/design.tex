@@ -15,11 +15,112 @@ In this section, we will model the costs of invoking serverless functions on a g
 
 \subsection{Function billing model}
 
-Equation \ref{eq:faas-billing-model} can be characterised by a function of: a flat-rate invocation cost ($C_i$), and a rate ($C_r$) per unit of time ($G$) charged over the total invocation time ($t$), from the start of a function to the point at which it returns a response, with a minimum billable cost $C_{min}$.
+From the billing model described in Section \ref{sec:faas-billing-models}, we can derive a parameterised cost model that generalises across \faas{} platforms. This is model is defined by Equation \ref{eq:faas-billing-model}, which can be is  a function of: a flat-rate invocation cost ($C_i$), and a rate ($C_r$) per unit of time ($G$) charged over the total invocation time ($t$), from the start of a function to the point at which it returns a response, with a minimum billable cost $C_{min}$.
 
 \begin{equation} \label{eq:faas-billing-model}
-C_t = C_i + \max\left(C_{min},\ceil*{\frac{t}{G}} C_r\right)
+C(t) \delequal C_i + C_D(t)
 \end{equation}
+
+\begin{equation}
+C_D(t) \delequal \max\left(C_{min},\ceil*{\frac{t}{G}} C_r\right)
+\end{equation}
+
+From this generic model, we define an inequality that illustrates the profitability of splitting a function in Equation \ref{eq:faas-split-profitability}. This equation can be rearranged to find a solution for the minimum amount of time that an asynchronous request would need to take for it to be worth splitting the function. This is given by Equation \ref{eq:faas-min-split-time}.
+
+\begin{equation} \label{eq:faas-split-profitability}
+C(t_0 + t_1 + t_2) > C(t_0) + C(t_2)
+\end{equation}
+
+\begin{equation} \label{eq:faas-min-split-time}
+t_1 > \frac{G}{C_r} \left( C_D(t_0) + C_D(t_2) + C_i - C_D(t_0 + t_2) \right)
+\end{equation}
+
+From this we can derive some upper bound heuristics which make it easier to reason about. For example, it is never profitable to split a function if the time saved is less than the equivalent saved invocation cost, as shown in Equation \ref{eq:faas-min-split-time-upper-bound}.
+
+\begin{equation} \label{eq:faas-min-split-time-upper-bound}
+t_1 > \frac{G}{C_r} C_i
+\end{equation}
+
+Additionally, for platforms that charge a minimum billable cost on function invocations, the decision to split becomes more complex, as the decision to split is also influenced by the expected execution time of the continuation. Consider the pathological but also reaosnable scenario where both the initial and continuation sections of a function take less than the minimum billable time to execute, as defined in Equation \ref{eq:faas-min-split-time-pathological-scenario}.
+
+\begin{equation} \label{eq:faas-min-split-time-pathological-scenario}
+\begin{aligned}
+t_0 + t_2 & < \frac{G}{C_r} C_{min} \\
+C(t_0) & = C_{min} \\
+C(t_2) & = C_{min} \\
+C(t_0 + t_2) & = C_{min}
+\end{aligned}
+\end{equation}
+
+In this situation, Equation \ref{eq:faas-min-split-time} reduces to Equation \ref{eq:faas-min-split-time-min-cost}, where the minimum time to split must also account for the wasted time in the continuation consumed by the minimum cost ($C_{min}$).
+
+\begin{equation} \label{eq:faas-min-split-time-min-cost}
+\begin{aligned}
+t_1 & > \frac{G}{C_r} \left( 2 C_{min} + C_i - C_{min} \right) \\
+    & > \frac{G}{C_r} \left( C_{min} + C_i \right)
+\end{aligned}
+\end{equation}
+
+\subsection{Response time modelling}
+Inherently, network requests and responses are unpredictable due to their asynchronicity. Therefore, it is impossible to directly predict with certainty the response time of an asynchronous service. However, we can model the response time of an asynchronous service as a random variable, and use statistical methods to estimate the expected response time.
+
+Typically, response times are modelled using the 3 parameter Weibull distribution\cite{rouderHierarchicalModelEstimating2005}. The probability density function of the Weibull distribution is given by Equation \ref{eq:weibull-pdf}, where k and $\lambda$ represent the shape and scale parameters respectively, and $\phi$ is the location parameter.
+
+\begin{equation} \label{eq:weibull-pdf}
+f(t; k, \phi, \lambda) =
+\begin{cases}
+\frac{k}{\lambda} \left(\frac{t - \phi}{\lambda}\right)^{k-1} e^{-((t - \phi)/\lambda)^k} & t \geq \phi \\
+0 & t < \phi
+\end{cases}
+\end{equation}
+
+From this probability density function, the cumulative distribution function (CDF) of the Weibull distribution is given by Equation \ref{eq:weibull-cdf}.
+
+\begin{equation} \label{eq:weibull-cdf}
+F(t; k, \phi, \lambda) =
+\begin{cases}
+1 - e^{-((t - \phi)/\lambda)^k} & t \geq \phi \\
+0 & t < \phi
+\end{cases}
+\end{equation}
+
+Given these equations, we can fit a Weibull distribution to the response times of an asynchronous service, as illustrated in Figure \ref{fig:tpch-q2-weibull}, and use this distribution to estimate the expected response time of the service.
+
+%\begin{figure}
+%    \begin{center}
+%        \input{node_modules/@faaas-diagrams/db-response-times/assets/tpch-q1-resp-times.pgf}
+%    \end{center}
+%    \caption{TPC-H query 1 responses time superimposed with fitted Weibull distribution, executed on a Postgres AWS RDS \texttt{t3.medium} instance called from AWS lambda.}
+%    \label{fig:tpch-q1-weibull}
+%\end{figure}
+
+\begin{figure}
+    \begin{center}
+        \input{node_modules/@faaas-diagrams/db-response-times/assets/tpch-q2-resp-times.pgf}
+    \end{center}
+    \caption{TPC-H query 2 responses time superimposed with fitted Weibull distribution, executed on a Postgres AWS RDS \texttt{t3.medium} instance called from AWS lambda.}
+    \label{fig:tpch-q2-weibull}
+\end{figure}
+
+\subsection{Profitability modelling}
+Using this CDF, we can compute the probability that splitting a function around an asynchronous request will be profitable, given the minimum duration threshold $\hat{t}$. This is given by Equation \ref{eq:faas-split-profitability-weibull}.
+
+\begin{equation}
+\hat{t} = \frac{G}{C_r} \left( C_D(t_0) + C_D(t_2) + C_i - C_D(t_0 + t_2) \right)
+\end{equation}
+
+\begin{equation} \label{eq:faas-split-profitability-weibull}
+\begin{aligned}
+P(\mathrm{profit}) & = 1 - F(\hat{t}; k, \phi, \lambda)) \\
+P(\mathrm{profit}) & =
+    \begin{cases}
+    e^{-((\hat{t} - \phi)/\lambda)^k} & \hat{t} \geq \phi \\
+    0 & \hat{t} < \phi
+    \end{cases}
+\end{aligned}
+\end{equation}
+
+Using this probability, the function developer can then specify a probability threshold which the function executor can use to determine whether to split the function or not.
 
 \section{Asynchronous service response time modelling}
 \label{sec:faas-async-service-response-time-modelling}
@@ -39,7 +140,7 @@ In this section we will introduce a generic model that is able to estimate the r
 \todo[inline]{Discuss how the profitability model can be used to switch between code splitting strategies.}
 
 \section{High-level Design}
-The core principal underpinning the design of \faaas{} is to decompose each \faas{} invocation into as a set of function continuations. Similarly to how event driven runtimes such as \js{} handle continuations of asynchronous code with an event loop as described in Section \ref{sec:js-event-loop}, \faaas{} takes advantage of function splitting (via code generation) and message passing to register continuations to be executed with a continuation context.
+The core principal underpinning the design of \faaas{} is to decompose each \faas{} invocation into as a set of function continuations. Similarly to how event driven runtimes such as \js{} handle continuations of asynchronous code with an event loop as described in Section \ref{sec:js-event-loop}, \faaas{} takes advantage of function splitting (via code generation) and uses message passing to register continuations to be executed with a continuation context.
 
 \begin{figure}[htp]
     \centering
@@ -58,14 +159,76 @@ The core principal underpinning the design of \faaas{} is to decompose each \faa
     \caption{\faas{} architecture enabling split function handlers}
 \end{figure}
 
-\begin{listing}[H]
-  \inputminted{javascript}{node_modules/@faaas-bench/hello-seq/src/onHttpGetHello.trigger.ts}
-  \caption{Typical serverless function handler interacting with a database via an ORM.}
-\end{listing}
+\subsubsection{Continuation passing style}
+Whilst it is possible to run a web server such as ExpressJS inside an AWS Lambda function (and in fact the entrypoint of the AWS Lambda NodeJS runtime does exactly this), the core principal of \faas{} is to abstract away this concept of directly defining the webserver, and instead to execute logic in reponse to an event. As a result, a typical \faas{} function can be considered to have a function signature defined in Type Signature \ref{def:faaas-type-signature}.
+
+\begin{signature}[FaaS Function]
+\label{def:faaas-type-signature}
+A \faas{} function $F$ can be considered to have the following type signature:
+
+$$F :: \textrm{event} \rightarrow \textrm{context} \rightarrow \textrm{response}$$
+\end{signature}
+
+This type signature is common across every major \faas{} provider, such as AWS Lambda\cite{amazonAWSLambda2024}, Azure Functions\cite{azureAzureFunctions2024}, Google Cloud Functions\cite{googleGoogleCloudFunctions2024}, OpenWhisk\cite{apacheOpenWhisk2024} and OpenFaaS\cite{ellisOpenFaaS2024}.
+
+This type signature can be defined in terms of a continuations, where instead returning a response, the function returns a type containing its continuation and context. This is defined in Type Signature \ref{def:faaas-continuation-signature}.
+
+\begin{signature}[FaaAS Function Continuation]
+\label{def:faaas-continuation-signature}
+A function $F$ returns a type containing either its continuation and context to be reinvoked once an asynchronous operation has completed, or a result:
+
+$$F' :: \textrm{event} \rightarrow \textrm{context} \rightarrow F' \mid \textrm{result}$$
+\end{signature}
+
+\faas{} functions of this type can then be executed by an executor defined in Signature \ref{def:faaas-executor} which is responsible for invoking the function with the event and context, and then handling the result or continuation.
+
+\begin{signature}[FaaAS Function Executor]
+\label{def:faaas-executor}
+A function executor $E$ is reponsible for invoking a function $F'$ \textbf{until completion} with an event and context, and then returning the result:
+
+$$E :: F' \rightarrow \textrm{event} \rightarrow \textrm{context} \rightarrow \textrm{result}$$
+\end{signature}
+
+In practise these continuations are implemented using a message passing system, where the continuation is registered with a message queue, and the context is passed to the continuation when the message is dequeued. This is illustrated in Figure \ref{fig:faaas-arch}.
+
+\subsubsection{Passing context between continuations}
+In order to pass context between continuations, a context object is passed between each continuation. This context object contains the state of the function at the point of the continuation, and is passed to the continuation when it is invoked. This allows the continuation to access the state of the function at the point of the continuation, and to modify the state of the function for the next continuation.
+
+It is important that this context object captures all variables that are required by the continuation, as the continuation will be executed in a fresh execution environment. As a result, the context object must be serializable, as it will be passed between machines. This context can be captured automatically using free variable analysis, using the algorithm outlined in Algorithm \ref{alg:free-variable-analysis}.
+
+\begin{algorithm}
+\caption{Free variable analysis for scope capture in continuations}
+\label{alg:free-variable-analysis}
+\begin{algorithmic}[1]
+\Require async directive
+\State $V_\mathrm{free} \gets \phi$
+\State $V_\mathrm{decl} \gets \phi$
+
+\State $S \gets \textrm{targetOf(async directive)}$
+
+\ForEach {$s \in$ traverseAfter($S$)}
+    \If {$s$ is a variable declaration}
+        \State $V_\mathrm{decl} \gets V_\mathrm{decl} \cup \{s\}$
+    \ElsIf {$s$ is a variable reference}
+        \If {$s \notin V_\mathrm{decl}$}
+            \State $V_\mathrm{free} \gets V_\mathrm{free} \cup \{s\}$
+        \EndIf
+    \EndIf
+\EndFor
+\Ensure $V_\mathrm{free}$
+\end{algorithmic}
+\end{algorithm}
+
+Once free variable analysis has been performed, the free variables for later statements in the function handler can be captured and serialised into the context object. The proceeding statements after the async directed are detached from the AST and reconnected as the body for the continuation function. This is illustrated in Figure \ref{fig:suites-hello-seq-module-ast}.
 
 \section{Splitting Directive}
 
 To reduce developer effort adapting existing functions to support function splitting, a custom directive is introduced into the function handler body, \verb|'use async'|. The purpose of this directive is to indicate to the \faaasc{} compiler that the function handler body should be split into multiple functions at this point, each of which is executed in separate \awslambda{} functions.
+
+\begin{listing}[H]
+  \inputminted{javascript}{node_modules/@faaas-bench/hello-seq/src/onHttpGetHello.trigger.ts}
+  \caption{Typical serverless function handler interacting with a database via an ORM.}
+\end{listing}
 
 This splitting directive resembles the \verb|'use strict'| directive in JavaScript, which indicates that the code should be executed in strict mode. The \verb|'use async'| directive is a pragma that is not part of the JavaScript language, but is understood by the \faaasc{} compiler. Therefore as a result, unless the \faaasc{} compiler is used, the directive will be ignored by the JavaScript runtime, and so the same code can be run on any other \faas{} platform without modification.
 
@@ -104,20 +267,3 @@ This scope is captured into a serialized context, and stored so that the continu
 \todo[inline]{Describe the different algorithms used to optimise the cost of splitting.}
 
 \section{Message passing}
-
-\section{Response time modelling}
-
-\begin{figure}
-    \begin{center}
-        \input{node_modules/@faaas-diagrams/db-response-times/assets/tpch-q1-resp-times.pgf}
-    \end{center}
-    \caption{TPC-H query 1 responses time superimposed with fitted Weibull distribution, executed on a Postgres AWS RDS \texttt{t3.medium} instance called from AWS lambda.}
-\end{figure}
-
-
-\begin{figure}
-    \begin{center}
-        \input{node_modules/@faaas-diagrams/db-response-times/assets/tpch-q2-resp-times.pgf}
-    \end{center}
-    \caption{TPC-H query 2 responses time superimposed with fitted Weibull distribution, executed on a Postgres AWS RDS \texttt{t3.medium} instance called from AWS lambda.}
-\end{figure}
