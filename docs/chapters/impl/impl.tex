@@ -20,20 +20,106 @@ To reduce developer effort adapting existing functions to support function split
 This splitting directive resembles the \verb|'use strict'| directive in JavaScript, which indicates that the code should be executed in strict mode. The \verb|'use async'| directive is a pragma that is not part of the JavaScript language, but is understood by the \faaasc{} compiler. Therefore as a result, unless the \faaasc{} compiler is used, the directive will be ignored by the JavaScript runtime, and so the same code can be run on any other \faas{} platform without modification.
 
 \subsection{Monitoring and reactivity}
-In this section, we build atop the assetion that asynchronous requests are inherently unpredictable, as described in Section \ref{sec:faas-async-service-response-time-modelling}. This is further compounded by variations over time of the response times' probability distributions, which are modelled as Weibull distributions. An anecdotal example of this is how the response times of databases may be affected by the load that the database is under, which can vary over time.
+In this section, we build atop the assetion that asynchronous requests are inherently unpredictable, as described in Section \ref{sec:faas-async-service-response-time-modelling}, and describe the implementation of the monitor that periodically recomputes the distribution that models async response times, described in \ref{sec:faaas-monitoring-and-strat-switching-design}.
 
-This in turn impacts the profitability of code splitting, as the decision to split a function is based on the expected response time of the asynchronous request.
+Since the distribution of response times is vulnerable to variations of time, for factors due spikes in traffic, a monitor needs to run periodically to recompute the distribution that models async response times. This monitor is responsible for collecting the response times of asynchronous requests, and updating the parameters for their corresponding distributions.
 
-Due to the inherently unpredictable nature of asynchronous requests, it is likely that over the course of an application's lifetime, the response times of asynchronous services can be modelled as a Weibull distribution, as described in , impacting the profitability of code splitting.
+This is vital otherwise the splitting strategy may be otherwise using out-of-date data, that impacts the profitability of code splitting.
 
-\todo[inline]{Introduce how this strategy is propagated to the serverless function}
-\todo[inline]{Introduce how this metric is measured and by who}
+This monitor is implemented as a Python AWS Lambda function, scheduled to run every 5 minutes, and is responsible for aggregating response times from log data, and updating the distribution parameters for each function split. A new monitor is deployed with every function that uses adaptive splitting.
+
+In order to effectively propgatate these parameters to the serverless function, the monitor writes the parameters to a Redis cache, which is read by the serverless function at runtime.
 
 \section{The \faaasc{} Compiler}
-\todo[inline]{Describe the need to use a JavaScript compiler to implement code-splitting}
+In this section, we will discuss the implementation of the \faaasc{} compiler. The \faaasc{} compiler is a tool that allows developers to split their functions into continuations, which are executed in separate \awslambda{} functions invocations.
+
+In order to effectively perform the free variable analysis and code generation described in Section \ref{sec:faaasc-codegen-ast} on the target \faas{} function, the \faaasc{} compiler needs to parse the JavaScript code into an abstract syntax tree (AST). This AST is then traversed to identify the free variables in the function body, and generate the continuation functions.
+
+As a result, a component to parse the JavaScript code into an AST is required. There is a considerable swathe of work completed in the field of JavaScript parsing and code generation, with tools such as Webpack\cite{Webpack} and SWC\cite{RustbasedPlatformWeb} being widely used in the JavaScript community.
+
+In order to focus time on the most important aspects of the project rather than implementing a whole parser from scratch, the \faaasc{} compiler is built on top of the SWC compiler, which is a fast JavaScript/TypeScript compiler that is written in Rust.
 
 \subsection{SWC Compiler}
-\todo[inline]{Discuss the benefits of using Speedy Web Compiler}
+In this section we will discuss the SWC compiler, and how it is used in the \faaasc{} compiler.
+
+Since SWC is written in Rust, there are a set of useful crates which are useful when transforming JavaScript code, specifically, the following packages provide the necessary functionality to parse and generate JavaScript/TypeScript code:
+
+\begin{itemize}
+    \item \verb|swc_atoms|: A crate that provides a set of utilities for working with atoms, which are used to represent strings in the SWC compiler.
+    \item \verb|swc_common|: A crate that provides a set of utilities for working with the SWC AST.
+    \item \verb|swc_ecma_ast|: A crate that provides a set of utilities for working with the SWC ECMAScript AST.
+    \item \verb|swc_ecma_codegen|: A crate that provides a set of utilities for generating JavaScript code from the SWC AST. It is used to generate the output code from the \faaasc{} compiler.
+    \item \verb|swc_ecma_parser|: A crate that provides a set of utilities for parsing JavaScript code into the SWC AST. It is used to parse the input code in the \faaasc{} compiler.
+\end{itemize}
+
+The \faaasc{} compiler uses the \verb|swc_ecma_parser| package to parse the JavaScript code into an AST, and then a visitor pattern is used to traverse the AST and identity function splitting points.
+
+\subsection{Contexts in \faaasc{}}
+In this section, we will discuss the concept of context, and how it is used in \faaasc{}.
+
+As defined in Type Signature \ref{def:faaas-continuation-signature}, Handlers are functions that take an event and a context, and return a result or a new continuation. In \faaasc{}, both the event and context are wrapped up into a single object, referred to as \verb|Context|. This contains the data that is passed to the function handler, as well as the invocation ID.
+
+When returning a continuation from the handler, a continuation object is created, which contains a reference to the asynchronous function, as well as a serialised state as shown in Listing \ref{listing:faaasc-compiler-handler-ret-continuation}. This allows the continuation to be executed with the same context as the original function.
+
+\begin{listing}[H]
+\begin{minted}[obeytabs=true,tabsize=2]{javascript}
+export async function handler_0(ctx: FaaascInternalContext, state: FaaascInternalState) {
+    ...
+    const srcAcc = [`SELECT balance FROM accounts WHERE id == '${src}'`];
+    return continuation(sql, [
+        "handler_1",
+        ...srcAcc
+    ], {
+        src,
+        amount,
+        dst
+    });
+}
+...
+\end{minted}
+\caption{Example of \faaasc{} compiler output}
+\label{listing:faaasc-compiler-handler-ret-continuation}
+\end{listing}
+
+When this continuation is returned from \verb|handler_0|, the adaptor entrypoint decides whether it should invoke the \verb|sql| function locally, or use the proxy to execute the SQL query remotely and reinvoke \verb|handler_1| at a later point.
+
+\subsection{\faas{} provider adaptor pattern}
+In order to support multiple \faas{} providers, the \faaasc{} compiler is designed to be extensible, such that new providers can be added with minimal effort. This is achieved through the use of implementing adaptors for each cloud provider, whereby the logic for splitting and executing continuations is provided by an NPM package. The core requirement for an adaptor is that it exports a \verb|buildEntrypoint| function, with the following function signature:
+
+\begin{signature}
+$$\textbf{type}\, \textrm{Handlers} = \textrm{Map}\mathord{<}\textrm{Str}, \textrm{Handler}\mathord{>}$$
+$$\textbf{type}\, \textrm{EntryFactory} = \textrm{Handlers} \rightarrow \textrm{RawHandler}$$
+\end{signature}
+
+The \faaasc{} compiler output the following.
+
+\begin{listing}[H]
+\begin{minted}[obeytabs=true,tabsize=2]{javascript}
+// The adaptor can be changed using the --adaptor flag.
+import { buildEntrypoint } from "@faaas/aws-adaptor";
+
+// Source handler
+export async function handler(ctx: Context) { ... }
+
+// Split handler continuations
+export async function handler_0(ctx: FaaascInternalContext, state: FaaascInternalState) { ... }
+export async function handler_1(ctx: FaaascInternalContext, state: FaaascInternalState) { ... }
+
+// Entrypoint factory to build the entrypoint function
+export const entrypoint = buildEntrypoint({
+    handler_0,
+    handler_1,
+    handler
+});
+\end{minted}
+\caption{Example of \faaasc{} compiler output}
+\label{listing:faaasc-compiler-adaptor-output}
+\end{listing}
+
+\subsection{AWS Adaptor}
+To allow cost effective deployment to AWS, the \faaasc{} AWS adaptor was implemented. This adaptor is responsible for executing function handlers as continuations, and deferring to proxies based on predicted cost savings.
+
+In order to effectively compute the cost savings, it accounts for the memory allocated to the function, the architecture of the function, and the cost of invoking a function to compute the critical threshold as in \ref{sec:faas-code-splitting-profitability}.
 
 \section{Function continuations}
 \todo[inline]{Introduce function continuation primitives as the return type for \faas{}}
@@ -46,21 +132,25 @@ Due to the inherently unpredictable nature of asynchronous requests, it is likel
 \todo[inline]{Introduce the concept of free variable analysis in JavaScript}
 \todo[inline]{Discuss JavaScript scoping}
 
-\subsection{Modelling variable usage as a DAG}
-\todo[inline]{Introduce the concept of modelling variable usage in each function split as a DAG.}
-
 \section{Queuing function continuations}
-\todo[inline]{Discuss how queuing function continuations is implemented in the \faaas{} stack}
+In this section, we will discuss further how function continuations are queued and consumed in the \faaas{} stack.
 
-\subsection{Existing queuing systems}
-\todo[inline]{Discuss the selection of the queuing system for the \faaas{} stack}
+At the core of the \faaas{} stack is a message queue, specifically RabbitMQ was selected since it supports the ActiveMQ message protocol. This allows the \faaas{} stack to be run locally using a locally hosted version of RabbitMQ, however equally, from an architectural standpoint, there is no reason that AWS SQS or Google Cloud Pub/Sub could not be used instead.
 
-\subsection{Plug-n-play queuing}
-\todo[inline]{Discuss the option to switch out the queueing system for another (they're basically all the same)}
+Specifically for AWS Lambda, RabbitMQ is configured such that for every invocation request that is sent to the queue, it in turn invokes the corresponding AWS Lambda function associated with its routing key. The Lambda function then is responsible for executing the function executes the corresponding handler from the \verb|Handlers| map.
+
+This means that with AWS Lambda, the same Lambda function can handle all of the continuations of the split lambda function, albeit in separate invocations. This allows the handler to avoid cascading cold-starts. When a Lambda chooses to defer to a proxy, it publishes a message to the RabbitMQ queue with the continuation, serialised context and the routing key of the next handler to be invoked.
 
 \section{Gateway}
-\todo[inline]{Introduce the gateway as the entry point for all function invocations}
-\todo[inline]{Discuss how it adds the initial invocation to the queue}
+In this section we will introduce the gateway as the entrypoint for all function invocations, and discuss how it adds the initial invocation to the queue. Following this, we will then discuss how this is deployed on AWS, and fits into the rest of the stack.
+
+The gateway acts an an entrypoint to allow functions to be invoked with data, and listens for the result of the invocation to be published to the message queue before sending the result as a response back to the client. The decision to implement a gateway was made since HTTP triggers are the most common form of triggers\cite{eismannReviewServerlessUse2020}, and all other triggers can effectively be built atop of this HTTP trigger.
+
+The core design principal behind the gateway is that it should act as a thin layer between the client and the message queue, and would need to handle many concurrent connections. To achieve this, the gateway was written in Rust, using Hyper, Tokio and AMPQRS crates to handle HTTP requests and interface with RabbitMQ respsectively. In a production setting, this logic would be incorporated directly into the existing gateway to AWS Lambda, however for the purposes of this project, it was implemented as a standalone service.
+
+In order to deploy the gateway to AWS, it was containerised using Docker, and deployed to AWS ECS.
+
+When the gateway recieves its initial invocation, it serialises the request body and creates a \verb|TaskContext| object, containing the invocation ID, the body, in addition to initial handler for the split function to execute. This is then published to the RabbitMQ queue, which in turn invokes the corresponding AWS Lambda function. The gateway then listens to a unique queue for the invocation ID, and when the result is published to the queue, it is deserialised and sent back to the client as a response.
 
 \section{Consuming function continuations}
 \todo[inline]{Discuss how function continuations are consumed in the \faaas{} stack}
