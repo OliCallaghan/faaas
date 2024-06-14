@@ -75,13 +75,21 @@ Given these equations, we can fit a Weibull distribution to the response times o
     \label{fig:oltp-q1-weibull}
 \end{figure}
 
-\subsection{Persistent storage response time modelling}
-\todo[inline]{Introduce how response times are modelled when interacting with persistent storage.}
-
 \section{Function invocation startup costs}
 \label{sec:faas-function-invocation-startup-costs}
-\todo[inline]{Discuss cold start invocation cost overheads.}
-\todo[inline]{Discuss average startup and teardown costs associated with a function invocation.}
+In this section we will discuss further the impact of invocation startup costs on the profitability of splitting a function invocation.
+
+When a function is invoked on a \faas{} platform, there are hidden costs associated with the invocation beyond the cost of executing the user's code. These costs are incurred when the function is invoked, and are associated with the setup code that is run before the user's code. This setup code includes the initialisation of the function's execution environment, and the initialisation of the function's runtime.
+
+There has been substantial research into reducing this overhead as described in Section TODO, however the overhead has not been completely eliminated, and must be incorporated into models that aim to estimate the cost of invoking a function.
+
+There are two main components to the invocation startup costs: the cold start invocation cost, and the average startup and teardown costs associated with a function invocation.
+
+In the case of cold starts, the function's execution environment must be initialised prior to the function being called. In VM based isolation methods, this involves spinning up a new VM, and loading the function's code into the VM. In container based isolation methods, this involves starting a new container, and loading the function's code into the container. This process can take a non-trivial amount of time, and can be a bottleneck in the performance of a \faas{} platform. This invocation cost is charged to the user. This cold-start invocation cost is a one-off cost, and is not incurred on subsequent invocations of the function, thus for this research, we will not consider this cost in our model.
+
+The other case is the average startup and teardown costs associated with a function invocation. These costs are incurred on every invocation of the function, and are derived from the setup code that is run before the user's code. This includes establishing connections to databases, and in the context of \faaas{}, writing the result or continuation from executing a handler back to the message queue. These costs are included within the function execution time and so are billed to the customer the same as if it were executing their own code.
+
+Similarly to the response times of asynchronous services, this hidden setup time can be modelled as a Weibull distribution.
 
 \section{Code splitting profitability analysis}
 \label{sec:faas-code-splitting-profitability}
@@ -160,11 +168,18 @@ P(\mathrm{profit}) & =
 \end{aligned}
 \end{equation}
 
-Using this probability, the function developer can then specify a probability threshold which the function executor can use to determine whether to split the function or not.
+Using this probability, the function developer can then specify a probability threshold which the function executor can use to determine whether to split the function or not. This model is visualised in Figure \ref{fig:splitting-profitability-analysis-weibull-fit}. In this figure, the Weibull distribution is fitted to the response times of a hypothetical asynchronous request that the system is determining whether to split. The green vertical line at $t = \hat{t}$ represents the minimum time threshold that the function must be executing for in order to overcome the additional invocation cost. The area under the curve to the right of this line represents the probability that splitting the function will be profitable.
+
+\begin{figure}
+    \begin{center}
+        \input{node_modules/@faaas-diagrams/db-response-times/assets/split-profitability.pgf}
+    \end{center}
+    \caption{Visualisation of the profitability analysis of code splitting around an asynchronous request, using a Weibull distribution.}
+    \label{fig:splitting-profitability-analysis-weibull-fit}
+\end{figure}
 
 \subsection{Monitoring and strategy switching}
 \label{sec:faaas-monitoring-and-strat-switching-design}
-\todo[inline]{Discuss how the profitability model can be used to switch between code splitting strategies.}
 In this section we will discuss how this profitability model can be used to switch between code splitting strategies much more indepth.
 
 Two different splitting strategies are proposed and discussed further in Chapter \ref{chap:impl}:
