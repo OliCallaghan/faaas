@@ -1,34 +1,29 @@
-\chapter{Implementation of the \faaas{} stack}
+\chapter{Implementation of \faaas{}: Automatic Adaptive Code Splitting for \faaslong{}}
 \label{chap:impl}
-In this chapter, the \faaas{} stack is implemented and deployed to AWS in the form of the \faaasc{} compiler, and a set of stateful proxy components. The \faaasc{} compiler is a tool that allows developers to split their functions into multiple functions, which are executed in separate \awslambda{} functions. The PostgreSQL proxy component acts as a shim layer around a PostgresDB that executes queries, reinvoking the expected continuation on query completion, since Postgres only supports the request-response model.
+In this chapter, the implementation of \faaasc{}, an automatic function splitting compiler, is discussed. Following this, a general architectural outline is defined, shown in Figure \ref{fig:faaas-arch}, before focusing more indepth on the implementation of the proxy wrapper around PostgreSQL in addition to the gateway. Finally, the approach to deploying this stack onto AWS is discussed, alongside the adaptive and static splitting strategies for determining when to split functons.
 
 \section{Requirements}
-In this section, we will discuss the technical requirements around the core components of the \faaas{} stack.
-
-\cprotect\subsection{The \faaasc{} compiler}
-In this section, we will discuss the technical requirements around the \faaasc{} compiler.
-
-In alignment with the ethos of \faas{} whereby developer time is spent focusing on the business logic of their application rather than the infrastructure, the design of \faaasc{} should be such that it is easy to use and requires minimal developer effort to leverage the benefits of function splitting.
-
-Since the primary code target of \faaasc{} is JavaScript (and by extension TypeScript) serverless functions, specifically ES6 syntax, \faaasc{} should be designed such that it integrates with existing tooling to deploy to \awslambda{}, specifically Serverless\cite{serverlessServerlessZeroFrictionServerless2024}.
+In this section, we will discuss the technical requirements around the core components of \faaas{}.
 
 \cprotect\subsection{DX of the \faaasc{} compiler}
-In this section, we will further discuss the requirements around developer experience (DX) of the \faaasc{} compiler.
+In alignment with the ethos of \faas{} whereby developer time is spent focusing on the business logic of their application rather than the infrastructure, the \faaasc{} compiler was designed such that it is easy to use and requires minimal developer effort to leverage the benefits of function splitting. It allows the same code to be executed in a split and non split manner without modification.
 
-To reduce developer effort adapting existing functions to support function splitting, a custom directive is introduced into the function handler body, \verb|'use async'|. The purpose of this directive is to indicate to the \faaasc{} compiler that the function handler body should be split into multiple functions at this point, each of which is executed in separate \awslambda{} functions.
+Since the primary code target of \faaasc{} is JavaScript (and by extension TypeScript) serverless functions, specifically ES6 syntax, \faaasc{} was be designed such that it can target these codebases and integrate within the existing ecosystem of JavaScript tooling.
 
-This splitting directive resembles the \verb|'use strict'| directive in JavaScript, which indicates that the code should be executed in strict mode. The \verb|'use async'| directive is a pragma that is not part of the JavaScript language, but is understood by the \faaasc{} compiler. Therefore as a result, unless the \faaasc{} compiler is used, the directive will be ignored by the JavaScript runtime, and so the same code can be run on any other \faas{} platform without modification.
+To reduce developer effort adapting existing functions to support function splitting, a custom directive is introduced into the function handler body, \verb|'use async'|. The purpose of this directive is to marshall to the \faaasc{} compiler at which point in the function body the function should be split into multiple function handlers that return continuations, each of which can be executed independently in separate \awslambda{} function invocations. An example of this can be seen in Listing \ref{listing:use-async-simple-example}.
 
-\subsection{Monitoring and reactivity}
-In this section, we build atop the assetion that asynchronous requests are inherently unpredictable, as described in Section \ref{sec:faas-async-service-response-time-modelling}, and describe the implementation of the monitor that periodically recomputes the distribution that models async response times, described in \ref{sec:faaas-monitoring-and-strat-switching-design}.
+\begin{listing}[H]
+\begin{minted}[obeytabs=true,tabsize=2]{javascript}
+export async function handler(_) {
+  "use async";
+  const foo = await bar();
+}
+\end{minted}
+\caption{Example usage of the directive.}
+\label{listing:use-async-simple-example}
+\end{listing}
 
-Since the distribution of response times is vulnerable to variations of time, for factors due spikes in traffic, a monitor needs to run periodically to recompute the distribution that models async response times. This monitor is responsible for collecting the response times of asynchronous requests, and updating the parameters for their corresponding distributions.
-
-This is vital otherwise the splitting strategy may be otherwise using out-of-date data, that impacts the profitability of code splitting.
-
-This monitor is implemented as a Python AWS Lambda function, scheduled to run every 5 minutes, and is responsible for aggregating response times from log data, and updating the distribution parameters for each function split. A new monitor is deployed with every function that uses adaptive splitting.
-
-In order to effectively propgatate these parameters to the serverless function, the monitor writes the parameters to a Redis cache, which is read by the serverless function at runtime.
+This splitting directive resembles the \verb|'use strict'| directive in JavaScript, which indicates that the code should be executed in strict mode. The \verb|'use async'| directive is a pragma that is not part of the JavaScript language, but is understood by the \faaasc{} compiler. Therefore as a result, unless the \faaasc{} compiler is used, the directive will be ignored by the JavaScript runtime, and so the same code can be run without modification, in a context with no code-splitting.
 
 \section{The \faaasc{} Compiler}
 In this section, we will discuss the implementation of the \faaasc{} compiler. The \faaasc{} compiler is a tool that allows developers to split their functions into continuations, which are executed in separate \awslambda{} functions invocations.
@@ -42,7 +37,7 @@ In order to focus time on the most important aspects of the project rather than 
 \subsection{SWC Compiler}
 In this section we will discuss the SWC compiler, and how it is used in the \faaasc{} compiler.
 
-Since SWC is written in Rust, there are a set of useful crates which are useful when transforming JavaScript code, specifically, the following packages provide the necessary functionality to parse and generate JavaScript/TypeScript code:
+The SWC compiler is a fast JavaScript/TypeScript compiler that is written in Rust. There are a set of useful crates from the SWC project which simplify the process of parsing and transforming JavaScript code, specifically, the following packages provide the necessary functionality to translate between code and Abstract Syntax Tree representations:
 
 \begin{itemize}
     \item \verb|swc_atoms|: A crate that provides a set of utilities for working with atoms, which are used to represent strings in the SWC compiler.
@@ -52,7 +47,30 @@ Since SWC is written in Rust, there are a set of useful crates which are useful 
     \item \verb|swc_ecma_parser|: A crate that provides a set of utilities for parsing JavaScript code into the SWC AST. It is used to parse the input code in the \faaasc{} compiler.
 \end{itemize}
 
-The \faaasc{} compiler uses the \verb|swc_ecma_parser| package to parse the JavaScript code into an AST, and then a visitor pattern is used to traverse the AST and identity function splitting points.
+The \faaasc{} compiler specifically uses the \verb|swc_ecma_parser| package to parse the JavaScript code into an AST, and then a visitor pattern is used to traverse the AST and identity function splitting points.
+
+Additionally, it uses the \verb|swc_ecma_transforms| crate which traverses the AST and resolves declarations and references to identifiers within nodes to their correct \verb|SyntaxContext|. This is important when handling cases where incorrect scope may be captured in a continuation, as shown in Listing \ref{listing:scope-syntax-context}
+
+\begin{listing}[H]
+\begin{minted}[obeytabs=true,tabsize=2]{javascript}
+export async function handler_0(ctx: FaaascInternalContext, state: FaaascInternalState) {
+    const x = 1; // tagged as x#0
+    'use async';
+    const y = await foo();
+    {
+        const x = 2; // tagged as x#1
+        console.log(x)
+    }
+    return x; // needs to capture the correct x, x#0
+}
+...
+\end{minted}
+\caption{Example of scope variables that need to be captured in a continuation.}
+\label{listing:scope-syntax-context}
+\end{listing}
+
+\subsection{Splitting \faas{} handlers}
+In order to split handlers, the \faaasc{} compiler needs to traverse the AST, starting from the module root. It then works its way through exported function definitions, until it finds the function `handler'. It then traverses the function body, looking for the directive \verb|'use async'|. When this directive is found, the function is split at this point, whereby every visited statement to that point is pushed to the body of a generated function handler, and code generation is performed to capture the state of the function at that point.
 
 \subsection{Contexts in \faaasc{}}
 In this section, we will discuss the concept of context, and how it is used in \faaasc{}.
@@ -193,16 +211,16 @@ To reduce developer effort adapting existing functions to support function split
 
 This splitting directive resembles the \verb|'use strict'| directive in JavaScript, which indicates that the code should be executed in strict mode. The \verb|'use async'| directive is a pragma that is not part of the JavaScript language, but is understood by the \faaasc{} compiler. Therefore as a result, unless the \faaasc{} compiler is used, the directive will be ignored by the JavaScript runtime, and so the same code can be run on any other \faas{} platform without modification.
 
-\begin{listing}[H]
-\begin{minted}[obeytabs=true,tabsize=2]{javascript}
-export async function handler(_) {
-  "use async";
-  const foo = await bar();
-}
-\end{minted}
-\caption{Example usage of the directive.}
-\label{listing:use-async-simple-example}
-\end{listing}
+%\begin{listing}[H]
+%\begin{minted}[obeytabs=true,tabsize=2]{javascript}
+%export async function handler(_) {
+%  "use async";
+%  const foo = await bar();
+%}
+%\end{minted}
+%\caption{Example usage of the directive.}
+%\label{listing:use-async-simple-example}
+%\end{listing}
 
 Immediately following the \verb|'use async'| directive, it is expected that a variable declaration is made and initialised to the resolved value from a promise constructed by calling a function, as seen in Listing \ref{listing:use-async-simple-example}.
 
@@ -217,3 +235,29 @@ Immediately following the \verb|'use async'| directive, it is expected that a va
 
 \section{Decomposition of \faas{} functions into continuations}
 The core principal underpinning the design of \faaas{} is to decompose each \faas{} invocation into a set of function continuations. Similarly to how event driven runtimes such as \js{} handle continuations of asynchronous code with an event loop as described in Section \ref{sec:js-event-loop}, \faaas{} takes advantage of function splitting (via code generation) and uses message passing to register continuations to be executed with a continuation context.
+
+\subsection{Monitoring and reactivity}
+In this section, we build atop the assetion that asynchronous requests are inherently unpredictable, as described in Section \ref{sec:faas-async-service-response-time-modelling}, and describe the implementation of the monitor that periodically recomputes the distribution that models async response times, described in \ref{sec:faaas-monitoring-and-strat-switching-design}.
+
+Since the distribution of response times is vulnerable to variations of time, for factors due spikes in traffic, a monitor needs to run periodically to recompute the distribution that models async response times. This monitor is responsible for collecting the response times of asynchronous requests, and updating the parameters for their corresponding distributions.
+
+This is vital otherwise the splitting strategy may be otherwise using out-of-date data, that impacts the profitability of code splitting.
+
+This monitor is implemented as a Python AWS Lambda function, scheduled to run every 5 minutes, and is responsible for aggregating response times from log data, and updating the distribution parameters for each function split. A new monitor is deployed with every function that uses adaptive splitting.
+
+In order to effectively propgatate these parameters to the serverless function, the monitor writes the parameters to a Redis cache, which is read by the serverless function at runtime.
+
+\section{Function splitting strategies}
+In this section, we will describe the different strategies for function splitting that are supported by \faaas{}.
+
+\subsection{Static function splitting}
+This is the simplest form of function splitting, whereby the developer has full control over when the function is to be split. This is implemented simply by always executing the split at runtime.
+
+\subsection{Adaptive function splitting}
+Due to the unpredictable nature of asynchronous requests as described in Section \ref{sec:faas-async-service-response-time-modelling}, it is important to consider that the distribution of response times may change over time. This is particularly important when considering the profitability of code splitting, as the distribution of response times is used to determine the optimal split point.
+
+To address this, we introduce the concept of adaptive function splitting, which is a strategy that dynamically adjusts whether to split a function or wait for the response to return based on the distribution of historic response times at runtime. This is achieved by periodically monitoring the distribution of response times from logfiles, and recomputing the optimal split point based on the updated distribution.
+
+This was achieved in the AWS deployment by defining a scheduled AWS Lambda function to be invoked every 5 minutes, that is responsible for collecting a sample of response times from AWS CloudWatch of asynchronous requests, and updating the parameters for their corresponding distributions. The monitor then computes the optimal parameters $k$, $\phi$, and $\lambda$ by fitting the Weibull distribution to the source data using Maximum Likelihood Estimation, and then writing these parameters to the Redis cache, which is read by the serverless function at runtime.
+
+This approach is particularly useful for functions that are subject to high variability in response times, as it allows the function to adapt to changes in the distribution of response times over time, and adjust the split point accordingly.
