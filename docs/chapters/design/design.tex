@@ -266,4 +266,39 @@ This scope is captured into a serialized context, and stored so that the continu
 \subsection{Splitting cost optimisation algorithm}
 \todo[inline]{Describe the different algorithms used to optimise the cost of splitting.}
 
-\section{Message passing}
+\section{Proxies}
+The typical database's request-response model is not particularly well suited for \faaas{} model, as the when handling a query, the database, in this instance Postgres, opens a connection over TCP, which is then used to send the result of the query back to the client. This poses a problem, whereby the client must maintain a connection to the database for the duration of the query, which removes the possibility of ending the function early.
+
+In order to address this problem, we introduce the concept of a proxy, which is a lightweight wrapper around a traditional request/response model service, which maintains the connection to the database, forwarding requests it recieves over a message bus directly onto the database. Once the database responds with the result of the query, the proxy then publishes this result back to a message bus, which in turn triggers the continuation function to complete the rest of the handler.
+
+\subsection{Formalising a Proxy}
+Proxies are by nature continuation passing style continuations, which are passed the next `function continuation' in the chain of generated function continuations. This is formalised in the following signature:
+
+\begin{signature}[Proxy]
+$$P :: F' \rightarrow \textrm{event} \rightarrow \textrm{context} \rightarrow \textrm{result}$$
+\end{signature}
+
+Where $F'$ is the next function continuation in the chain of generated function continuations, and the event is the event that triggered the function handler. The context is the context object that was passed to the continuation, and the result is the result of the query that was made to the database.
+
+To put this into perspective, consider the proxy defined in \ref{alg:database-proxy}. This proxy accepts a continuation, and an event and continuation context.
+
+\begin{algorithm}
+\caption{Example of a split handler using a proxy}
+\label{alg:database-proxy}
+\begin{algorithmic}[1]
+\Function{fst}{$F', \textrm{event}, \textrm{context}$}
+    \State $query \gets ``..."$
+    \State \Return \textsc{proxy_db}(\textsc{snd}, $query$, context)
+\EndFunction
+
+\Function{proxy_db}{$F', \textrm{query}, \textrm{context}$}
+    \State $result \gets \textrm{sql}(\textrm{event})$
+    \State \Return $F'(result, \textrm{context})$
+\EndFunction
+
+\Function{snd}{$F', \textrm{event}, \textrm{context}$}
+    \State $result \gets \textrm{event}$
+    \State \Return $result$
+\EndFunction
+\end{algorithmic}
+\end{algorithm}
