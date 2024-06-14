@@ -1,4 +1,5 @@
 \chapter{Implementation of the \faaas{} stack}
+\label{chap:impl}
 In this chapter, the \faaas{} stack is implemented and deployed to AWS in the form of the \faaasc{} compiler, and a set of stateful proxy components. The \faaasc{} compiler is a tool that allows developers to split their functions into multiple functions, which are executed in separate \awslambda{} functions. The PostgreSQL proxy component acts as a shim layer around a PostgresDB that executes queries, reinvoking the expected continuation on query completion, since Postgres only supports the request-response model.
 
 \section{Requirements}
@@ -12,7 +13,6 @@ In alignment with the ethos of \faas{} whereby developer time is spent focusing 
 Since the primary code target of \faaasc{} is JavaScript (and by extension TypeScript) serverless functions, specifically ES6 syntax, \faaasc{} should be designed such that it integrates with existing tooling to deploy to \awslambda{}, specifically Serverless\cite{serverlessServerlessZeroFrictionServerless2024}.
 
 \cprotect\subsection{DX of the \faaasc{} compiler}
-\todo[inline]{Introduce why the DX of the \faaasc{} compiler is important.}
 In this section, we will further discuss the requirements around developer experience (DX) of the \faaasc{} compiler.
 
 To reduce developer effort adapting existing functions to support function splitting, a custom directive is introduced into the function handler body, \verb|'use async'|. The purpose of this directive is to indicate to the \faaasc{} compiler that the function handler body should be split into multiple functions at this point, each of which is executed in separate \awslambda{} functions.
@@ -20,8 +20,11 @@ To reduce developer effort adapting existing functions to support function split
 This splitting directive resembles the \verb|'use strict'| directive in JavaScript, which indicates that the code should be executed in strict mode. The \verb|'use async'| directive is a pragma that is not part of the JavaScript language, but is understood by the \faaasc{} compiler. Therefore as a result, unless the \faaasc{} compiler is used, the directive will be ignored by the JavaScript runtime, and so the same code can be run on any other \faas{} platform without modification.
 
 \subsection{Monitoring and reactivity}
-\todo[inline]{Establish that async requests are unpredictable in execution time}
-Due to the nature of asynchronous requests and scalability issues, it is likely that over the course of an application's lifetime, the response times of asynchronous services will vary, impacting the profitability of code splitting.
+In this section, we build atop the assetion that asynchronous requests are inherently unpredictable, as described in Section \ref{sec:faas-async-service-response-time-modelling}. This is further compounded by variations over time of the response times' probability distributions, which are modelled as Weibull distributions. An anecdotal example of this is how the response times of databases may be affected by the load that the database is under, which can vary over time.
+
+This in turn impacts the profitability of code splitting, as the decision to split a function is based on the expected response time of the asynchronous request.
+
+Due to the inherently unpredictable nature of asynchronous requests, it is likely that over the course of an application's lifetime, the response times of asynchronous services can be modelled as a Weibull distribution, as described in , impacting the profitability of code splitting.
 
 \todo[inline]{Introduce how this strategy is propagated to the serverless function}
 \todo[inline]{Introduce how this metric is measured and by who}
