@@ -152,40 +152,6 @@ In order to deploy the gateway to AWS, it was containerised using Docker, and de
 
 When the gateway recieves its initial invocation, it serialises the request body and creates a \verb|TaskContext| object, containing the invocation ID, the body, in addition to initial handler for the split function to execute. This is then published to the RabbitMQ queue, which in turn invokes the corresponding AWS Lambda function. The gateway then listens to a unique queue for the invocation ID, and when the result is published to the queue, it is deserialised and sent back to the client as a response.
 
-\section{Consuming function continuations}
-\todo[inline]{Discuss how function continuations are consumed in the \faaas{} stack}
-\todo[inline]{Introduce the HTTP proxy consumer}
-\todo[inline]{Introduce the PostgreSQL \faaas{} consumer}
-\todo[inline]{Introduce the BOSS \faaas{} engine consumer}
-
-\subsection{HTTP proxy consumer}
-\todo[inline]{For slow HTTP requests}
-
-\subsection{PostgreSQL \faaas{} consumer}
-\todo[inline]{For slow HTTP requests}
-
-\subsection{BOSS \faaas{} engine consumer}
-\todo[inline]{For slow HTTP requests}
-
-\subsection{Reporting response times}
-\todo[inline]{Discuss what reports the response times for asynchronous operations}
-
-\section{Reducing cold-starts on AWS Lambda}
-\todo[inline]{Introduce how cold-starts are a limiting factor when using \faas{}}
-\todo[inline]{Xanadu demonstrated that this was a solvable problem, which if implemented would decrease bundle size of each function.}
-\todo[inline]{Link back to AWS Lambda's slot placement algorithm}
-\todo[inline]{Discuss how \faaasc{} outputs a single function which is invoked by the gateway}
-
-\section{The \faaastime{} experimental runtime}
-\todo[inline]{Introduce how existing runtimes are not suitable for measuring and providing metrics on the performance of asynchronous operations}
-\todo[inline]{Discuss how existing research has been focused on improving cold-start times for serverless functions}
-\todo[inline]{Introduce \faaastime{} as an experimental setup with low cost-start times to measure the performance of asynchronous operations and report these back to the functions.}
-\todo[inline]{Note how \faaastime{} is intended to be swapped in and out for another runtime that has faster cold starts.}
-
-\subsection{\faaastime{} workers}
-\todo[inline]{Discuss how \faaastime{} uses WASI to measure the response times of asynchronous operations}
-\todo[inline]{Using }
-
 \begin{figure*}
     \centering
     \subfigure[AWS Native \faaas{} architecture]{

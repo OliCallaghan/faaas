@@ -258,17 +258,31 @@ $$\textbf{type}\, \textrm{Proxy} = \textrm{Handler} \rightarrow (\textrm{evt}, \
 In practise these continuations are implemented using a message passing system, where the continuation is registered with a message queue, and the context is passed to the continuation when the message is dequeued. This architectural overview is discussed in Chapter \ref{chap:impl}, and illustrated in Figure \ref{fig:faaas-arch}.
 
 \subsubsection{Avoiding the double billing problem}
-In this section, we will illustrate how formalising \faas{} using continuation passing style can be used to avoid the double billing problem described in \ref{sec:double-billing-problem}.
+In this section, we will illustrate how formalising \faas{} using continuation passing style can be used to avoid the double billing problem described in Section \ref{sec:double-billing-problem}.
 
 The double billing problem arises when a function handler makes an asynchronous request to a service, and then waits for the response. By splitting a single function around an asynchronous request, we can delegate execution of the asynchronous requests to a context with a different billing model, such as Containers-as-a-Service (CaaS), and reinvoke the rest of the function in the original \faas{} context.
 
-To put this into perspective, consider the proxy defined in \ref{alg:database-proxy}. This proxy accepts a continuation, and an event and continuation context.
+To put this into perspective, consider the unsplit function defined in Algorithm \ref{alg:faaas-no-split-example}. In this scenario, a handler \textsc{fst_and_snd} invokes an asynchronous service \verb|sql|, to execute a query. It waits for this query to return before returning the result.
 
 \begin{algorithm}
 \caption{Example of a split handler using a proxy}
-\label{alg:database-proxy}
+\label{alg:faaas-no-split-example}
 \begin{algorithmic}[1]
-\Function{fst}{$F', \textrm{event}, \textrm{context}$}
+\Function{fst_and_snd}{\textrm{event}, \textrm{context}$}
+    \State $query \gets ``..."$
+    \State $result \gets \textrm{sql}(\textrm{event})$
+    \State \Return $result$
+\EndFunction
+\end{algorithmic}
+\end{algorithm}
+
+This Algorithm can be rewritten using function continuations into a form
+
+\begin{algorithm}
+\caption{Example of a split handler using a proxy}
+\label{alg:faaas-split-example}
+\begin{algorithmic}[1]
+\Function{fst}{\textrm{event}, \textrm{context}$}
     \State $query \gets ``..."$
     \State \Return \textsc{proxy_db}(\textsc{snd}, $query$, context)
 \EndFunction
@@ -278,7 +292,7 @@ To put this into perspective, consider the proxy defined in \ref{alg:database-pr
     \State \Return $F'(result, \textrm{context})$
 \EndFunction
 
-\Function{snd}{$F', \textrm{event}, \textrm{context}$}
+\Function{snd}{\textrm{event}, \textrm{context}$}
     \State $result \gets \textrm{event}$
     \State \Return $result$
 \EndFunction
