@@ -51,14 +51,6 @@ F(t; k, \phi, \lambda) =
 
 Given these equations, we can fit a Weibull distribution to the response times of an asynchronous service, as illustrated in Figures \ref{fig:tpch-q2-weibull} and \ref{fig:oltp-q1-weibull}, and use this distribution to estimate the expected response time of the service.
 
-%\begin{figure}
-%    \begin{center}
-%        \input{node_modules/@faaas-diagrams/db-response-times/assets/tpch-q1-resp-times.pgf}
-%    \end{center}
-%    \caption{TPC-H query 1 responses time superimposed with fitted Weibull distribution, executed on a Postgres AWS RDS \texttt{t3.medium} instance called from AWS lambda.}
-%    \label{fig:tpch-q1-weibull}
-%\end{figure}
-
 \begin{figure}
     \begin{center}
         \input{node_modules/@faaas-diagrams/db-response-times/assets/tpch-q2-resp-times.pgf}
@@ -81,21 +73,29 @@ In this section we will discuss further the impact of invocation startup costs o
 
 When a function is invoked on a \faas{} platform, there are hidden costs associated with the invocation beyond the cost of executing the user's code. These costs are incurred when the function is invoked, and are associated with the setup code that is run before the user's code. This setup code includes the initialisation of the function's execution environment, and the initialisation of the function's runtime.
 
-There has been substantial research into reducing this overhead as described in Section TODO, however the overhead has not been completely eliminated, and must be incorporated into models that aim to estimate the cost of invoking a function.
+There has been substantial research into reducing this overhead as described in Section \ref{sec:faas-isolation}, however the overhead has not been completely eliminated, and must be incorporated into models that aim to estimate the cost of invoking a function.
 
 There are two main components to the invocation startup costs: the cold start invocation cost, and the average startup and teardown costs associated with a function invocation.
 
+\subsection{Cold starts}
 In the case of cold starts, the function's execution environment must be initialised prior to the function being called. In VM based isolation methods, this involves spinning up a new VM, and loading the function's code into the VM. In container based isolation methods, this involves starting a new container, and loading the function's code into the container. This process can take a non-trivial amount of time, and can be a bottleneck in the performance of a \faas{} platform. This invocation cost is charged to the user. This cold-start invocation cost is a one-off cost, and is not incurred on subsequent invocations of the function, thus for this research, we will not consider this cost in our model.
 
+\subsection{Setup and teardown costs}
 The other case is the average startup and teardown costs associated with a function invocation. These costs are incurred on every invocation of the function, and are derived from the setup code that is run before the user's code. This includes establishing connections to databases, and in the context of \faaas{}, writing the result or continuation from executing a handler back to the message queue. These costs are included within the function execution time and so are billed to the customer the same as if it were executing their own code.
 
 Similarly to the response times of asynchronous services, this hidden setup time can be modelled as a Weibull distribution.
 
+\section{What is code splitting?}
+\label{sec:faas-code-splitting}
+In this section, we will introduce the concept of code splitting around asynchronous requests, whereby an existing function is split into two functions, the first making the request, with the second function being invoked by the  asynchronously. This section should give the reader an understanding of the principal behind code splitting.
+
+When performing an asynchronous request in a function, the function will be allocated resources until the request resovles. During this period, the function is billed per unit of time the resources are allocated, rather than by actual usage. During times when the function is waiting for a request to resolve, it is not performing any useful work, and so the user is being billed for idle time.
+
+In a split function, the second handler is invoked with the response when it is ready. This means that after the first function exits, there are no functions executing and so there is no billable time in this period. Whilst in practise this seems benficial, in practise, there are a set of challenges that must be overcome to make this a profitable strategy, most notably the billing model of \faas{} platforms, that charge high invocation costs that negate cost savings made by splitting the function.
+
 \section{Code splitting profitability analysis}
 \label{sec:faas-code-splitting-profitability}
-In this section, we will discuss the profitability of splitting a function around an asynchronous request, as defined in Section TODO, and introduce a model which can be used to determine the probability that splitting a function invocation will be profitable.
-
-\todo[inline]{Describe code splitting somewhere.}
+In this section, we will discuss the profitability of splitting a function around an asynchronous request, as defined in Section \ref{sec:faas-code-splitting}, and introduce a model which can be used to determine the probability that splitting a function invocation will be profitable.
 
 As discussed in Section \ref{sec:faas-function-invocation-startup-costs}, there are hidden costs with invoking a function beyond the cost of executing the user's code. This translates into a time penalty incurred when executing a function, where setup code is run before the user's code. This can be formalised into the costing model, by introducing a randomly variable $t_o$ that follows a Weibull distribution shown in Equation \ref{eq:faas-invocation-startup-overhead}, representing the time taken to begin executing a function invocation.
 
@@ -120,7 +120,10 @@ C_o(t_0 + t_1 + t_2) > C_o(t_0) + C_o(t_2)
 Since the Weibull distribution is not closed under subtraction, we cannot easily subtract one distribution from another, so we randomly sample $t_o$ as $\hat{t_o}$ from the distribution and use this value to compute a minimum time threshold which a function must be asychronously executing for to decide to split.
 
 \begin{equation} \label{eq:faas-min-split-time}
-t_1 > \frac{G}{C_r} \left( C_D(t_0) + C_D(t_2) + C_D(\hat{t_o}) + C_i - C_D(t_0 + t_2) \right)
+\begin{aligned}
+t_1 > \frac{G}{C_r} \Bigl( & C_D(t_0) + C_D(t_2) \\
+& + C_D(\hat{t_o}) + C_i - C_D(t_0 + t_2) \Bigl)
+\end{aligned}
 \end{equation}
 
 From this we can derive some upper bound heuristics which make it easier to reason about. For example, it is never profitable to split a function if the time saved is less than the equivalent saved invocation cost, as shown in Equation \ref{eq:faas-min-split-time-upper-bound}.

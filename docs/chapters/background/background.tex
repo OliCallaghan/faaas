@@ -37,6 +37,7 @@ Within the container runtime, the OCI runtime is responsible for taking the comp
 Derived from the success of serverless computing, \faas{} rose to prominence in the mid-2010s\cite{AmazonWebServices2014,azureAnnouncingGeneralAvailability2016}. It allows developers to write code as functions that are executed in sandboxed environments in response to events, such as HTTP requests, database changes, or file uploads\cite{EventarcOverview,EventListenerAmazon,robeceOverviewAzureEvent2024}. Typically, serverless functions are billed for the duration of their execution in addition to a flat invocation cost, allowing for fine-grained billing of resources\cite{bortoliniInvestigatingPerformanceCost2020}. Additionally, since the underlying infrastructure of the function is abstracted away from the developer, the responsibility for scaling the function is moved to the cloud provider.
 
 \section{\faas{} isolation mechanisms}
+\label{sec:faas-isolation}
 Typically, multi-tenany public \faas{} providers can be characterised into two categories: providers offering VM based isolation\cite{agacheFirecrackerLightweightVirtualization2020} and providers offering container based isolation\cite{GVisor}. Both types provide differing levels of security guarantees, and have different performance characteristics.
 
 \subsection{VM based isolation}
@@ -65,9 +66,6 @@ OpenFaaS\cite{ellisOpenFaaS2024} provides container based isolation for \faas{} 
 Whilst containers provide a much lighter footprint in comparison to VM based isolation, CloudFlare Workers\cite{CloudComputingContainers2018} and Vercel Edge Functions\cite{EdgeRuntime} both utilise V8 isolates to provide lightweight user-space isolation between functions. Whilst less secure than process-based isolation employed by contianers, V8 isolates provide a much denser packing of functions on a single host, and can provide much lower cold start times.
 
 Additional work surrounding microarchitectural vulnerabilities such as Spectre within V8 isolates has been carried out to ensure that V8 isolates can execute securely in multitenant environment\cite{schwarzlRobustScalableProcess2022}.
-
-\subsection{GraalOS and GraalVM based isolation}
-\todo[inline]{Discuss how GraalOS and GraalVM reduces cold start times.}
 
 \subsection{Wasm based isolation}
 WASM provides a secure and efficient environment for executing untrusted code\cite{WebAssembly} in a multitenant environment. Initially developed to run in the browser, WASM allows for the execution of untrusted code in a sandboxed environment without the need for a full VM or container. It has formal semantics\cite{haasBringingWebSpeed2017}, its embeddings can be formally proven to be memory-safe\cite{SecurefoundationsVWasm2024}, and utilises software based fault isolation to ensure that code cannot escape the sandbox\cite{SecurityWebAssembly}. Despite this effort, microarchitectural vulnerabilities such as Spectre still exist within WASM runtimes, and additional work is being carried out to mitigate these\cite{narayanSwivelHardeningWebAssembly2021}.
