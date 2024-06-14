@@ -152,6 +152,23 @@ In order to deploy the gateway to AWS, it was containerised using Docker, and de
 
 When the gateway recieves its initial invocation, it serialises the request body and creates a \verb|TaskContext| object, containing the invocation ID, the body, in addition to initial handler for the split function to execute. This is then published to the RabbitMQ queue, which in turn invokes the corresponding AWS Lambda function. The gateway then listens to a unique queue for the invocation ID, and when the result is published to the queue, it is deserialised and sent back to the client as a response.
 
+\begin{figure}[htp]
+    \centering
+    \subfigure[\faas{} architecture from request to response]{
+        \centering
+        \begin{tikzpicture}[scale = 0.75, every node/.style={scale=0.75}]
+            \input{node_modules/@faaas/arch-overview-source/assets/arch-overview-source.pgf}
+        \end{tikzpicture}
+    }\quad
+    \subfigure[Split \faas{} handler using message passing to between split sections of function handler body]{
+        \centering
+        \begin{tikzpicture}[scale = 0.75, every node/.style={scale=0.75}]
+            \input{node_modules/@faaas/arch-overview-split/assets/arch-overview-split.pgf}
+        \end{tikzpicture}
+    }
+    \caption{\faas{} architecture enabling split function handlers}
+\end{figure}
+
 \begin{figure*}
     \centering
     \subfigure[AWS Native \faaas{} architecture]{
@@ -165,3 +182,38 @@ When the gateway recieves its initial invocation, it serialises the request body
     \caption{\faaas{} stack architecture utilising AWS cloud primitives, for comparison with the cloud agnostic \faaastime{} implementation}
     \label{fig:faaas-arch}
 \end{figure*}
+
+\section{Splitting Directive}
+To reduce developer effort adapting existing functions to support function splitting, a custom directive is introduced into the function handler body, \verb|'use async'|. The purpose of this directive is to indicate to the \faaasc{} compiler that the function handler body should be split into multiple functions at this point, each of which is executed in separate \awslambda{} functions.
+
+\begin{listing}[H]
+  \inputminted{javascript}{node_modules/@faaas-bench/hello-seq/src/onHttpGetHello.trigger.ts}
+  \caption{Typical serverless function handler interacting with a database via an ORM.}
+\end{listing}
+
+This splitting directive resembles the \verb|'use strict'| directive in JavaScript, which indicates that the code should be executed in strict mode. The \verb|'use async'| directive is a pragma that is not part of the JavaScript language, but is understood by the \faaasc{} compiler. Therefore as a result, unless the \faaasc{} compiler is used, the directive will be ignored by the JavaScript runtime, and so the same code can be run on any other \faas{} platform without modification.
+
+\begin{listing}[H]
+\begin{minted}[obeytabs=true,tabsize=2]{javascript}
+export async function handler(_) {
+  "use async";
+  const foo = await bar();
+}
+\end{minted}
+\caption{Example usage of the directive.}
+\label{listing:use-async-simple-example}
+\end{listing}
+
+Immediately following the \verb|'use async'| directive, it is expected that a variable declaration is made and initialised to the resolved value from a promise constructed by calling a function, as seen in Listing \ref{listing:use-async-simple-example}.
+
+\section{Code generation}
+\label{sec:faaasc-codegen-ast}
+
+\begin{figure}[t]
+    \includegraphics[width=\linewidth]{node_modules/@faaas-bench/hello-seq/assets/module.pdf}
+    \caption{AST of handler body.}
+    \label{fig:suites-hello-seq-module-ast}
+\end{figure}
+
+\section{Decomposition of \faas{} functions into continuations}
+The core principal underpinning the design of \faaas{} is to decompose each \faas{} invocation into a set of function continuations. Similarly to how event driven runtimes such as \js{} handle continuations of asynchronous code with an event loop as described in Section \ref{sec:js-event-loop}, \faaas{} takes advantage of function splitting (via code generation) and uses message passing to register continuations to be executed with a continuation context.

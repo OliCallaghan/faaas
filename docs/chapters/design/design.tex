@@ -67,7 +67,7 @@ Given these equations, we can fit a Weibull distribution to the response times o
     \label{fig:oltp-q1-weibull}
 \end{figure}
 
-\section{Function invocation startup costs}
+\section{Function startup and invocation overhead costs}
 \label{sec:faas-function-invocation-startup-costs}
 In this section we will discuss further the impact of invocation startup costs on the profitability of splitting a function invocation.
 
@@ -85,13 +85,143 @@ The other case is the average startup and teardown costs associated with a funct
 
 Similarly to the response times of asynchronous services, this hidden setup time can be modelled as a Weibull distribution.
 
-\section{What is code splitting?}
+\section{Applying code splitting to \faas{} functions}
 \label{sec:faas-code-splitting}
 In this section, we will introduce the concept of code splitting around asynchronous requests, whereby an existing function is split into two functions, the first making the request, with the second function being invoked by the  asynchronously. This section should give the reader an understanding of the principal behind code splitting.
 
-When performing an asynchronous request in a function, the function will be allocated resources until the request resovles. During this period, the function is billed per unit of time the resources are allocated, rather than by actual usage. During times when the function is waiting for a request to resolve, it is not performing any useful work, and so the user is being billed for idle time.
+When performing an asynchronous request in a function, the function will be allocated resources until the request resolves. During this period, the function is billed per unit of time the resources are allocated, rather than by actual usage. During times when the function is waiting for a request to resolve, it is not performing any useful work, and so the user is being billed for idle time.
 
 In a split function, the second handler is invoked with the response when it is ready. This means that after the first function exits, there are no functions executing and so there is no billable time in this period. Whilst in practise this seems benficial, in practise, there are a set of challenges that must be overcome to make this a profitable strategy, most notably the billing model of \faas{} platforms, that charge high invocation costs that negate cost savings made by splitting the function.
+
+\subsection{Continuation passing style}
+Whilst it is possible to run a web server such as ExpressJS inside an AWS Lambda function (and in fact the entrypoint of the AWS Lambda NodeJS runtime does exactly this), the core principal of \faas{} is to abstract away this concept of directly defining the webserver, and instead to execute logic in reponse to an event. As a result, a typical \faas{} function can be considered to have a function signature defined in Type Signature \ref{def:faaas-type-signature}.
+
+\begin{signature}[FaaS Function Handler]
+\label{def:faaas-type-signature}
+\faas{} functions have type $\textrm{SimpleHandler}$, taking an event and context, and returning a result.
+
+$$\textbf{type}\, \textrm{SimpleHandler} = (\textrm{evt}, \textrm{ctx}) \rightarrow \textrm{result}$$
+\end{signature}
+
+This type signature is common across every major \faas{} provider, such as AWS Lambda\cite{amazonAWSLambda2024}, Azure Functions\cite{azureAzureFunctions2024}, Google Cloud Functions\cite{googleGoogleCloudFunctions2024}, OpenWhisk\cite{apacheOpenWhisk2024} and OpenFaaS\cite{ellisOpenFaaS2024}.
+
+This type signature can be augmented such that a function can also return a continuation in addition to a response. This is defined in Type Signature \ref{def:faaas-continuation-signature}.
+
+\begin{signature}[FaaAS Function Handler]
+\label{def:faaas-continuation-signature}
+A function $f$ or continuation $c$ has type $\textrm{Handler}$ if it returns a type containing either its continuation and context to be reinvoked later, or a result:
+
+$$\textbf{type}\, \textrm{Handler} = (\textrm{evt}, \textrm{ctx}) \rightarrow (\textrm{Handler}, \textrm{ctx}) + \textrm{result}$$
+\end{signature}
+
+\faas{} functions of this type can then be executed by an executor defined in Signature \ref{def:faaas-executor} which is responsible for invoking the function with an initial event and context, and then handling the result or continuation.
+
+\begin{signature}[FaaAS Function Executor]
+\label{def:faaas-executor}
+A function executor $e$ of type $\textrm{Exec}$ is reponsible for invoking a \faaas{} handler of type $\textrm{Handler}$ \textbf{until completion} with an initial event and context, and then returning the result:
+
+$$\textbf{type}\, \textrm{Exec} = (\textrm{Handler}, \textrm{evt}, \textrm{ctx}) \rightarrow \textrm{result}$$
+\end{signature}
+
+When function handlers execute asynchronous requests, they return a proxy handler of type $\textrm{Handler}$, which is executed by the proxy itself. Upon completion of the asynchronous request, the proxy handler returns its passed continuation, and the rest of the function handler is executed. This proxy is defined in Signature \ref{def:faaas-proxy}.
+
+\begin{signature}[FaaAS Proxy Handler]
+\label{def:faaas-proxy}
+A proxy handler $p$ of type $\textrm{Proxy}$ is responsible for invoking a \faas{} handler of type $\textrm{Handler}$ \textbf{until completion} with an initial event and context, and then returning the result:
+
+$$\textbf{type}\, \textrm{Proxy} = \textrm{Handler} \rightarrow (\textrm{evt}, \textrm{ctx}) \rightarrow (\textrm{Handler}, \textrm{ctx})$$
+\end{signature}
+
+In practise these continuations are implemented using a message passing system, where the continuation is registered with a message queue, and the context is passed to the continuation when the message is dequeued. This architectural overview is discussed in Chapter \ref{chap:impl}, and illustrated in Figure \ref{fig:faaas-arch}.
+
+\subsection{Avoiding the double billing problem}
+In this section, we will illustrate how formalising \faas{} using continuation passing style can be used to avoid the double billing problem described in Section \ref{sec:double-billing-problem}.
+
+The double billing problem arises when a function handler makes an asynchronous request to a service, and then waits for the response. By splitting a single function around an asynchronous request, we can delegate execution of the asynchronous requests to a context with a different billing model, such as Containers-as-a-Service (CaaS), and reinvoke the rest of the function in the original \faas{} context.
+
+To put this into perspective, consider the unsplit function defined in Algorithm \ref{alg:faaas-no-split-example}. In this scenario, a handler \textsc{fst_and_snd} invokes an asynchronous service \verb|sql|, to execute a query. It waits for this query to return before returning the result.
+
+\begin{algorithm}
+\caption{Example of a split handler using a proxy}
+\label{alg:faaas-no-split-example}
+\begin{algorithmic}[1]
+\Function{fst_and_snd}{$\textrm{event}, \textrm{context}$}
+    \State $query \gets ``..."$
+    \State $result \gets \textrm{sql}(\textrm{event})$
+    \State \Return $result$
+\EndFunction
+\end{algorithmic}
+\end{algorithm}
+
+This algorithm can be rewritten to use function continuations as shown in Algorithm \ref{alg:faaas-split-example}.
+
+\begin{algorithm}
+\caption{Example of a split handler using a proxy}
+\label{alg:faaas-split-example}
+\begin{algorithmic}[1]
+\Function{fst}{$\textrm{event}, \textrm{context}$}
+    \State $query \gets ``..."$
+    \State \Return \textsc{proxy_db}(\textsc{snd}, $query$, context)
+\EndFunction
+
+\Function{proxy_db}{$F', \textrm{query}, \textrm{context}$}
+    \State $result \gets \textrm{sql}(\textrm{event})$
+    \State \Return $F'(result, \textrm{context})$
+\EndFunction
+
+\Function{snd}{$\textrm{event}, \textrm{context}$}
+    \State $result \gets \textrm{event}$
+    \State \Return $result$
+\EndFunction
+\end{algorithmic}
+\end{algorithm}
+
+In this example, the function \textsc{fst} makes an asynchronous request to a database, and then returns a continuation to a proxy service \textsc{proxy_db}, which in turn invokes the second part of the handler \textsc{snd} before returning the result. The two handlers \textsc{fst} and \textsc{snd} are executed with \faas{}, and the \textsc{proxy_db} handler is executed in a different context, such as a CaaS context.
+
+\subsection{Continuations as first-class citizens for asynchronous services}
+In this research, we have focused on wrapping existing services in proxies, which map the request-response model to a continuation-passing model. This allows us to leverage and test function workloads on existing databases such as PostgreSQL.
+
+By supporting continuations as first-class citizens within existing databases, we would be able to avoid the need to wrap existing services in proxies, and instead invoke the continuation directly from the database, reducing the need to manage and run the proxy service.
+
+This particular concept is referenced later in Chapter \ref{chap:conclusion} under Section \ref{sec:future-work}, where we discuss future work and potential improvements that would improve the performance of \faaas{}.
+
+\section{Capturing Scope}
+In this section, we will introduce the concepts behind capturing scoped variables during automatic code splitting to be included in the continuation context.
+
+\subsection{Passing context between continuations}
+In order to pass state such as variables between continuations, a context object is passed with a continuation. This context object contains the state of the function at the point of the continuation, and is used by the continuation when it is invoked. This allows the continuation to resume execution of the function, as if there was no split, and to modify variables to be passed to the next continuation or result.
+
+It is important that this context object captures all variables that are required by the continuation, as the continuation will be executed in a fresh execution environment. As a result, the context object must be serializable, as it will be passed between machines.
+
+\subsection{Automatically capturing scope into continuations}
+Since from the developer's perspective, the function handler body is a single function, the \faaasc{} compiler must automatically capture variables accessed later from the function handler body at the point of the \verb|'use async'| directive. This is achieved by parsing the function handler body into an Abstract Syntax Tree (AST), and capturing any uses of free variables beyond the split point.
+
+Code can then be generated to capture and serialise any free variables into a context object, and returned with the continuation so that it can be executed with the correct scope. The continuation is invoked when the async request is completed. These free variables are captured using Algorithm \ref{alg:free-variable-analysis}.
+
+\begin{algorithm}
+\caption{Free variable analysis for scope capture in continuations}
+\label{alg:free-variable-analysis}
+\begin{algorithmic}[1]
+\Require async directive
+\State $V_\mathrm{free} \gets \phi$
+\State $V_\mathrm{decl} \gets \phi$
+
+\State $S \gets \textrm{targetOf(async directive)}$
+
+\ForEach {$s \in$ traverseAfter($S$)}
+    \If {$s$ is a variable declaration}
+        \State $V_\mathrm{decl} \gets V_\mathrm{decl} \cup \{s\}$
+    \ElsIf {$s$ is a variable reference}
+        \If {$s \notin V_\mathrm{decl}$}
+            \State $V_\mathrm{free} \gets V_\mathrm{free} \cup \{s\}$
+        \EndIf
+    \EndIf
+\EndFor
+\Ensure $V_\mathrm{free}$
+\end{algorithmic}
+\end{algorithm}
+
+Once free variable analysis has been performed, the proceeding statements after the async directive can be detached from the AST and reattached to the body for the generated continuation function. This is described much more in-depth in Section \ref{sec:faaasc-codegen-ast}.
 
 \section{Code splitting profitability analysis}
 \label{sec:faas-code-splitting-profitability}
@@ -195,196 +325,3 @@ Two different splitting strategies are proposed and discussed further in Chapter
 \todo[inline]{Link directly to the point which elaborates on how each splitting strategy is implemented.}
 
 In order to effectively perform adaptive splitting as defined in \ref{chap:impl}, a response monitor needs to fit a Weibull distribution to the set of response times of the asynchronous request. In order to fit this distribution, the monitor uses Maximum Likelihood Estimation (MLE) to estimate the parameters $k$, $\phi$ and $\lambda$ of the Weibull distribution. These parameters are then used by the function itself to compute the probability of profitability of splitting the function around an asynchronous request.
-
-\section{High-level Design}
-The core principal underpinning the design of \faaas{} is to decompose each \faas{} invocation into as a set of function continuations. Similarly to how event driven runtimes such as \js{} handle continuations of asynchronous code with an event loop as described in Section \ref{sec:js-event-loop}, \faaas{} takes advantage of function splitting (via code generation) and uses message passing to register continuations to be executed with a continuation context.
-
-\begin{figure}[htp]
-    \centering
-    \subfigure[\faas{} architecture from request to response]{
-        \centering
-        \begin{tikzpicture}[scale = 0.75, every node/.style={scale=0.75}]
-            \input{node_modules/@faaas/arch-overview-source/assets/arch-overview-source.pgf}
-        \end{tikzpicture}
-    }\quad
-    \subfigure[Split \faas{} handler using message passing to between split sections of function handler body]{
-        \centering
-        \begin{tikzpicture}[scale = 0.75, every node/.style={scale=0.75}]
-            \input{node_modules/@faaas/arch-overview-split/assets/arch-overview-split.pgf}
-        \end{tikzpicture}
-    }
-    \caption{\faas{} architecture enabling split function handlers}
-\end{figure}
-
-\subsubsection{Continuation passing style}
-Whilst it is possible to run a web server such as ExpressJS inside an AWS Lambda function (and in fact the entrypoint of the AWS Lambda NodeJS runtime does exactly this), the core principal of \faas{} is to abstract away this concept of directly defining the webserver, and instead to execute logic in reponse to an event. As a result, a typical \faas{} function can be considered to have a function signature defined in Type Signature \ref{def:faaas-type-signature}.
-
-\begin{signature}[FaaS Function Handler]
-\label{def:faaas-type-signature}
-\faas{} functions have type $\textrm{SimpleHandler}$, taking an event and context, and returning a result.
-
-$$\textbf{type}\, \textrm{SimpleHandler} = (\textrm{evt}, \textrm{ctx}) \rightarrow \textrm{result}$$
-\end{signature}
-
-This type signature is common across every major \faas{} provider, such as AWS Lambda\cite{amazonAWSLambda2024}, Azure Functions\cite{azureAzureFunctions2024}, Google Cloud Functions\cite{googleGoogleCloudFunctions2024}, OpenWhisk\cite{apacheOpenWhisk2024} and OpenFaaS\cite{ellisOpenFaaS2024}.
-
-This type signature can be augmented such that a function can also return a continuation in addition to a response. This is defined in Type Signature \ref{def:faaas-continuation-signature}.
-
-\begin{signature}[FaaAS Function Handler]
-\label{def:faaas-continuation-signature}
-A function $f$ or continuation $c$ has type $\textrm{Handler}$ if it returns a type containing either its continuation and context to be reinvoked later, or a result:
-
-$$\textbf{type}\, \textrm{Handler} = (\textrm{evt}, \textrm{ctx}) \rightarrow (\textrm{Handler}, \textrm{ctx}) + \textrm{result}$$
-\end{signature}
-
-\faas{} functions of this type can then be executed by an executor defined in Signature \ref{def:faaas-executor} which is responsible for invoking the function with an initial event and context, and then handling the result or continuation.
-
-\begin{signature}[FaaAS Function Executor]
-\label{def:faaas-executor}
-A function executor $e$ of type $\textrm{Exec}$ is reponsible for invoking a \faaas{} handler of type $\textrm{Handler}$ \textbf{until completion} with an initial event and context, and then returning the result:
-
-$$\textbf{type}\, \textrm{Exec} = (\textrm{Handler}, \textrm{evt}, \textrm{ctx}) \rightarrow \textrm{result}$$
-\end{signature}
-
-When function handlers execute asynchronous requests, they return a proxy handler of type $\textrm{Handler}$, which is executed by the proxy itself. Upon completion of the asynchronous request, the proxy handler returns its passed continuation, and the rest of the function handler is executed. This proxy is defined in Signature \ref{def:faaas-proxy}.
-
-\begin{signature}[FaaAS Proxy Handler]
-\label{def:faaas-proxy}
-A proxy handler $p$ of type $\textrm{Proxy}$ is responsible for invoking a \faas{} handler of type $\textrm{Handler}$ \textbf{until completion} with an initial event and context, and then returning the result:
-
-$$\textbf{type}\, \textrm{Proxy} = \textrm{Handler} \rightarrow (\textrm{evt}, \textrm{ctx}) \rightarrow (\textrm{Handler}, \textrm{ctx})$$
-\end{signature}
-
-In practise these continuations are implemented using a message passing system, where the continuation is registered with a message queue, and the context is passed to the continuation when the message is dequeued. This architectural overview is discussed in Chapter \ref{chap:impl}, and illustrated in Figure \ref{fig:faaas-arch}.
-
-\subsubsection{Avoiding the double billing problem}
-In this section, we will illustrate how formalising \faas{} using continuation passing style can be used to avoid the double billing problem described in Section \ref{sec:double-billing-problem}.
-
-The double billing problem arises when a function handler makes an asynchronous request to a service, and then waits for the response. By splitting a single function around an asynchronous request, we can delegate execution of the asynchronous requests to a context with a different billing model, such as Containers-as-a-Service (CaaS), and reinvoke the rest of the function in the original \faas{} context.
-
-To put this into perspective, consider the unsplit function defined in Algorithm \ref{alg:faaas-no-split-example}. In this scenario, a handler \textsc{fst_and_snd} invokes an asynchronous service \verb|sql|, to execute a query. It waits for this query to return before returning the result.
-
-\begin{algorithm}
-\caption{Example of a split handler using a proxy}
-\label{alg:faaas-no-split-example}
-\begin{algorithmic}[1]
-\Function{fst_and_snd}{\textrm{event}, \textrm{context}$}
-    \State $query \gets ``..."$
-    \State $result \gets \textrm{sql}(\textrm{event})$
-    \State \Return $result$
-\EndFunction
-\end{algorithmic}
-\end{algorithm}
-
-This Algorithm can be rewritten using function continuations into a form
-
-\begin{algorithm}
-\caption{Example of a split handler using a proxy}
-\label{alg:faaas-split-example}
-\begin{algorithmic}[1]
-\Function{fst}{\textrm{event}, \textrm{context}$}
-    \State $query \gets ``..."$
-    \State \Return \textsc{proxy_db}(\textsc{snd}, $query$, context)
-\EndFunction
-
-\Function{proxy_db}{$F', \textrm{query}, \textrm{context}$}
-    \State $result \gets \textrm{sql}(\textrm{event})$
-    \State \Return $F'(result, \textrm{context})$
-\EndFunction
-
-\Function{snd}{\textrm{event}, \textrm{context}$}
-    \State $result \gets \textrm{event}$
-    \State \Return $result$
-\EndFunction
-\end{algorithmic}
-\end{algorithm}
-
-In this example, the function \textsc{fst} makes an asynchronous request to a database, and then returns a continuation to a proxy service \textsc{proxy_db}, which in turn invokes the second part of the handler \textsc{snd} before returning the result. The two handlers \textsc{fst} and \textsc{snd} are executed with \faas{}, and the \textsc{proxy_db} handler is executed in a different context, such as a CaaS context.
-
-\subsubsection{Continuations as first-class citizens}
-In this research, we have focused on wrapping existing services in proxies, which map the request-response model to a continuation-passing model. This allows us to leverage and test function workloads on existing databases such as PostgreSQL.
-
-By supporting continuations as first-class citizens within existing databases, we would be able to avoid the need to wrap existing services in proxies, and instead invoke the continuation directly from the database, reducing the need to manage and run the proxy service.
-
-\subsubsection{Passing context between continuations}
-In order to pass context between continuations, a context object is passed between each continuation. This context object contains the state of the function at the point of the continuation, and is passed to the continuation when it is invoked. This allows the continuation to access the state of the function at the point of the continuation, and to modify the state of the function for the next continuation.
-
-It is important that this context object captures all variables that are required by the continuation, as the continuation will be executed in a fresh execution environment. As a result, the context object must be serializable, as it will be passed between machines.
-
-\section{Splitting Directive}
-To reduce developer effort adapting existing functions to support function splitting, a custom directive is introduced into the function handler body, \verb|'use async'|. The purpose of this directive is to indicate to the \faaasc{} compiler that the function handler body should be split into multiple functions at this point, each of which is executed in separate \awslambda{} functions.
-
-\begin{listing}[H]
-  \inputminted{javascript}{node_modules/@faaas-bench/hello-seq/src/onHttpGetHello.trigger.ts}
-  \caption{Typical serverless function handler interacting with a database via an ORM.}
-\end{listing}
-
-This splitting directive resembles the \verb|'use strict'| directive in JavaScript, which indicates that the code should be executed in strict mode. The \verb|'use async'| directive is a pragma that is not part of the JavaScript language, but is understood by the \faaasc{} compiler. Therefore as a result, unless the \faaasc{} compiler is used, the directive will be ignored by the JavaScript runtime, and so the same code can be run on any other \faas{} platform without modification.
-
-\begin{listing}[H]
-\begin{minted}[obeytabs=true,tabsize=2]{javascript}
-export async function handler(_) {
-  "use async";
-  const foo = await bar();
-}
-\end{minted}
-\caption{Example usage of the directive.}
-\label{listing:use-async-simple-example}
-\end{listing}
-
-Immediately following the \verb|'use async'| directive, it is expected that a variable declaration is made and initialised to the resolved value from a promise constructed by calling a function, as seen in Listing \ref{listing:use-async-simple-example}.
-
-\section{Capturing Scope}
-Since from the developer's perspective, the function handler body is a single function, the \faaasc{} compiler must capture the scope of the function handler body at the point of the \verb|'use async'| directive. This is achieved by parsing the function handler body into an Abstract Syntax Tree (AST), and capturing any uses of now free variables beyond the split point.
-
-This scope is captured into a serialized context, and stored so that the continuation can be executed with the correct scope. The continuation is invoked when the async request is completed. This context can be captured automatically using free variable analysis, using the algorithm outlined in Algorithm \ref{alg:free-variable-analysis}.
-
-\begin{algorithm}
-\caption{Free variable analysis for scope capture in continuations}
-\label{alg:free-variable-analysis}
-\begin{algorithmic}[1]
-\Require async directive
-\State $V_\mathrm{free} \gets \phi$
-\State $V_\mathrm{decl} \gets \phi$
-
-\State $S \gets \textrm{targetOf(async directive)}$
-
-\ForEach {$s \in$ traverseAfter($S$)}
-    \If {$s$ is a variable declaration}
-        \State $V_\mathrm{decl} \gets V_\mathrm{decl} \cup \{s\}$
-    \ElsIf {$s$ is a variable reference}
-        \If {$s \notin V_\mathrm{decl}$}
-            \State $V_\mathrm{free} \gets V_\mathrm{free} \cup \{s\}$
-        \EndIf
-    \EndIf
-\EndFor
-\Ensure $V_\mathrm{free}$
-\end{algorithmic}
-\end{algorithm}
-
-Once free variable analysis has been performed, the free variables for later statements in the function handler can be captured and serialised into the context object. The proceeding statements after the async directive are detached from the AST and reattached to the body for the generated continuation function. This is described much more in-depth in Section \ref{sec:faaasc-codegen-ast}.
-
-\section{Code generation}
-\label{sec:faaasc-codegen-ast}
-
-\begin{figure}[t]
-    \includegraphics[width=\linewidth]{node_modules/@faaas-bench/hello-seq/assets/module.pdf}
-    \caption{AST of handler body.}
-    \label{fig:suites-hello-seq-module-ast}
-\end{figure}
-
-\section{Splitting cost optimisation}
-\todo[inline]{Discuss what you're going to discuss.}
-
-\subsection{Splitting cost estimation}
-\todo[inline]{Describe how the cost of splitting is estimated.}
-
-\subsection{Splitting cost optimisation algorithm}
-\todo[inline]{Describe the different algorithms used to optimise the cost of splitting.}
-
-\section{Proxies}
-The typical database's request-response model is not particularly well suited for \faaas{} model, as the when handling a query, the database, in this instance Postgres, opens a connection over TCP, which is then used to send the result of the query back to the client. This poses a problem, whereby the client must maintain a connection to the database for the duration of the query, which removes the possibility of ending the function early.
-
-In order to address this problem, we introduce the concept of a proxy, which is a lightweight wrapper around a traditional request/response model service, which maintains the connection to the database, forwarding requests it recieves over a message bus directly onto the database. Once the database responds with the result of the query, the proxy then publishes this result back to a message bus, which in turn triggers the continuation function to complete the rest of the handler.
-
-\todo[inline]{Discuss how these proxies and continuations can be used to avoid the double billing problem.}
