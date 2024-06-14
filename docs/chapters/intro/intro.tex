@@ -62,11 +62,11 @@ Since the median execution time for serverless functions lies between millisecon
 This research aims to yield control back to the runtime from these `functions' whilst awaiting asynchronous operations to complete, allowing useful work to be scheduled by the runtime. Throughout this report, we propose three main contributions:
 
 \begin{itemize}
-    \item The \faaasc{} compiler that performs code splitting of JavaScript serverless functions, allowing a function to optionally be deployed in a split manner on any supported Serverless\cite{serverlessServerlessZeroFrictionServerless2024} platform.
+    \item The \faaasc{} compiler that performs code splitting of JavaScript serverless functions, allowing a function to optionally be deployed in a split manner on any supported \faas{} platform (currently only AWS Lambda is supported).
 
-    \item The \faaastime{} serverless runtime stack that accurately bills, composes and executes serverless JavaScript functions emitted by \faaasc{}.
+    \item Adaptive function splitting strategy, which determines the probability of profitability when splitting a function, and acts accordingly.
 
-    \item A costing analysis and evaluation of the required advancements to the serverless ecosystem to provide cost reductions by carrying out code splitting.
+    \item An evaluation of the \faaas{} stack when deployed to AWS Lambda, focusing on the required advancements to the \faas{} ecosystem to enable more aggressive splitting to reduce cost further.
 \end{itemize}
 
 \section{Thesis Structure}

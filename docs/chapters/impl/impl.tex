@@ -1,16 +1,19 @@
 \chapter{Implementation of the \faaas{} stack}
-\todo[inline]{Introduce how the findings from the previous chapters are implemented within this chapter.}
+In this chapter, the \faaas{} stack is implemented and deployed to AWS in the form of the \faaasc{} compiler, and a set of stateful proxy components. The \faaasc{} compiler is a tool that allows developers to split their functions into multiple functions, which are executed in separate \awslambda{} functions. The PostgreSQL proxy component acts as a shim layer around a PostgresDB that executes queries, reinvoking the expected continuation on query completion, since Postgres only supports the request-response model.
 
 \section{Requirements}
-\todo[inline]{Describe the technical requirements when building the BOSS Engine.}
+In this section, we will discuss the technical requirements around the core components of the \faaas{} stack.
 
 \cprotect\subsection{The \faaasc{} compiler}
+In this section, we will discuss the technical requirements around the \faaasc{} compiler.
+
 In alignment with the ethos of \faas{} whereby developer time is spent focusing on the business logic of their application rather than the infrastructure, the design of \faaasc{} should be such that it is easy to use and requires minimal developer effort to leverage the benefits of function splitting.
 
 Since the primary code target of \faaasc{} is JavaScript (and by extension TypeScript) serverless functions, specifically ES6 syntax, \faaasc{} should be designed such that it integrates with existing tooling to deploy to \awslambda{}, specifically Serverless\cite{serverlessServerlessZeroFrictionServerless2024}.
 
 \cprotect\subsection{DX of the \faaasc{} compiler}
 \todo[inline]{Introduce why the DX of the \faaasc{} compiler is important.}
+In this section, we will further discuss the requirements around developer experience (DX) of the \faaasc{} compiler.
 
 To reduce developer effort adapting existing functions to support function splitting, a custom directive is introduced into the function handler body, \verb|'use async'|. The purpose of this directive is to indicate to the \faaasc{} compiler that the function handler body should be split into multiple functions at this point, each of which is executed in separate \awslambda{} functions.
 
