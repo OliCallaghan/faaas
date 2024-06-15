@@ -1,0 +1,11 @@
+{
+  "name": "@faaas-diagrams/faaasc-ast-split",
+  "version": "1.0.0",
+  "description": "Generate AST splitting diagram for faaasc",
+  "scripts": {
+    "build": "poetry run python src/generate.py"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}

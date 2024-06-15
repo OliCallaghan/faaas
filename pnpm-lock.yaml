@@ -196,6 +196,8 @@ importers:
 
   diagrams/faaas-message-passing: {}
 
+  diagrams/faaasc-ast-split: {}
+
   diagrams/pricing: {}
 
   docs:
@@ -206,6 +208,9 @@ importers:
       '@faaas-diagrams/db-response-times':
         specifier: workspace:^
         version: link:../diagrams/db-response-times
+      '@faaas-diagrams/faaasc-ast-split':
+        specifier: workspace:^
+        version: link:../diagrams/faaasc-ast-split
       '@faaas/arch-overview-source':
         specifier: workspace:^
         version: link:../diagrams/arch-overview-source

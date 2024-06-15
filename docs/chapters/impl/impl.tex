@@ -26,7 +26,7 @@ export async function handler(_) {
 This splitting directive resembles the \verb|'use strict'| directive in JavaScript, which indicates that the code should be executed in strict mode. The \verb|'use async'| directive is a pragma that is not part of the JavaScript language, but is understood by the \faaasc{} compiler. Therefore as a result, unless the \faaasc{} compiler is used, the directive will be ignored by the JavaScript runtime, and so the same code can be run without modification, in a context with no code-splitting.
 
 \section{The \faaasc{} Compiler}
-In this section, we will discuss the implementation of the \faaasc{} compiler. The \faaasc{} compiler is a tool that allows developers to split their functions into continuations, which are executed in separate \awslambda{} functions invocations.
+In this section, we will discuss the implementation of the \faaasc{} compiler. The \faaasc{} compiler is a tool that allows developers to split their functions into handlers that return continuations, which are executed in separate \awslambda{} functions invocations.
 
 In order to effectively perform the free variable analysis and code generation described in Section \ref{sec:faaasc-codegen-ast} on the target \faas{} function, the \faaasc{} compiler needs to parse the JavaScript code into an abstract syntax tree (AST). This AST is then traversed to identify the free variables in the function body, and generate the continuation functions.
 
@@ -34,7 +34,7 @@ As a result, a component to parse the JavaScript code into an AST is required. T
 
 In order to focus time on the most important aspects of the project rather than implementing a whole parser from scratch, the \faaasc{} compiler is built on top of the SWC compiler, which is a fast JavaScript/TypeScript compiler that is written in Rust.
 
-\subsection{SWC Compiler}
+\subsection{SWC compiler?}
 In this section we will discuss the SWC compiler, and how it is used in the \faaasc{} compiler.
 
 The SWC compiler is a fast JavaScript/TypeScript compiler that is written in Rust. There are a set of useful crates from the SWC project which simplify the process of parsing and transforming JavaScript code, specifically, the following packages provide the necessary functionality to translate between code and Abstract Syntax Tree representations:
@@ -49,11 +49,14 @@ The SWC compiler is a fast JavaScript/TypeScript compiler that is written in Rus
 
 The \faaasc{} compiler specifically uses the \verb|swc_ecma_parser| package to parse the JavaScript code into an AST, and then a visitor pattern is used to traverse the AST and identity function splitting points.
 
-Additionally, it uses the \verb|swc_ecma_transforms| crate which traverses the AST and resolves declarations and references to identifiers within nodes to their correct \verb|SyntaxContext|. This is important when handling cases where incorrect scope may be captured in a continuation, as shown in Listing \ref{listing:scope-syntax-context}
+\subsubsection{SWC and the identifier resolution}
+Since JavaScript allows for variable scoping, it is important to resolve identifiers to their correct scope. This is achieved in SWC by using a process akin to global renaming of variables, whereby each identifier is assigned its corresponding \verb|SyntaxContext|, which is used to distinguish between inner and outer declarations of variables with the same textual identifier.
+
+To avoid this same issue, \faaasc{} uses the \verb|swc_ecma_transforms| crate which performs a pass over the AST and resolves declarations and references to identifiers within nodes to their correct \verb|SyntaxContext|. This is important when handling cases where incorrect scope may be captured in a continuation, as shown in Listing \ref{listing:scope-syntax-context}
 
 \begin{listing}[H]
 \begin{minted}[obeytabs=true,tabsize=2]{javascript}
-export async function handler_0(ctx: FaaascInternalContext, state: FaaascInternalState) {
+export async function handler(ctx: FaaascInternalContext, state: FaaascInternalState) {
     const x = 1; // tagged as x#0
     'use async';
     const y = await foo();
@@ -63,21 +66,30 @@ export async function handler_0(ctx: FaaascInternalContext, state: FaaascInterna
     }
     return x; // needs to capture the correct x, x#0
 }
-...
 \end{minted}
 \caption{Example of scope variables that need to be captured in a continuation.}
 \label{listing:scope-syntax-context}
 \end{listing}
 
 \subsection{Splitting \faas{} handlers}
-In order to split handlers, the \faaasc{} compiler needs to traverse the AST, starting from the module root. It then works its way through exported function definitions, until it finds the function `handler'. It then traverses the function body, looking for the directive \verb|'use async'|. When this directive is found, the function is split at this point, whereby every visited statement to that point is pushed to the body of a generated function handler, and code generation is performed to capture the state of the function at that point.
+In order to split handlers, the \faaasc{} compiler needs to traverse the AST, starting from the module root. It then works its way through exported function definitions, until it finds the function \verb|handler|. It then traverses the function body, looking for the directive \verb|'use async'|. When this directive is found, the function is split at this point, whereby every visited statement to that point is pushed to the body of a generated function handler, and code generation is performed to capture the state of the function at that point.
+
+This process is illustrated in Figure \ref{fig:faaasc-split-ast-mapping}, whereby \verb|handler| is divided into two sections, \verb|handler_0| and \verb|handler_1|.
+
+\begin{figure*}[t]
+    \fontsize{8}{10}\selectfont
+    \centering
+    \includesvg[width=0.75\linewidth]{node_modules/@faaas-diagrams/faaasc-ast-split/assets/faaasc-ast-split.svg}
+    \caption{Illustration of how an input AST is split into multiple handlers using \texttt{faaasc}. Colours are used to represent which sections of the source AST are output into which sections of the output AST.}
+    \label{fig:faaasc-split-ast-mapping}
+\end{figure*}
 
 \subsection{Contexts in \faaasc{}}
 In this section, we will discuss the concept of context, and how it is used in \faaasc{}.
 
-As defined in Type Signature \ref{def:faaas-continuation-signature}, Handlers are functions that take an event and a context, and return a result or a new continuation. In \faaasc{}, both the event and context are wrapped up into a single object, referred to as \verb|Context|. This contains the data that is passed to the function handler, as well as the invocation ID.
+As defined in Type Signature \ref{def:faaas-continuation-signature}, Handlers are functions that take an event and a context, and return a result or a continuation. In \faaasc{}, both the event and context are wrapped up into a single object, referred to as \verb|Context|. This contains the data that is passed to the function handler, as well as the invocation ID.
 
-When returning a continuation from the handler, a continuation object is created, which contains a reference to the asynchronous function, as well as a serialised state as shown in Listing \ref{listing:faaasc-compiler-handler-ret-continuation}. This allows the continuation to be executed with the same context as the original function.
+When returning a continuation from the handler, a continuation object is created, which contains a reference to the asynchronous function to be called, the handler continuation to execute after the asynchronous function returns (\verb|handler_1|) the arguments to pass to the function, as well as a serialised state as shown in Listing \ref{listing:faaasc-compiler-handler-ret-continuation}. This allows the continuation to be executed with the same context as the original function.
 
 \begin{listing}[H]
 \begin{minted}[obeytabs=true,tabsize=2]{javascript}

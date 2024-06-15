@@ -8,6 +8,7 @@ packages:
   - "diagrams/double-billing-problem"
   - "diagrams/faaas-arch"
   - "diagrams/faaas-message-passing"
+  - "diagrams/faaasc-ast-split"
   - "diagrams/pricing"
   - "docs"
   - "benchmarks/faaasc-artillery"
