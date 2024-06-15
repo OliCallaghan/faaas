@@ -23,6 +23,12 @@ importers:
 
   benchmarks/faaasc-artillery: {}
 
+  benchmarks/faaasc-artillery-results:
+    dependencies:
+      '@faaas-bench/faaasc-artillery':
+        specifier: workspace:^
+        version: link:../faaasc-artillery
+
   benchmarks/faaasc-aws-results: {}
 
   benchmarks/perf-v8-event-loop:
@@ -202,6 +208,9 @@ importers:
 
   docs:
     dependencies:
+      '@faaas-bench/faaasc-artillery-results':
+        specifier: workspace:^
+        version: link:../benchmarks/faaasc-artillery-results
       '@faaas-bench/hello-seq':
         specifier: workspace:^
         version: link:../benchmarks/suites/hello-seq

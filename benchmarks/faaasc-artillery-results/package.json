@@ -1,0 +1,14 @@
+{
+  "name": "@faaas-bench/faaasc-artillery-results",
+  "version": "1.0.0",
+  "description": "Generate artillery results",
+  "scripts": {
+    "build": "poetry run python src/generate.py"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@faaas-bench/faaasc-artillery": "workspace:^"
+  }
+}

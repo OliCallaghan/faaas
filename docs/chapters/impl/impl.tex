@@ -76,7 +76,7 @@ In order to split handlers, the \faaasc{} compiler needs to traverse the AST, st
 
 This process is illustrated in Figure \ref{fig:faaasc-split-ast-mapping}, whereby \verb|handler| is divided into two sections, \verb|handler_0| and \verb|handler_1|.
 
-\begin{figure*}[t]
+\begin{figure*}
     \fontsize{8}{10}\selectfont
     \centering
     \includesvg[width=0.75\linewidth]{node_modules/@faaas-diagrams/faaasc-ast-split/assets/faaasc-ast-split.svg}
@@ -150,17 +150,6 @@ export const entrypoint = buildEntrypoint({
 To allow cost effective deployment to AWS, the \faaasc{} AWS adaptor was implemented. This adaptor is responsible for executing function handlers as continuations, and deferring to proxies based on predicted cost savings.
 
 In order to effectively compute the cost savings, it accounts for the memory allocated to the function, the architecture of the function, and the cost of invoking a function to compute the critical threshold as in \ref{sec:faas-code-splitting-profitability}.
-
-\section{Function continuations}
-\todo[inline]{Introduce function continuation primitives as the return type for \faas{}}
-
-\subsection{Continuation context}
-\todo[inline]{Introduce the concept of a continuation context}
-
-\subsection{Free variable analysis}
-\todo[inline]{Introduce the concept of free variable analysis}
-\todo[inline]{Introduce the concept of free variable analysis in JavaScript}
-\todo[inline]{Discuss JavaScript scoping}
 
 \section{Queuing function continuations}
 In this section, we will discuss further how function continuations are queued and consumed in the \faaas{} stack.

@@ -1,17 +1,17 @@
 from boto3 import client
 from datetime import datetime, timedelta
-from pandas import concat
+from pandas import DataFrame, concat
 
 from model_aws import aws_invocation_cost, aws_invocation_rate, model_aws_billed_time
 from queries import start_invoc_query, start_duration_query, await_query_results, query_result_to_df
 
 def generate_cost_breakdown_olap(time_start: datetime, time_end: datetime):
     functionNames = [
-        # "warehouse-order-http",
+        "warehouse-order-http",
         "warehouse-order-local",
         "warehouse-order-proxy",
         "warehouse-order-adaptive",
-        # "warehouse-report-http",
+        "warehouse-report-http",
         "warehouse-report-local",
         "warehouse-report-proxy",
         "warehouse-report-adaptive"
@@ -38,11 +38,11 @@ def generate_cost_breakdown_olap(time_start: datetime, time_end: datetime):
 
     billing_df["functionName"] = functionNames
     billing_df["strategy"] = [
-        # "\\texttt{warehouse-order} (Baseline)",
-        "\\texttt{warehouse-order} (Never Split)",
-        "\\texttt{warehouse-order} (Always Split)",
-        "\\texttt{warehouse-order} (Adaptive Split)",
-        # "\\texttt{warehouse-report} (Baseline)",
+        "Baseline",
+        "Never",
+        "Always",
+        "Adaptive",
+        "\\texttt{warehouse-report} (Baseline)",
         "\\texttt{warehouse-report} (Never Split)",
         "\\texttt{warehouse-report} (Always Split)",
         "\\texttt{warehouse-report} (Adaptive Split)",
@@ -91,17 +91,26 @@ def generate_cost_breakdown_olap(time_start: datetime, time_end: datetime):
     })
 
     # Create the stacked bar chart
-    fig, ax = plt.subplots(figsize=(col_width  * 0.8, col_width * 1.5))
+    fig, ax = plt.subplots(figsize=(col_width  * 0.8, col_width))
 
-    billing_breakdown_df = billing_df[["Invocation Cost", "Duration Cost", "strategy"]].copy()
+    strategiesToShow = [
+        "Never",
+        "Always",
+        "Adaptive"
+    ]
+    billing_breakdown_df: DataFrame = billing_df[billing_df["strategy"].isin(strategiesToShow)] # type: ignore
+    billing_breakdown_df: DataFrame = billing_breakdown_df[["Invocation Cost", "Duration Cost", "strategy"]].copy() # type: ignore
     billing_breakdown_df.set_index("strategy", inplace=True)
-    billing_breakdown_df.plot.bar(stacked=True, ax=ax).legend(loc='lower center', bbox_to_anchor=(0.5, -1.1))
+
+    billing_breakdown_df.plot.bar(stacked=True, ax=ax).legend(loc='lower center', bbox_to_anchor=(0.5, -0.75))
 
     # Add labels and title
     plt.xlabel("Function splitting strategy")
     plt.ylabel("Cost (USD)")
-    plt.title("Cost breakdown for each splitting\nstrategy by OLAP function workload")
+    plt.title("Cost breakdown by strategy\nof \\texttt{warehouse-order} OLAP\nfunction on Lambda (256MB)")
 
     # Display the plot
     if tex: plt.savefig("assets/aws-strategy-breakdown-olap.pgf", bbox_inches="tight")
     else: plt.show()
+
+    billing_df.to_csv("assets/aws-strategy-breakdown-olap.csv")

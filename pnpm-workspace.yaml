@@ -12,6 +12,7 @@ packages:
   - "diagrams/pricing"
   - "docs"
   - "benchmarks/faaasc-artillery"
+  - "benchmarks/faaasc-artillery-results"
   - "benchmarks/faaasc-aws-results"
   - "benchmarks/perf-v8-event-loop"
   - "benchmarks/perf-v8-event-loop-db"

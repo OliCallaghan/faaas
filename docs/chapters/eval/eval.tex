@@ -1,12 +1,61 @@
 \chapter{Evaluation}
+\label{sec:evaluation}
+\begin{figure}
+    \begin{center}
+        \input{node_modules/@faaas-bench/faaasc-aws-results/assets/aws-strategy-breakdown-olap.pgf}
+    \end{center}
+    \caption{Cost breakdown of the \texttt{warehouse-order} OLAP function workload running on AWS Lambda (256MB). Using the adaptive split strategy, a cost reduction of 62\% is observed, whilst for always split, a cost reduction of 75\% is observed.}
+\end{figure}
 
-In this chapter, the \faaas{} stack is evaluated in terms of its cost savings and overhead on OLTP, OLAP and mixed workloads. The evaluation is first completed running \faaas{} stack on AWS Lambda, and later generalised to a generic model derived from the model's billing parameters.
+In this chapter, \faaas{} is evaluated in terms of its cost savings and overhead on a suite of \faas{} functions executing OLTP, OLAP and mixed workloads. In order to effectively evaluate cost savings if used today, \faas{} is deployed to AWS, and evaluated against the current AWS billing model, resulting in a cost reduction of 75\% across the OLAP benchmark suite. Following this, \faaas{} is then evaluated against a set of hypothetical billing models, in order to evaluate potential cost savings if changes to the billing model were to be made. Finally, key areas that cloud providers need to address are highlighed in order to enable more effective cost reductions across a wider range of \faas{} workloads.
 
 \section{Benchmarking suites}
-In this section we will introduce the programs which the \faaas{} stack was evaluated against. There are a set of benchmarks which exist for serverless functions, however they are typically targetted at evaluating \faas{} platforms themselves and their intrinsic properties, so focus much more closely on microbenchmarks.
+In this section we will introduce the programs which \faaas{} was evaluated against. There are a set of existing benchmark suites which exist for serverless functions, however these are typically targetted at evaluating \faas{} platforms themselves and their intrinsic properties, so focus much more closely on microbenchmarks rather than real-world workloads. Of the few suites that do exist that aim to be representative of real-world workloads, none query databases, which identified by \cite{eismannReviewServerlessUse2020}, is the second most common use-case for serverless functions after interacting with cloud storage.
 
-The \faaas{} stack specifically tackles the double-billing problem described in Section \ref{sec:double-billing-problem}, and so programs that illustrate this problem are of interest. The evaluation programs are segregated into those which execute predominantly OLAP and OLTP workloads, and those which execute a mix of both.
+Since \faaas{} specifically tackles the double-billing problem described in Section \ref{sec:double-billing-problem}, it is important to profile a wide variety of workloads that are vulnerable to this problem, alongside a set of other programs where this problem does not exist, such that the overhead of the system can be evaluated.
 
+Therefore, a suite of evaluation programs is defined in Table \ref{table:benchmarking-suite}, that perform specific tasks, representative of real-world workloads. These programs are then executed against deployed \faaas{} functions, and the cost savings and overhead are evaluated on AWS. The evaluation programs are segregated into those which execute predominantly OLAP and OLTP workloads, and those which execute a mix of both.
+
+\begin{table*}
+\begin{tabularx}{\linewidth}{|r|c|X|c|}
+    \hline
+    \textbf{Program} & \textbf{ID} & \textbf{Description} & \textbf{Workload} \\
+    \hline
+    \verb|warehouse-report| & \verb|wh-o| & Executes TPC-H query 1 to generate a pricing report, then generates HTML report using mustache. & OLAP \\
+    \hline
+    \verb|warehouse-order| & \verb|wh-r| & Executes TPC-H query 2 to compute the minimum cost supplier for a part, and sends SMS (mocked) to the supplier's mobile number requesting the part.  & OLAP \\
+    \hline
+    \verb|pet-ages| & \verb|p-a| & Executes a simple query to sum the pet ages of all pets with a matching name, and returns this in a response. & OLTP \\
+    \hline
+\end{tabularx}
+\caption{Suite of benchmarking programs used to evaluate \faaas{}}
+\label{table:benchmarking-suite}
+\end{table*}
+
+\section{Measuring cost savings}
+In this section, we will describe specifically how the values for total function cost of the \faaas{} deployment to AWS was measured.
+
+Each function was deployed with each of the following strategies: \verb|adaptive|, \verb|always-proxy|, \verb|never-proxy|, \verb|use-http|, across the following range of memory sizes: 128MB, 256MB, 512MB, 1024MB. Each function was then subjected to a load test using Artillery\cite{artilleryArtilleryCloudscaleLoad}. For each of the deployed AWS Lambda functions, the total billing time and invocation count was extracted from AWS CloudWatch logs using the query defined in Listing \ref{lst:total-cost-cloudwatch-query}. The cost of execution was then calculated using the parameterised billing model defined in Section \ref{sec:faas-param-cost-model} for each function, with each resource configuration and strategy.
+
+\begin{listing}
+\begin{minted}[obeytabs=true,tabsize=2]{fsharp}
+fields @timestamp, @message
+    | filter @message like /Billed Duration/
+    | parse @message "Billed Duration: * ms" as billedDuration
+    | parse @message "Memory Size: * MB" as memorySize
+    | filter ispresent(billedDuration)
+    | stats count(billedDuration) as totalInvocs, sum(billedDuration) as totalDuration by memorySize
+\end{minted}
+\caption{AWS CloudWatch query to extract billing data for a \faaas{} function}
+\label{lst:total-cost-cloudwatch-query}
+\end{listing}
+
+\section{Measuring function response times}
+In this section, we will describe specifically how the values for function response times of the \faaas{} deployment to AWS was measured.
+
+For each of the deployed functions, under the load tests, the average response time, along with other metrics were extracted from the Artillery output. The artillery experiment was executed from a home WiFi network, with a \SI{67.1}{Mbps} download, and \SI{17.1}{Mbps} upload speed. The average, and percentile response times were then calculated for each function, for each resource configuration and splitting strategy.
+
+\section{Workload types}
 \subsection{OLAP workloads}
 In order to benchmark a representative OLAP workload, we define a set of serverless functions within the context of the warehouse described in the TPC-H benchmark. The TPC-H benchmark is a `decision support benchmark' that models a warehouse, and is widely used to evaluate the performance of OLAP databases. Whilst the purpose of this research is not to benchmarking the database itself, this benchmarking set provides a representative context for the types of queries which are executed in the OLAP domain.
 
@@ -27,34 +76,45 @@ They don't work well with \faaas{} stack. This is a result of high invocation co
 
 \todo[inline]{Talk about how if the invocation cost decreases, then OLTP workloads become more likely.}
 
-\begin{figure}
-    \begin{center}
-        \input{node_modules/@faaas-bench/faaasc-aws-results/assets/aws-strategy-breakdown.pgf}
-    \end{center}
-    \caption{OLTP \faaasc{} functions running in AWS, billing breakdown by segment.}
-\end{figure}
-
-\subsection{OLAP Workloads}
+\section{Discussion}
+\subsection{Latency overhead of \faaas{}}
+From the experiments, it is clear that \faaas{} introduces a high latency overhead as can be seen in \ref{table:faaas-response-time-latency}. For the \verb|warehouse-order| benchmark, this value was approximately 8 times higher compared to invoking functions directly through AWS Lambda's HTTP endpoints. By profiling, a the majority of this latency occurs as a result of the message passing to and from the RabbitMQ message bus between the gateway and Lambda.
 
 \begin{figure}
     \begin{center}
-        \input{node_modules/@faaas-bench/faaasc-aws-results/assets/aws-strategy-breakdown-olap.pgf}
+        \input{node_modules/@faaas-bench/faaasc-artillery-results/assets/mean_response_times.pgf}
     \end{center}
-    \caption{OLAP \faaasc{} functions running in AWS, billing breakdown by segment.}
+    \caption{Artillery response times}
 \end{figure}
 
-\begin{figure}
-    \begin{center}
-        \input{node_modules/@faaas-bench/faaasc-aws-results/assets/aws-strategy-duration-breakdown.pgf}
-    \end{center}
-    \caption{OLTP \faaasc{} functions running in AWS, billing breakdown specifically of the duration segment of billed.}
-\end{figure}
 
-\begin{figure}
-    \begin{center}
-        \input{node_modules/@faaas-bench/faaasc-aws-results/assets/aws-adaptive-estimate-accuracy.pgf}
-    \end{center}
-    \caption{OLTP \faaasc{} functions running in AWS, billing breakdown specifically of the duration segment of billed.}
-\end{figure}
+\begin{table}
+    \centering
+    \begin{tabularx}{\linewidth}{|c|c|Z|Z|}\hline
+        \textbf{Program} & \textbf{Strategy} & \textbf{Mean} & \textbf{p95} \\
+        \hline
+        \csvreader[column count=13,late after line=\\\hline,late after last line=\\\hline]
+        {resps.csv}
+        {1=\name, 13=\strat, 5=\mean, 10=\p95}
+        %{\csvcoli & \csvcolxiii & \csvcolvii & \csvcolv & \csvcolii & \csvcoliii}
+        {\texttt{\name} & \texttt{\strat} & \mean & \p95}
+    \end{tabularx}
+    \caption{Response time latency impact of using \faaas{}}
+    \label{table:faaas-response-time-latency}
+\end{table}
 
-17:10 - 17:30
+%\subsection{OLAP Workloads}
+
+%\begin{figure}
+%    \begin{center}
+%        \input{node_modules/@faaas-bench/faaasc-aws-results/assets/aws-strategy-duration-breakdown.pgf}
+%    \end{center}
+%    \caption{OLTP \faaasc{} functions running in AWS, billing breakdown specifically of the duration segment of billed.}
+%\end{figure}
+
+%\begin{figure}
+%    \begin{center}
+%        \input{node_modules/@faaas-bench/faaasc-aws-results/assets/aws-adaptive-estimate-accuracy.pgf}
+%    \end{center}
+%    \caption{OLTP \faaasc{} functions running in AWS, billing breakdown specifically of the duration segment of billed.}
+%\end{figure}

@@ -48,6 +48,9 @@
 \usepackage{mathtools}
 \usepackage{stackengine}
 
+% For tables
+\usepackage{csvsimple,booktabs,array}
+
 % For type signatures
 \newtheorem{signature}{Type Signature}
 
@@ -131,3 +134,6 @@
 \def\mathdefault#1{#1}
 \everymath=\expandafter{\the\everymath\displaystyle}
 \makeatletter\@ifpackageloaded{underscore}{}{\usepackage[strings]{underscore}}\makeatother
+
+% Tabularx centered column type
+\newcolumntype{Z}{>{\centering\let\newline\\\arraybackslash\hspace{0pt}}X}
