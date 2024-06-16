@@ -83,7 +83,7 @@ plt.xlabel("Time (UTC)")
 ax.set_xlabel("Time (UTC)")
 ax2.set_xlabel("Time (UTC)")
 ax.set_ylabel("Split profitability probability")
-plt.title("Split profitability probability over time overlayed with\nmonitor's fitted response time distribution parameters")
+plt.title("Split profitability probability computed by Adaptive strategy over time overlayed\nwith monitor's fitted response time distribution parameters")
 
 if tex: plt.savefig("assets/decision-mapping.pgf", bbox_inches="tight")
 else: plt.show()
