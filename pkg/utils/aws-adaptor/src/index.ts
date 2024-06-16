@@ -56,6 +56,8 @@ const pub = rabbit.createPublisher({
 
 export function buildEntrypoint(handlers: Record<string, Handler>) {
   async function entrypoint(event: unknown, ctx: Context) {
+    const startTime = performance.now();
+
     try {
       const mqInvocEvent = MQInvocationEvent.parse(event);
 
@@ -76,6 +78,13 @@ export function buildEntrypoint(handlers: Record<string, Handler>) {
       console.error("Invalid event", err);
 
       throw new Error("Invalid event schema");
+    } finally {
+      const endTime = performance.now();
+      console.log(
+        "Total time spent executing handlers:",
+        endTime - startTime,
+        "ms",
+      );
     }
   }
 

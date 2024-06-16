@@ -45,10 +45,16 @@ Therefore, a suite of evaluation programs is defined in Table \ref{table:benchma
 \label{table:benchmarking-suite}
 \end{table*}
 
-\section{Measuring cost savings}
-In this section, we will describe specifically how the values for total function cost of the \faaas{} deployment to AWS was measured.
+\subsection{OLAP workloads}
+In order to benchmark a representative OLAP workload, we define a set of serverless functions within the context of the warehouse described in the TPC-H benchmark. The TPC-H benchmark is a `decision support benchmark' that models a warehouse, and is widely used to evaluate the performance of OLAP databases. Whilst the purpose of this research is not to benchmarking the database itself, this benchmarking set provides a representative context for the types of queries which are executed in the OLAP domain.
 
-Each function was deployed with each of the following strategies: \verb|adaptive|, \verb|always-proxy|, \verb|never-proxy|, \verb|use-http|, across the following range of memory sizes: 128MB, 256MB, 512MB, 1024MB. Each function was then subjected to a load test using Artillery\cite{artilleryArtilleryCloudscaleLoad}. For each of the deployed AWS Lambda functions, the total billing time and invocation count was extracted from AWS CloudWatch logs using the query defined in Listing \ref{lst:total-cost-cloudwatch-query}. The cost of execution was then calculated using the parameterised billing model defined in Section \ref{sec:faas-param-cost-model} for each function, with each resource configuration and strategy. The results of these tests are tabulated in Table \ref{table:faaas=cost-savings}.
+\subsection{OLTP workloads}
+In order to benchmark a representative OLTP workload, we define a set of serverless functions that execute OLTP queries against a database, and return the results. Specifically, we define a function that executes banking transactions within the context of a bank, and a function that queries the ages of a set of pets.
+
+\section{Measuring cost savings}
+In this section, we aim to provide provide an answer to the first research question: \blockquote{To what extent can code splitting reduce costs when executing serverless functions?}. In order to do this, we will examine which types of workloads result in cost reductions, and describe specifically how the values for total function cost of the \faaas{} deployment to AWS was measured.
+
+Each function was deployed with each of the following strategies: \verb|adaptive|, \verb|always-proxy|, \verb|never-proxy|, \verb|use-http|, across the following range of memory sizes: 128MB, 256MB, 512MB, 1024MB. Each function was then subjected to a load test using Artillery\cite{artilleryArtilleryCloudscaleLoad}. For each of the deployed AWS Lambda functions, the total billing time and invocation count was extracted from AWS CloudWatch logs using the query defined in Listing \ref{lst:total-cost-cloudwatch-query}. The cost of execution was then calculated using the parameterised billing model defined in Section \ref{sec:faas-param-cost-model} for each function, with each resource configuration and strategy. The results of these tests are tabulated in Table \ref{table:faaas-cost-savings}.
 
 \begin{listing}
 \begin{minted}[obeytabs=true,tabsize=2]{fsharp}
@@ -73,12 +79,23 @@ fields @timestamp, @message
         {1=\name, 2=\mem, 3=\costsaving}
         {\texttt{\name} & \texttt{\mem} & \costsaving}
     \end{tabularx}
+    \todo[inline]{Generate this data}
     \caption{Response time latency impact of using \faaas{}}
-    \label{table:faaas=cost-savings}
+    \label{table:faaas-cost-savings}
 \end{table}
 
-\section{Measuring function response times}
-In this section, we will describe specifically how the values for function response times of the \faaas{} deployment to AWS was measured.
+From the results, it is clear that \faaas{} is much less effective at reducing costs for OLTP workloads such as the \verb|pets| workload in Figure \ref{fig:faaas-strategy-breakdown-pets}, whilst for OLAP workloads, provides a substantial cost reduction. The cost reduction observed is dependent entirely on the response time of asynchronous requests. For higher resource allocations, cost savings are greater, and reductions can be observed for asynchronous requests with lower response times, as shown in Figure \todo{Figure varying memory, splitting strategy and program}.
+
+\begin{figure}
+    \begin{center}
+        \input{node_modules/@faaas-bench/faaasc-aws-results/assets/aws-strategy-breakdown.pgf}
+    \end{center}
+    \caption{Cost breakdown of the \texttt{pets} OLTP function workload running on AWS Lambda (256MB). Using the always split strategy, a cost increase of 75\% is observed, indicating that function splitting for short lived requests is not profitable.}
+    \label{fig:faaas-strategy-breakdown-pets}
+\end{figure}
+
+\section{Measuring \faaas{} overhead}
+In this section, we aim to provide an answer to the second research question: \blockquote{What is the overhead incurred by code splitting?}. In order to do this, we will evaluate how function response times are affected by introducing various parts of the \faaas{} AWS deployment, and describe specifically how figures for function response times of the \faaas{} deployment to AWS was measured. Additionally, we will provide a breakdown of billed time whilst executing a \faaas{} split function in comparison with executing the original function.
 
 For each of the deployed functions, under the load tests, the average response time, along with other metrics were extracted from the Artillery output. The artillery experiment was executed from a home WiFi network, with a \SI{67.1}{Mbps} download, and \SI{17.1}{Mbps} upload speed. The average, and percentile response times were then calculated for each function, for each resource configuration and splitting strategy.
 
@@ -105,29 +122,33 @@ From the experiments, it is clear that \faaas{} introduces a high latency overhe
     \label{table:faaas-response-time-latency}
 \end{table}
 
-\section{Workload types}
-\subsection{OLAP workloads}
-In order to benchmark a representative OLAP workload, we define a set of serverless functions within the context of the warehouse described in the TPC-H benchmark. The TPC-H benchmark is a `decision support benchmark' that models a warehouse, and is widely used to evaluate the performance of OLAP databases. Whilst the purpose of this research is not to benchmarking the database itself, this benchmarking set provides a representative context for the types of queries which are executed in the OLAP domain.
+In order to provide a breakdown of the time spent during billed function invocation time, the AWS \faaas{} adaptor was instrumented to log times spend executing each part of the function during execution. This data was extracted from CloudWatch logs, and analysed into Table \ref{table:faaas-duration-breakdown}, and visualised for both the pets OLTP function \ref{fig:faaasc-oltp-duration-bill-breakdown}.
 
-\subsection{OLTP workloads}
-In order to benchmark a representative OLTP workload, we define a set of serverless functions that execute OLTP queries against a database, and return the results. Specifically, we define a function that executes banking transactions within the context of a bank, and a function that queries the ages of a set of pets.
+\begin{table}
+    \centering
+    \begin{tabularx}{\linewidth}{|c|c|Z|Z|}\hline
+        \textbf{Program} & \textbf{Strategy} & \textbf{Mean} & \textbf{p95} \\
+        \hline
+        \csvreader[column count=13,late after line=\\\hline,late after last line=\\\hline]
+        {assets/tmp/faaas-bench-faaasc-artillery-results-response-times.csv}
+        {1=\name, 13=\strat, 5=\mean, 10=\p95}
+        {\texttt{\name} & \texttt{\strat} & \mean & \p95}
+    \end{tabularx}
+    \todo[inline]{Generate this data}
+    \caption{Duration breakdown of \faaas{} function execution}
+    \label{table:faaas-duration-breakdown}
+\end{table}
 
-\subsection{Existing microbenchmarking suites}
-\todo[inline]{They work and \faaas{} doesnt affect their results when running on Lambda.}
+\begin{figure}
+    \begin{center}
+        \input{node_modules/@faaas-bench/faaasc-aws-results/assets/aws-strategy-duration-breakdown.pgf}
+    \end{center}
+    \caption{OLTP \faaasc{} functions running in AWS, billing breakdown specifically of the duration segment of billed.}
+    \label{fig:faaasc-oltp-duration-bill-breakdown}
+\end{figure}
 
-\subsection{Banking suite}
-\todo[inline]{The need to implement the banking suite.}
-
-\section{\faaas{} stack on AWS Lambda}
-\todo[inline]{Introduce the faaas stack running on AWS Lambda.}
-
-\subsection{OLTP Workloads}
-They don't work well with \faaas{} stack. This is a result of high invocation costs relative to the duration cost billed when executing the function.
-
-\todo[inline]{Talk about how if the invocation cost decreases, then OLTP workloads become more likely.}
-
-\section{Splitting strategies}
-In this section, we aim to answer (q3) from the set of research questions we wish to answer. We will measure the cost of executing a variable workload using the \verb|adaptive|, \verb|never| and \verb|always| strategies over time.
+\section{Adaptive splitting strategy}
+In this section, we aim to provide an answer to the third research question: \blockquote{How well does adaptive split identify optimal splitting decisions?} We will measure the cost of executing a variable workload using the \verb|adaptive|, \verb|never| and \verb|always| strategies over time.
 
 The setup is as follows: we deploy the \verb|echoer| function to AWS Lambda, and use Artillery\cite{artilleryArtilleryCloudscaleLoad} to send requests at a rate of 1 request per second for 45mins to each of the strategies. Artillery is configured such that every 15mins, the timeout sent to \verb|echoer| changes from \SI{50}{\milli\second} to \SI{200}{\milli\second}, which should in turn cause the adaptive strategy to adjust it's splitting strategy once the monitor runs.
 
@@ -151,23 +172,9 @@ In figure \ref{fig:strategy-decision-over-time}, the latency inferred by the mon
     \label{fig:strategy-decision-over-time}
 \end{figure*}
 
-%\subsection{OLAP Workloads}
+\section{Conjecture time! Analysis of future research that could improve the cost-effectiveness of \faaas{}}
+In this final section, we will discuss how each of the above findings help to provide an answer to the final research question: \blockquote{What are the key areas that cloud providers need to address in order to enable more effective cost reductions across a wider range of \faas{} workloads?}.
 
-%\begin{figure}
-%    \begin{center}
-%        \input{node_modules/@faaas-bench/faaasc-aws-results/assets/aws-strategy-duration-breakdown.pgf}
-%    \end{center}
-%    \caption{OLTP \faaasc{} functions running in AWS, billing breakdown specifically of the duration segment of billed.}
-%\end{figure}
-
-%\begin{figure}
-%    \begin{center}
-%        \input{node_modules/@faaas-bench/faaasc-aws-results/assets/aws-adaptive-estimate-accuracy.pgf}
-%    \end{center}
-%    \caption{OLTP \faaasc{} functions running in AWS, billing breakdown specifically of the duration segment of billed.}
-%\end{figure}
-
-\section{Conjecture time}
 From the results of the experiments on AWS, whilst we observe a significant cost reduction in workloads executing OLAP queries, those executing predominantly OLTP queries are unable to observe any cost reductions, and actually incur penalties by performing code splitting. This is due to the high invocation costs relative to the duration costs billed when executing the function.
 
 Since AWS is not the only provider of \faas{}, it is important to consider how this evaluation could be different if the pricing model changed in the future, or a different provider emerged with a different billing structure.
@@ -178,17 +185,39 @@ Invocation costs for cloud functions are loosely coupled to the technical overhe
 Referring back to the cost model in Section \ref{sec:faas-param-cost-model}, by reducing the invocation cost, it would reduce the critical threshold which it becomes profitably to split a function across an asynchronous request.
 
 \subsection{Reduction in startup times (cold-start and warm-start)}
-\todo[inline]{Discuss how reductions in startup times help to reduce upfront penalty when splitting.}
+From the overhead analysis, it is shown that there is considerable overhead when reinvoking a function above typical function cold starts. This is is due to a variety of factors, including the extra network round-trips to and from RabbitMQ, in addition to the additional setup costs of invoking a function with Lambda.
+
+Since this overhead has constant time, its fiscal penalty is proportional to the function resource allocation. Similarly to the flat invocation cost, the overhead penalty occupies a larger proportion of the duration cost when the duration time is short, and thus this impacts workloads that execute OLTP queries.
+
+Reducing this overhead would make it more cost-effective to split functions across OLTP queries as the overhead would be less significant relative to the duration cost.
 
 \subsection{Changes to duration cost pricing}
-\todo[inline]{Discuss how increases in duration costs could make invocation costs less significant overall.}
+Conversely, an increase in the duration cost $C_r$ of the cloud provider platform would make it more cost-effective to split functions across OLTP queries. The \faaasc{} AWS Lambda adaptor supports batching invocations, so by increasing the resource allocation, a Lambda can process more requests in the same invocation. This cost breakdown is shown by Figure TODO\todo{need to export this figure}.
+
+This has the impact that the invocation cost of a single is spread evenly across all the requests in the batch. This would make it more cost-effective to split functions across OLTP queries, as the invocation cost currently dominates. On the contrary however, this model requires invocations to be batched, and typically, OLTP queries are not batched\todo{cite this somewhere, maybe I'm wrong}.
 
 \subsection{Potential solutions which would make OLTP workloads more viable}
+In this section, we discuss potential solutions which would make OLTP workloads more viable on \faas{} platforms.
+
 \subsubsection{Voluntary release of CPU time back to the hypervisor}
-\todo[inline]{This would mean that memory would still be allocated and billed, but to a lesser extent.}
+As discussed in Section TODO\todo{reference to background where cloud providers typically use vms to isolate functions}, cloud providers typically use virtual machines to isolate functions. The hypervisor is responsible for scheduling CPU time to each of the virtual machines and does so fairly, based on the resource allocation of the function to be executed.
+
+From the results of the decribed experiments, it is clear that for the proportion of the time the function is executing, functions are allocated CPU resources which they are not using. The ability to voluntarily release this CPU time back to the hypervisor would allow the hypervisor to allocate this CPU time to other functions, and thus reduce the cost of executing the function, since only the memory must be allocated for the entire duration of the function's execution.
 
 \subsubsection{Voluntary release of memory back to the hypervisor}
-\todo[inline]{Discuss how this would require writing back to swap/disk, which would incur a penalty.}
+Whilst releasing CPU allocation back to the hypervisor when blocked on IO could reduce the cost of executing the function, memory would still need to be billed since it occupies memory that another function could be using. In the case that a function is blocked on IO, depending on the disk latency, it could be more cost effective to write the blocked function's memory to swap during the period that it is blocked, and then load the function back into memory once the response has arrived, and the node has capacity to continue execution of the function.
+
+This would have the impact of increasing latency, as the function would need to perform a write-read cycle to and from disk, in addition to waiting until the hypervisor has capacity to load the function back into memory. This would however allow functions to be billed more accurately based on CPU time and memory that they have utilised.
+
+We propose a short experiment in order to assess the viability of this in AWS Lambda. By inspecting the CloudWatch logs from executing the experiment benchmarks, we observe that the average memory consumption for all the NodeJS functions was approximately \SI{108}{\mega\byte}. Since we cannot know the specifics of the disk used by the instances running the hypervisor to execute Lambda functions, we will assume that the write speed to the EFS (Elastic File System) from the Lambda environment is representative of the disk speed of the hypervisor. We deploy a simple function that writes and then reads a \SI{108}{\mega\byte} file of random data to and from EFS, and measure the time taken to perform this operation. This file is to be representative of uncompressed memory allocated to the MicroVM that is to be written to swap during a blocked IO operation. The results of this are shown in Figure \todo{run EFS IO benchmark}.
+
+In order to achieve this technically, the operating system could notify the hypervisor that the function is blocked on IO when the operation system recieves an \verb|epoll\_wait| system call. The main difficulty with this approach would likely be the issue of correctly predicting when a call to \verb|epoll\_wait| would cause the function to yield for a long enough duration for it to be worth the hypervisor to swap the function out to disk.
+
+Therefore, it may be more effective to implement support for this at a language level, whereby the language runtime would notify the hypervisor that the function is blocked on IO, and that the hypervisor should swap the function out to disk. If this occurs at the language level, then it would have access to context around the asynchronous IO operation, and could use this to predict its duration.
 
 \subsubsection{Function continuation execution within the database}
-\todo[inline]{Note that this is a controversial topic, as there are two schools of though, whereby databases should execute queries, and functions should be stateless, and the other school of thought is that the databases should be able to execute functions themselves.}
+We have so far focused on potential solutions that would allow for better resource utilisation of the hypervisor. Whilst an important component to the solution, it does not address the issues of latency encountered by performing the AWS Lambda slotting algorithm for each continuation. By formalising serverless functions as handlers which return continuations in Section \todo{reference back to continuations}, we could pass the continuation directly to the database to execute after the query has been completed. This however still relies on low invocation costs in order to be cost effective.
+
+Mainstream cloud providers typically use either container based isolation or VM based isolation, which both have relatively high invocation overhead. Other isolation mechanisms, such as the WASM isolation methods described in Section \todo{Refernce back to WASM isolation section in background}, have the potential to reduce invocation overhead, allowing continuations to be executed with a much lower cost penalty.
+
+By embedding a WASM runtime into the database, it could enable execution of the continuations reutrned by \faaasc{} handlers directly inside the database.
