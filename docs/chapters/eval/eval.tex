@@ -131,7 +131,7 @@ In this section, we aim to answer (q3) from the set of research questions we wis
 
 The setup is as follows: we deploy the \verb|echoer| function to AWS Lambda, and use Artillery\cite{artilleryArtilleryCloudscaleLoad} to send requests at a rate of 1 request per second for 45mins to each of the strategies. Artillery is configured such that every 15mins, the timeout sent to \verb|echoer| changes from \SI{50}{\milli\second} to \SI{200}{\milli\second}, which should in turn cause the adaptive strategy to adjust it's splitting strategy once the monitor runs.
 
-The total cost of each strategy is plotted over time in Figure \ref{fig:strategy-cost-over-time}. Whilst the adaptive strategy does not instantly adjust it's strategy, a short period of time, around 3 minutes, it typically converges to the optimal strategy.
+The total cost of each strategy is plotted over time in Figure \ref{fig:strategy-cost-over-time}. Whilst the adaptive strategy does not instantly adjust its strategy, after a short period of time, around 10 minutes of sustained high latency, it updates its strategy selects the optimal strategy. This value can be tuned, however since with AWS it relies on querying CloudWatch data, it is somewhat limited by the propagation delay of CloudWatch logs (typically 1-3mins). Additionally, the monitor analyses historical data in a sliding \SI{10}{\min} sliding window in order to smooth any spikes in data.
 
 \begin{figure*}
     \begin{center}
@@ -140,6 +140,8 @@ The total cost of each strategy is plotted over time in Figure \ref{fig:strategy
     \caption{Strategy cost over time.}
     \label{fig:strategy-cost-over-time}
 \end{figure*}
+
+In figure \ref{fig:strategy-decision-over-time}, the latency inferred by the monitor and actual obvserved latency is overlayed ontop of the computed probability of profitability by the function when selecting which strategy to use. During the first \SI{10}{\min}, the monitor is fitting the response time distribution to both low and high latency echoes, with the proportion of high latency echoes increasing throughout this period. As a result, it is clear from the plot that the probability of profitability is increasing during this period. There is however a brief period at 10:25, where the inferred latency diverges to a high negative value. This causes the algorithm to switch back to the never strategy briefly, before switching back to the adaptive strategy once the distribution converges back to the actual latency.
 
 \begin{figure*}
     \begin{center}
