@@ -1,0 +1,11 @@
+{
+  "name": "@faaas-bench/faaasc-artillery-concat-results",
+  "version": "1.0.0",
+  "description": "Compile the artillery results into a CSV for the report",
+  "scripts": {
+    "build": "poetry run python generate.py"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}

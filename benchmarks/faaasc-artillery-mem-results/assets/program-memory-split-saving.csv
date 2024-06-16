@@ -1,0 +1,13 @@
+program_name,memory,totalCostRatio,programId_local
+warehouse-report,1024,98.45,wh-r
+warehouse-report,512,98.27,wh-r
+warehouse-report,256,98.7,wh-r
+warehouse-report,128,96.72,wh-r
+warehouse-order,1024,90.04,wh-o
+warehouse-order,512,85.29,wh-o
+warehouse-order,256,74.01,wh-o
+warehouse-order,128,58.63,wh-o
+pets,1024,-54.94,pets
+pets,512,-14.17,pets
+pets,256,-74.1,pets
+pets,128,-137.44,pets

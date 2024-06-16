@@ -26,7 +26,7 @@ Therefore, a suite of evaluation programs is defined in Table \ref{table:benchma
 \begin{table*}
 \begin{tabularx}{\linewidth}{|r|c|X|c|}
     \hline
-    \textbf{Program} & \textbf{ID} & \textbf{Description} & \textbf{Workload} \\
+    \textbf{Program} & \textbf{PID} & \textbf{Description} & \textbf{Workload} \\
     \hline
     \verb|warehouse-report| & \verb|wh-o| & Executes TPC-H query 1 to generate a pricing report, then generates HTML report using mustache. & OLAP \\
     \hline
@@ -72,15 +72,14 @@ fields @timestamp, @message
 \begin{table}
     \centering
     \begin{tabularx}{\linewidth}{|c|c|Z|}\hline
-        \textbf{Program} & \textbf{Memory} & \textbf{Cost Saving} \\
+        \textbf{PID} & \textbf{Memory} & \textbf{Cost Reduction (\%)} \\
         \hline
-        \csvreader[column count=13,late after line=\\\hline,late after last line=\\\hline]
-        {assets/tmp/faaas-bench-faaasc-artillery-results-response-times.csv}
-        {1=\name, 2=\mem, 3=\costsaving}
-        {\texttt{\name} & \texttt{\mem} & \costsaving}
+        \csvreader[column count=4,late after line=\\\hline,late after last line=\\\hline]
+        {assets/tmp/faaas-bench-faaasc-artillery-mem-results-split-saving.csv}
+        {2=\mem, 3=\costsaving, 4=\progid}
+        {\texttt{\progid} & \texttt{\mem} & \costsaving}
     \end{tabularx}
-    \todo[inline]{Generate this data}
-    \caption{Response time latency impact of using \faaas{}}
+    \caption{Cost reduction of each program in the benchmark suite when performing function splitting on AWS Lambda, using the \texttt{always} splitting strategy.}
     \label{table:faaas-cost-savings}
 \end{table}
 
@@ -120,7 +119,7 @@ From the experiments, it is clear that \faaas{} introduces a high latency overhe
 \begin{table}
     \centering
     \begin{tabularx}{\linewidth}{|c|c|Z|Z|}\hline
-        \textbf{Program} & \textbf{Strategy} & \textbf{Mean} & \textbf{p95} \\
+        \textbf{PID} & \textbf{Strategy} & \textbf{Mean (ms)} & \textbf{p95 (ms)} \\
         \hline
         \csvreader[column count=13,late after line=\\\hline,late after last line=\\\hline]
         {assets/tmp/faaas-bench-faaasc-artillery-results-response-times.csv}
@@ -136,7 +135,7 @@ In order to provide a breakdown of the time spent during billed function invocat
 \begin{table}
     \centering
     \begin{tabularx}{\linewidth}{|c|c|Z|Z|}\hline
-        \textbf{Program} & \textbf{Strategy} & \textbf{Mean} & \textbf{p95} \\
+        \textbf{PID} & \textbf{Strategy} & \textbf{Mean} & \textbf{p95} \\
         \hline
         \csvreader[column count=13,late after line=\\\hline,late after last line=\\\hline]
         {assets/tmp/faaas-bench-faaasc-artillery-results-response-times.csv}
