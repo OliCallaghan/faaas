@@ -1,0 +1,36 @@
+config:
+  target: http://app-lb-1035490685.eu-west-2.elb.amazonaws.com
+  http:
+    timeout: 30
+  phases:
+    - duration: 15
+      arrivalCount: 1
+      maxVusers: 1
+      name: Warm function
+    - duration: 15
+      arrivalCount: 1
+      maxVusers: 1
+      name: Reinvoke function
+    - duration: 15
+      arrivalCount: 1
+      maxVusers: 1
+      name: Reinvoke function
+    - duration: 15
+      arrivalCount: 1
+      maxVusers: 1
+      name: Reinvoke function
+  plugins:
+    expect: {}
+    apdex: {}
+    metrics-by-endpoint:
+      useOnlyRequestNames: true
+    fake-data: {}
+  processor: "./payload.mjs"
+scenarios:
+  - flow:
+      - post:
+          url: "/"
+          qs:
+            task_id: "warehouse-report-512-proxy"
+          beforeRequest: "preparePayload"
+          json: "{{ payload }}"

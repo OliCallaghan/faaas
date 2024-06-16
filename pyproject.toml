@@ -67,6 +67,7 @@ boto3 = "^1.34.122"
 scipy = "^1.13.1"
 fitter = "^1.7.0"
 redis = "^5.0.5"
+pika = "^1.3.2"
 
 [tool.poetry.group.lambda-resp-monitor.dependencies]
 pandas = "^2.2.2"

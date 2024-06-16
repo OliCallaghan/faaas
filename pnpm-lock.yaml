@@ -25,6 +25,8 @@ importers:
 
   benchmarks/faaasc-artillery: {}
 
+  benchmarks/faaasc-artillery-mem-results: {}
+
   benchmarks/faaasc-artillery-results:
     dependencies:
       '@faaas-bench/faaasc-artillery':
@@ -241,6 +243,9 @@ importers:
       '@faaas-bench/faaasc-adaptive-results':
         specifier: workspace:^
         version: link:../benchmarks/faaasc-adaptive-results
+      '@faaas-bench/faaasc-artillery-mem-results':
+        specifier: workspace:^
+        version: link:../benchmarks/faaasc-artillery-mem-results
       '@faaas-bench/faaasc-artillery-results':
         specifier: workspace:^
         version: link:../benchmarks/faaasc-artillery-results

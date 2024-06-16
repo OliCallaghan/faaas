@@ -1,0 +1,5 @@
+fields @timestamp, @message, @log
+| filter @message like /Billed Duration/
+| parse @message "Billed Duration: * ms" as duration
+| parse @log "/aws/lambda/*-*-*" as program, mem, strategy
+| stats count(duration) * 2.0e-7 as totalInvocCost, sum((duration / 1000) * 1.66667e-5 * (mem / 1024)) as totalDurationCost, sum(2.0e-7 + (duration / 1000) * 1.66667e-5 * (mem / 1024)) as totalCost, totalDurationCost / totalCost as ratio by @log

@@ -1,0 +1,10 @@
+{
+  "name": "@faaas-bench/faaasc-artillery-mem-results",
+  "version": "1.0.0",
+  "scripts": {
+    "build": "poetry run python generate.py"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}

@@ -84,7 +84,7 @@ fields @timestamp, @message
     \label{table:faaas-cost-savings}
 \end{table}
 
-From the results, it is clear that \faaas{} is much less effective at reducing costs for OLTP workloads such as the \verb|pets| workload in Figure \ref{fig:faaas-strategy-breakdown-pets}, whilst for OLAP workloads, provides a substantial cost reduction. The cost reduction observed is dependent entirely on the response time of asynchronous requests. For higher resource allocations, cost savings are greater, and reductions can be observed for asynchronous requests with lower response times, as shown in Figure \todo{Figure varying memory, splitting strategy and program}.
+From the results, it is clear that \faaas{} is much less effective at reducing costs for OLTP workloads such as the \verb|pets| workload in Figure \ref{fig:faaas-strategy-breakdown-pets}, whilst for OLAP workloads, provides a substantial cost reduction. The cost reduction observed is dependent entirely on the response time of asynchronous requests. For higher resource allocations, cost savings are greater, and less of a penalty is observed for asynchronous requests with lower response times (such as OLTP requests), as shown in Figure \ref{fig:faaas-mem-prog-strat-heatmap-splitting-saving}.
 
 \begin{figure}
     \begin{center}
@@ -93,6 +93,15 @@ From the results, it is clear that \faaas{} is much less effective at reducing c
     \caption{Cost breakdown of the \texttt{pets} OLTP function workload running on AWS Lambda (256MB). Using the always split strategy, a cost increase of 75\% is observed, indicating that function splitting for short lived requests is not profitable.}
     \label{fig:faaas-strategy-breakdown-pets}
 \end{figure}
+
+\begin{figure*}
+    \begin{center}
+        \includesvg{node_modules/@faaas-bench/faaasc-artillery-mem-results/assets/program-memory-split-saving.svg}
+        %\import{node_modules/@faaas-bench/faaasc-artillery-mem-results/assets/}{program-memory-split-saving.pgf}
+    \end{center}
+    \caption{Cost breakdown of the \texttt{pets} OLTP function workload running on AWS Lambda (256MB). Using the always split strategy, a cost increase of 75\% is observed, indicating that function splitting for short lived requests is not profitable.}
+    \label{fig:faaas-mem-prog-strat-heatmap-splitting-saving}
+\end{figure*}
 
 \section{Measuring \faaas{} overhead}
 In this section, we aim to provide an answer to the second research question: \blockquote{What is the overhead incurred by code splitting?}. In order to do this, we will evaluate how function response times are affected by introducing various parts of the \faaas{} AWS deployment, and describe specifically how figures for function response times of the \faaas{} deployment to AWS was measured. Additionally, we will provide a breakdown of billed time whilst executing a \faaas{} split function in comparison with executing the original function.

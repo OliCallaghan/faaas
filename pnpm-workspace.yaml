@@ -11,6 +11,7 @@ packages:
   - "diagrams/faaasc-ast-split"
   - "diagrams/pricing"
   - "docs"
+  - "benchmarks/faaasc-artillery-mem-results"
   - "benchmarks/faaasc-artillery"
   - "benchmarks/faaasc-adaptive-results"
   - "benchmarks/faaasc-artillery-results"
