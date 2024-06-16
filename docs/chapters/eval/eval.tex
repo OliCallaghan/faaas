@@ -13,7 +13,7 @@ In this chapter, \faaas{} is evaluated in terms of its cost savings and overhead
     \item[(q1)] To what extent can code splitting reduce costs when executing serverless functions?
     \item[(q2)] What is the overhead incurred by code splitting?
     \item[(q3)] How well does adaptive split identify optimal splitting decisions?
-    \item[(q4)] What are the key areas that cloud providers need to address in order to enable more effective cost reductions across a wider range of \faas{} workloads?
+    \item[(q4)] How do different \faas{} billing models impact the viability of function-splitting with \faaas{}?
 \end{itemize}
 
 \section{Benchmarking suites}
@@ -172,8 +172,8 @@ In figure \ref{fig:strategy-decision-over-time}, the latency inferred by the mon
     \label{fig:strategy-decision-over-time}
 \end{figure*}
 
-\section{Conjecture time! Analysis of future research that could improve the cost-effectiveness of \faaas{}}
-In this final section, we will discuss how each of the above findings help to provide an answer to the final research question: \blockquote{What are the key areas that cloud providers need to address in order to enable more effective cost reductions across a wider range of \faas{} workloads?}.
+\section{Analysis of billing model dynamics on \faaas{} viability}
+In this final section, we will discuss how each of the above findings help to provide an answer to the final research question: \blockquote{How do different \faas{} billing models impact the viability of function-splitting with \faaas{}?}.
 
 From the results of the experiments on AWS, whilst we observe a significant cost reduction in workloads executing OLAP queries, those executing predominantly OLTP queries are unable to observe any cost reductions, and actually incur penalties by performing code splitting. This is due to the high invocation costs relative to the duration costs billed when executing the function.
 
@@ -195,29 +195,3 @@ Reducing this overhead would make it more cost-effective to split functions acro
 Conversely, an increase in the duration cost $C_r$ of the cloud provider platform would make it more cost-effective to split functions across OLTP queries. The \faaasc{} AWS Lambda adaptor supports batching invocations, so by increasing the resource allocation, a Lambda can process more requests in the same invocation. This cost breakdown is shown by Figure TODO\todo{need to export this figure}.
 
 This has the impact that the invocation cost of a single is spread evenly across all the requests in the batch. This would make it more cost-effective to split functions across OLTP queries, as the invocation cost currently dominates. On the contrary however, this model requires invocations to be batched, and typically, OLTP queries are not batched\todo{cite this somewhere, maybe I'm wrong}.
-
-\subsection{Potential solutions which would make OLTP workloads more viable}
-In this section, we discuss potential solutions which would make OLTP workloads more viable on \faas{} platforms.
-
-\subsubsection{Voluntary release of CPU time back to the hypervisor}
-As discussed in Section TODO\todo{reference to background where cloud providers typically use vms to isolate functions}, cloud providers typically use virtual machines to isolate functions. The hypervisor is responsible for scheduling CPU time to each of the virtual machines and does so fairly, based on the resource allocation of the function to be executed.
-
-From the results of the decribed experiments, it is clear that for the proportion of the time the function is executing, functions are allocated CPU resources which they are not using. The ability to voluntarily release this CPU time back to the hypervisor would allow the hypervisor to allocate this CPU time to other functions, and thus reduce the cost of executing the function, since only the memory must be allocated for the entire duration of the function's execution.
-
-\subsubsection{Voluntary release of memory back to the hypervisor}
-Whilst releasing CPU allocation back to the hypervisor when blocked on IO could reduce the cost of executing the function, memory would still need to be billed since it occupies memory that another function could be using. In the case that a function is blocked on IO, depending on the disk latency, it could be more cost effective to write the blocked function's memory to swap during the period that it is blocked, and then load the function back into memory once the response has arrived, and the node has capacity to continue execution of the function.
-
-This would have the impact of increasing latency, as the function would need to perform a write-read cycle to and from disk, in addition to waiting until the hypervisor has capacity to load the function back into memory. This would however allow functions to be billed more accurately based on CPU time and memory that they have utilised.
-
-We propose a short experiment in order to assess the viability of this in AWS Lambda. By inspecting the CloudWatch logs from executing the experiment benchmarks, we observe that the average memory consumption for all the NodeJS functions was approximately \SI{108}{\mega\byte}. Since we cannot know the specifics of the disk used by the instances running the hypervisor to execute Lambda functions, we will assume that the write speed to the EFS (Elastic File System) from the Lambda environment is representative of the disk speed of the hypervisor. We deploy a simple function that writes and then reads a \SI{108}{\mega\byte} file of random data to and from EFS, and measure the time taken to perform this operation. This file is to be representative of uncompressed memory allocated to the MicroVM that is to be written to swap during a blocked IO operation. The results of this are shown in Figure \todo{run EFS IO benchmark}.
-
-In order to achieve this technically, the operating system could notify the hypervisor that the function is blocked on IO when the operation system recieves an \verb|epoll\_wait| system call. The main difficulty with this approach would likely be the issue of correctly predicting when a call to \verb|epoll\_wait| would cause the function to yield for a long enough duration for it to be worth the hypervisor to swap the function out to disk.
-
-Therefore, it may be more effective to implement support for this at a language level, whereby the language runtime would notify the hypervisor that the function is blocked on IO, and that the hypervisor should swap the function out to disk. If this occurs at the language level, then it would have access to context around the asynchronous IO operation, and could use this to predict its duration.
-
-\subsubsection{Function continuation execution within the database}
-We have so far focused on potential solutions that would allow for better resource utilisation of the hypervisor. Whilst an important component to the solution, it does not address the issues of latency encountered by performing the AWS Lambda slotting algorithm for each continuation. By formalising serverless functions as handlers which return continuations in Section \todo{reference back to continuations}, we could pass the continuation directly to the database to execute after the query has been completed. This however still relies on low invocation costs in order to be cost effective.
-
-Mainstream cloud providers typically use either container based isolation or VM based isolation, which both have relatively high invocation overhead. Other isolation mechanisms, such as the WASM isolation methods described in Section \todo{Refernce back to WASM isolation section in background}, have the potential to reduce invocation overhead, allowing continuations to be executed with a much lower cost penalty.
-
-By embedding a WASM runtime into the database, it could enable execution of the continuations reutrned by \faaasc{} handlers directly inside the database.
