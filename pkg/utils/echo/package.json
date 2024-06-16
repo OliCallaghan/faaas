@@ -1,0 +1,9 @@
+{
+  "name": "@faaas/echo",
+  "version": "1.0.0",
+  "description": "Echo service client for faaas to demonstrate adaptive splitting",
+  "main": "src/index.ts",
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}

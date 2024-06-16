@@ -1,0 +1,13 @@
+{
+  "name": "@faaas/echo-engine",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "build": "cargo build --release --quiet",
+    "deploy": "./deploy.sh"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}

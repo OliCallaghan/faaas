@@ -78,8 +78,8 @@ pivot_table["mean"] \
     .plot(kind='bar', ax=ax) \
     .legend(loc='lower center', bbox_to_anchor=(0.5, -0.75))
 
-plt.title('Mean response times for\neach suite and strategy')
-plt.xlabel('Suite Name')
+plt.title('Mean response times for\neach program and strategy')
+plt.xlabel('Program name')
 plt.ylabel('Normalised mean response time')
 
 if tex: plt.savefig("assets/mean_response_times.pgf", bbox_inches="tight")

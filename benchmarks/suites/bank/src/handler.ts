@@ -1,17 +1,12 @@
 import { type Context, result } from "@faaas/handler";
 import { database } from "@faaas/sql";
 
-const PG_USER = "postgres";
-const PG_PASS = "password";
-const PG_HOST = "localhost";
-const PG_PORT = 5432;
-
 const sql = database({
-  host: PG_USER,
-  port: PG_PORT,
-  user: PG_HOST,
-  pass: PG_PASS,
-  database: "postgres",
+  host: "postgres-db.cno4eviwxzxv.eu-west-2.rds.amazonaws.com",
+  port: 5432,
+  username: "faaasuser",
+  password: "securepassword",
+  database: "petstore",
   ssl: { rejectUnauthorized: false },
 });
 

@@ -127,14 +127,14 @@ export async function computeProxyProfitability(
   const warmupTime = randomGaussian(20, 5) / 1000; // TODO: Tune this number
 
   const profitThreshold = computeProfitThreshold(memAllocMB, warmupTime);
-  console.log("Profitable to split if t <", profitThreshold);
+  console.log("Profitable to split if t >", profitThreshold * 1e3);
 
   const { loc, scale, shape } = await fetchParameters(ctx.functionName, task);
   console.log("Proxy(", task, ") ~ W(", shape, loc, scale, ")");
 
   const dist = weibull3(loc, scale, shape);
   const mean = weibull3median(dist); // approximation that mean ~ median for continuous functions
-  const prob = 1 - weibull3cdf(dist, profitThreshold);
+  const prob = 1 - weibull3cdf(dist, profitThreshold * 1e3);
 
   const saving =
     computeExecutionCost(memAllocMB, mean) - computeInvocationCost(warmupTime);

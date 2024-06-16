@@ -8,6 +8,7 @@
     "clean": "latexmk -silent -c -jobname=out/report report.tex"
   },
   "dependencies": {
+    "@faaas-bench/faaasc-adaptive-results": "workspace:^",
     "@faaas-bench/faaasc-artillery-results": "workspace:^",
     "@faaas-bench/hello-seq": "workspace:^",
     "@faaas-diagrams/db-response-times": "workspace:^",

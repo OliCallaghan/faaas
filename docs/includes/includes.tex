@@ -137,3 +137,8 @@
 
 % Tabularx centered column type
 \newcolumntype{Z}{>{\centering\let\newline\\\arraybackslash\hspace{0pt}}X}
+
+% Copy any CSV files from node_modules that need to be rendered
+\usepackage{iexec}
+
+\iexec{cp node_modules/@faaas-bench/faaasc-artillery-results/assets/response-times.csv assets/tmp/faaas-bench-faaasc-artillery-results-response-times.csv}

@@ -21,6 +21,8 @@ importers:
         specifier: ^1.13.2
         version: 1.13.2
 
+  benchmarks/faaasc-adaptive-results: {}
+
   benchmarks/faaasc-artillery: {}
 
   benchmarks/faaasc-artillery-results:
@@ -115,6 +117,31 @@ importers:
       '@faaas/aws-adaptor':
         specifier: workspace:^
         version: link:../../../pkg/utils/aws-adaptor
+      '@faaas/aws-http-adaptor':
+        specifier: workspace:^
+        version: link:../../../pkg/utils/aws-http-adaptor
+      '@faaas/faaasc':
+        specifier: workspace:^
+        version: link:../../../pkg/faaasc
+      esbuild:
+        specifier: ^0.20.2
+        version: 0.20.2
+
+  benchmarks/suites/echoer:
+    dependencies:
+      '@faaas/echo':
+        specifier: workspace:^
+        version: link:../../../pkg/utils/echo
+      '@faaas/handler':
+        specifier: workspace:^
+        version: link:../../../pkg/utils/handler
+    devDependencies:
+      '@faaas/aws-adaptor':
+        specifier: workspace:^
+        version: link:../../../pkg/utils/aws-adaptor
+      '@faaas/aws-http-adaptor':
+        specifier: workspace:^
+        version: link:../../../pkg/utils/aws-http-adaptor
       '@faaas/faaasc':
         specifier: workspace:^
         version: link:../../../pkg/faaasc
@@ -164,6 +191,9 @@ importers:
       '@faaas/sql':
         specifier: workspace:^
         version: link:../../../pkg/utils/sql
+      '@tensorflow/tfjs-core':
+        specifier: ^4.20.0
+        version: 4.20.0
       handlebars:
         specifier: ^4.7.8
         version: 4.7.8
@@ -208,6 +238,9 @@ importers:
 
   docs:
     dependencies:
+      '@faaas-bench/faaasc-adaptive-results':
+        specifier: workspace:^
+        version: link:../benchmarks/faaasc-adaptive-results
       '@faaas-bench/faaasc-artillery-results':
         specifier: workspace:^
         version: link:../benchmarks/faaasc-artillery-results
@@ -253,6 +286,8 @@ importers:
         version: link:../benchmarks/faaasc-aws-results
 
   pkg/boss-faaas-engine: {}
+
+  pkg/echo-engine: {}
 
   pkg/faaasc:
     dependencies:
@@ -405,6 +440,8 @@ importers:
         specifier: ^5.4.4
         version: 5.4.4
 
+  pkg/utils/echo: {}
+
   pkg/utils/faaasman:
     dependencies:
       '@aws-sdk/client-s3':
@@ -493,6 +530,12 @@ importers:
 
   stack:
     dependencies:
+      '@faaas-bench/bank':
+        specifier: workspace:^
+        version: link:../benchmarks/suites/bank
+      '@faaas-bench/echoer':
+        specifier: workspace:^
+        version: link:../benchmarks/suites/echoer
       '@faaas-bench/pets':
         specifier: workspace:^
         version: link:../benchmarks/suites/pets
@@ -2236,6 +2279,21 @@ packages:
       tslib: 2.6.2
     dev: false
 
+  /@tensorflow/tfjs-core@4.20.0:
+    resolution: {integrity: sha512-m/cc9qDc63al9UhdbXRUYTLGfJJlhuN5tylAX/2pJMLj32c8a6ThGDJYoKzpf32n5g3MQGYLchjClDxeGdXMPQ==}
+    engines: {yarn: '>= 1.3.2'}
+    dependencies:
+      '@types/long': 4.0.2
+      '@types/offscreencanvas': 2019.7.3
+      '@types/seedrandom': 2.4.34
+      '@webgpu/types': 0.1.38
+      long: 4.0.0
+      node-fetch: 2.6.13
+      seedrandom: 3.0.5
+    transitivePeerDependencies:
+      - encoding
+    dev: false
+
   /@tsconfig/node10@1.0.11:
     resolution: {integrity: sha512-DcRjDCujK/kCk/cUe8Xz8ZSpm8mS3mNNpta+jGCA6USEDfktlNvm1+IuZ9eTcDbNk41BHwpHHeW+N1lKCz4zOw==}
     dev: false
@@ -2303,6 +2361,10 @@ packages:
     resolution: {integrity: sha512-D0CFMMtydbJAegzOyHjtiKPLlvnm3iTZyZRSZoLq2mRhDdmLfIWOCYPfQJ4cu2erKghU++QvjcUjp/5h7hESpA==}
     dev: true
 
+  /@types/long@4.0.2:
+    resolution: {integrity: sha512-MqTGEo5bj5t157U6fA/BiDynNkn0YknVdh48CMPkTSpFTVmvao5UQmm7uEF6xBEo7qIMAlY/JSleYaE6VOdpaA==}
+    dev: false
+
   /@types/mime@1.3.5:
     resolution: {integrity: sha512-/pyBZWSLD2n0dcHE3hq8s8ZvcETHtEuF+3E7XVt0Ig2nvsVQXdghHVcEkIWjy9A0wKfTn97a/PSDYohKIlnP/w==}
     dev: true
@@ -2318,6 +2380,10 @@ packages:
     dependencies:
       undici-types: 5.26.5
 
+  /@types/offscreencanvas@2019.7.3:
+    resolution: {integrity: sha512-ieXiYmgSRXUDeOntE1InxjWyvEelZGP63M+cGuquuRLuIKKT1osnkXjxev9B7d1nXSug5vpunx+gNlbVxMlC9A==}
+    dev: false
+
   /@types/qs@6.9.14:
     resolution: {integrity: sha512-5khscbd3SwWMhFqylJBLQ0zIu7c1K6Vz0uBIt915BI3zV0q1nfjRQD3RqSBcPaO6PHEF4ov/t9y89fSiyThlPA==}
     dev: true
@@ -2329,6 +2395,10 @@ packages:
   /@types/resolve@1.20.2:
     resolution: {integrity: sha512-60BCwRFOZCQhDncwQdxxeOEEkbc5dIMccYLwbxsS4TUNeVECQ/pBJ0j09mrHOl/JJvpRPGwO9SvE4nR2Nb/a4Q==}
     dev: true
+
+  /@types/seedrandom@2.4.34:
+    resolution: {integrity: sha512-ytDiArvrn/3Xk6/vtylys5tlY6eo7Ane0hvcx++TKo6RxQXuVfW0AF/oeWqAj9dN29SyhtawuXstgmPlwNcv/A==}
+    dev: false
 
   /@types/send@0.17.4:
     resolution: {integrity: sha512-x2EM6TJOybec7c52BX0ZspPodMsQUd5L6PRwOunVyVUhXiBSKf3AezDL8Dgvgt5o0UfKNfuA0eMLr2wLT4AiBA==}
@@ -2352,6 +2422,10 @@ packages:
   /@types/wrap-ansi@3.0.0:
     resolution: {integrity: sha512-ltIpx+kM7g/MLRZfkbL7EsCEjfzCcScLpkg37eXEtx5kmrAKBkTJwd1GIAjDSL8wTpM6Hzn5YO4pSb91BEwu1g==}
     dev: true
+
+  /@webgpu/types@0.1.38:
+    resolution: {integrity: sha512-7LrhVKz2PRh+DD7+S+PVaFd5HxaWQvoMqBbsV9fNJO1pjUs1P8bM2vQVNfk+3URTqbuTI7gkXi0rfsN0IadoBA==}
+    dev: false
 
   /accepts@1.3.8:
     resolution: {integrity: sha512-PYAthTa2m2VKxuvSD3DPC/Gy+U+sOA1LAuT8mkmRuvw+NACSaeXEQ+NHcVF7rONl6qcaxV3Uuemwawk+7+SJLw==}
@@ -3354,6 +3428,10 @@ packages:
       triple-beam: 1.4.1
     dev: true
 
+  /long@4.0.0:
+    resolution: {integrity: sha512-XsP+KhQif4bjX1kbuSiySJFNAehNxgLb6hPRGJ9QsUr8ajHkuXGdrHmFUTUUXhDwVX2R5bY4JNZEwbUiMhV+MA==}
+    dev: false
+
   /lru-cache@10.2.0:
     resolution: {integrity: sha512-2bIM8x+VAf6JT4bKAljS1qUWgMsqZRPGJS6FSahIMPVvctcNhyVp7AJu7quxOW9jwkryBReKZY5tY5JYv2n/7Q==}
     engines: {node: 14 || >=16.14}
@@ -3464,6 +3542,18 @@ packages:
 
   /neo-async@2.6.2:
     resolution: {integrity: sha512-Yd3UES5mWCSqR+qNT93S3UoYUkqAZ9lLg8a7g9rimsWmYGK8cVToA4/sF3RrshdyV3sAGMXVUmpMYOw+dLpOuw==}
+    dev: false
+
+  /node-fetch@2.6.13:
+    resolution: {integrity: sha512-StxNAxh15zr77QvvkmveSQ8uCQ4+v5FkvNTj0OESmiHu+VRi/gXArXtkWMElOsOUNLtUEvI4yS+rdtOHZTwlQA==}
+    engines: {node: 4.x || >=6.0.0}
+    peerDependencies:
+      encoding: ^0.1.0
+    peerDependenciesMeta:
+      encoding:
+        optional: true
+    dependencies:
+      whatwg-url: 5.0.0
     dev: false
 
   /npm-run-path@4.0.1:
@@ -3795,6 +3885,10 @@ packages:
     resolution: {integrity: sha512-8I2a3LovHTOpm7NV5yOyO8IHqgVsfK4+UuySrXU8YXkSRX7k6hCV9b3HrkKCr3nMpgj+0bmocaJJWpvp1oc7ZA==}
     dev: false
 
+  /seedrandom@3.0.5:
+    resolution: {integrity: sha512-8OwmbklUNzwezjGInmZ+2clQmExQPvomqjL7LFqOYqtmuxRgQYqOD3mHaU+MvZn5FLUeVxVfQjwLZW/n/JFuqg==}
+    dev: false
+
   /semver@7.6.0:
     resolution: {integrity: sha512-EnwXhrlwXMk9gKu5/flx5sv/an57AkRplG3hTK68W7FRDN+k+OWBj65M7719OkA82XLBxrcX0KSHj+X5COhOVg==}
     engines: {node: '>=10'}
@@ -3978,6 +4072,10 @@ packages:
   /toidentifier@1.0.1:
     resolution: {integrity: sha512-o5sSPKEkg/DIQNmH43V0/uerLrpzVedkUh8tGNvaeXpfpuwjKenlSox/2O/BTlZUtEe+JG7s5YhEz608PlAHRA==}
     engines: {node: '>=0.6'}
+    dev: false
+
+  /tr46@0.0.3:
+    resolution: {integrity: sha512-N3WMsuqV66lT30CrXNbEjx4GEwlow3v6rr4mCcv6prnfwhS01rkgyFdjPNBYd9br7LpXV1+Emh01fHnq2Gdgrw==}
     dev: false
 
   /triple-beam@1.4.1:
@@ -4189,6 +4287,17 @@ packages:
     dependencies:
       defaults: 1.0.4
     dev: true
+
+  /webidl-conversions@3.0.1:
+    resolution: {integrity: sha512-2JAn3z8AR6rjK8Sm8orRC0h/bcl/DqL7tRPdGZ4I1CjdF+EaMLmYxBHyXuKL849eucPFhvBoxMsflfOb8kxaeQ==}
+    dev: false
+
+  /whatwg-url@5.0.0:
+    resolution: {integrity: sha512-saE57nupxk6v3HY35+jzBwYa0rKSy0XR8JSxZPwgLr7ys0IBzhGviA1/TUGJLmSVqs8pb9AnvICXEuOHLprYTw==}
+    dependencies:
+      tr46: 0.0.3
+      webidl-conversions: 3.0.1
+    dev: false
 
   /which-pm-runs@1.1.0:
     resolution: {integrity: sha512-n1brCuqClxfFfq/Rb0ICg9giSZqCS+pLtccdag6C2HyufBrh3fBOiy9nb6ggRMvWOVH5GrdJskj5iGTZNxd7SA==}

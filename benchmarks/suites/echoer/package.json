@@ -1,0 +1,22 @@
+{
+  "name": "@faaas-bench/echoer",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "build": "./build.sh"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@faaas/aws-adaptor": "workspace:^",
+    "@faaas/aws-http-adaptor": "workspace:^",
+    "@faaas/faaasc": "workspace:^",
+    "esbuild": "^0.20.2"
+  },
+  "dependencies": {
+    "@faaas/echo": "workspace:^",
+    "@faaas/handler": "workspace:^"
+  }
+}

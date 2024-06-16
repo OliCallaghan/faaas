@@ -1,3 +1,5 @@
+assets/tmp/*
+!assets/tmp/.gitkeep
 out
 *.aux
 _minted-out/

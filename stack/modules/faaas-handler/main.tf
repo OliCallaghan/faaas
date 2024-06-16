@@ -29,7 +29,7 @@ resource "aws_lambda_function" "faaas_handler" {
   runtime  = "nodejs20.x"
   role     = aws_iam_role.faaas_handler.arn
 
-  memory_size = 256
+  memory_size = var.memory_size
 
   source_code_hash = filebase64sha256(var.handler_zip)
 
@@ -186,7 +186,7 @@ resource "aws_cloudwatch_event_rule" "cron_faaas_monitor" {
 
   name                = "faaas-monitor-event-${var.handler_name}"
   description         = "Fires every 5 minutes"
-  schedule_expression = "rate(5 minutes)"
+  schedule_expression = "rate(${var.monitor_rate})"
 }
 
 resource "aws_cloudwatch_event_target" "trigger_faaas_monitor" {

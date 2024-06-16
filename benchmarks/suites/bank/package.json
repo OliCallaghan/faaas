@@ -4,8 +4,7 @@
   "description": "",
   "main": "dist/onHttpPostTransaction.trigger.js",
   "scripts": {
-    "generate": "faaasc src/onHttpPostTransaction.trigger.ts gen/onHttpPostTransaction.trigger.ts",
-    "build": "esbuild gen/*.trigger.ts --platform=node --bundle --outdir=dist"
+    "build": "./build.sh"
   },
   "keywords": [],
   "author": "",
@@ -16,6 +15,7 @@
   },
   "devDependencies": {
     "@faaas/aws-adaptor": "workspace:^",
+    "@faaas/aws-http-adaptor": "workspace:^",
     "@faaas/faaasc": "workspace:^",
     "esbuild": "^0.20.2"
   }

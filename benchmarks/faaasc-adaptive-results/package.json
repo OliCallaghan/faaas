@@ -1,0 +1,11 @@
+{
+  "name": "@faaas-bench/faaasc-adaptive-results",
+  "version": "1.0.0",
+  "description": "Evaluation for adaptive switching strategy",
+  "scripts": {
+    "build": "poetry run python src/generate.py"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}

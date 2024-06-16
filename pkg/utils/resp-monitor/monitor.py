@@ -6,6 +6,7 @@ from redis import Redis
 from scipy.stats import weibull_min
 from time import sleep
 from json import dumps
+from pytz import utc
 
 from os import getenv
 
@@ -23,15 +24,16 @@ logs_client = client('logs')
 
 logGroupName = f"/aws/lambda/{monitor_fn}"
 
-time_end = datetime.now()
-time_start = time_end - timedelta(days=1)
-
 polling_interval = 1
 
 def is_finished(resp):
     return resp["status"] == "Complete" if resp is not None else False
 
 def lambda_handler(event, context):
+    time_end = datetime.now(utc)
+    time_start = time_end - timedelta(minutes=10)
+
+    print(f"Querying {logGroupName} from {time_start} to {time_end}")
     resp = logs_client.start_query(
         logGroupName=logGroupName,
         startTime=int(time_start.timestamp()),
@@ -41,7 +43,6 @@ def lambda_handler(event, context):
             | parse @message "Local continuation of: * took:" as continuationId
             | parse @message "took: * ms" as duration
             | filter ispresent(duration)
-            | limit 160
         """,
         )
 

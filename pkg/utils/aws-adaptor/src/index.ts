@@ -194,7 +194,7 @@ async function shouldProxy(
     return false;
   }
 
-  return prob > 0.95;
+  return prob > 0.75;
 }
 
 async function invokeResponse(mqTaskCtx: MQTaskContext, data: string) {

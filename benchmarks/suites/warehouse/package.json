@@ -19,6 +19,7 @@
   "dependencies": {
     "@faaas/handler": "workspace:^",
     "@faaas/sql": "workspace:^",
+    "@tensorflow/tfjs-core": "^4.20.0",
     "handlebars": "^4.7.8"
   }
 }

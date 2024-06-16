@@ -91,7 +91,7 @@ def generate_cost_breakdown_olap(time_start: datetime, time_end: datetime):
     })
 
     # Create the stacked bar chart
-    fig, ax = plt.subplots(figsize=(col_width  * 0.8, col_width))
+    fig, ax = plt.subplots(figsize=(col_width * 0.8, col_width * 1.1))
 
     strategiesToShow = [
         "Never",

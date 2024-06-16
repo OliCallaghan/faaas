@@ -14,9 +14,19 @@ variable "handler_zip" {
   type        = string
 }
 
+variable "memory_size" {
+  type    = number
+  default = 256
+}
+
 variable "monitor_enabled" {
   type    = bool
   default = false
+}
+
+variable "monitor_rate" {
+  type    = string
+  default = "5 minutes"
 }
 
 variable "monitor_image" {

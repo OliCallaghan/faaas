@@ -81,6 +81,131 @@ resource "aws_security_group" "redis" {
   }
 }
 
+####### experiments start
+
+module "bank" {
+  for_each = toset(["128", "256", "512", "1024"])
+
+  source = "./modules/faaas-handler-experiment"
+
+  handler_name     = "bank-${each.key}"
+  handler_http_zip = "./node_modules/@faaas-bench/bank/dist/http/handler.zip"
+  handler_mq_zip   = "./node_modules/@faaas-bench/bank/dist/mq/handler.zip"
+
+  memory_size   = tonumber(each.key)
+  monitor_image = local.faaas_monitor
+
+  vpc_id = aws_vpc.main.id
+  subnet_ids = [
+    aws_subnet.private_subnet_1.id,
+    aws_subnet.private_subnet_2.id,
+  ]
+
+  rabbit_mq_arn        = aws_mq_broker.rabbit_mq.arn
+  rabbit_mq_secret_arn = aws_secretsmanager_secret_version.rabbit_mq_auth.arn
+
+  redis_security_group_id = aws_security_group.redis.id
+}
+
+module "echoer" {
+  for_each = toset(["128", "256", "512", "1024"])
+
+  source = "./modules/faaas-handler-experiment"
+
+  handler_name     = "echoer-${each.key}"
+  handler_http_zip = "./node_modules/@faaas-bench/echoer/dist/http/handler.zip"
+  handler_mq_zip   = "./node_modules/@faaas-bench/echoer/dist/mq/handler.zip"
+
+  memory_size   = tonumber(each.key)
+  monitor_image = local.faaas_monitor
+  monitor_rate  = "1 minute"
+
+  vpc_id = aws_vpc.main.id
+  subnet_ids = [
+    aws_subnet.private_subnet_1.id,
+    aws_subnet.private_subnet_2.id,
+  ]
+
+  rabbit_mq_arn        = aws_mq_broker.rabbit_mq.arn
+  rabbit_mq_secret_arn = aws_secretsmanager_secret_version.rabbit_mq_auth.arn
+
+  redis_security_group_id = aws_security_group.redis.id
+}
+
+module "pets" {
+  for_each = toset(["128", "256", "512", "1024"])
+
+  source = "./modules/faaas-handler-experiment"
+
+  handler_name     = "pets-${each.key}"
+  handler_http_zip = "./node_modules/@faaas-bench/pets/dist/http/handler.zip"
+  handler_mq_zip   = "./node_modules/@faaas-bench/pets/dist/mq/handler.zip"
+
+  memory_size   = tonumber(each.key)
+  monitor_image = local.faaas_monitor
+
+  vpc_id = aws_vpc.main.id
+  subnet_ids = [
+    aws_subnet.private_subnet_1.id,
+    aws_subnet.private_subnet_2.id,
+  ]
+
+  rabbit_mq_arn        = aws_mq_broker.rabbit_mq.arn
+  rabbit_mq_secret_arn = aws_secretsmanager_secret_version.rabbit_mq_auth.arn
+
+  redis_security_group_id = aws_security_group.redis.id
+}
+
+module "warehouse_order" {
+  for_each = toset(["128", "256", "512", "1024"])
+
+  source = "./modules/faaas-handler-experiment"
+
+  handler_name     = "warehouse-order-${each.key}"
+  handler_http_zip = "./node_modules/@faaas-bench/warehouse/dist/order-from-supplier/http/handler.zip"
+  handler_mq_zip   = "./node_modules/@faaas-bench/warehouse/dist/order-from-supplier/mq/handler.zip"
+
+  memory_size   = tonumber(each.key)
+  monitor_image = local.faaas_monitor
+
+  vpc_id = aws_vpc.main.id
+  subnet_ids = [
+    aws_subnet.private_subnet_1.id,
+    aws_subnet.private_subnet_2.id,
+  ]
+
+  rabbit_mq_arn        = aws_mq_broker.rabbit_mq.arn
+  rabbit_mq_secret_arn = aws_secretsmanager_secret_version.rabbit_mq_auth.arn
+
+  redis_security_group_id = aws_security_group.redis.id
+}
+
+module "warehouse_report" {
+  for_each = toset(["128", "256", "512", "1024"])
+
+  source = "./modules/faaas-handler-experiment"
+
+  handler_name     = "warehouse-report-${each.key}"
+  handler_http_zip = "./node_modules/@faaas-bench/warehouse/dist/pricing-summary-report/http/handler.zip"
+  handler_mq_zip   = "./node_modules/@faaas-bench/warehouse/dist/pricing-summary-report/mq/handler.zip"
+
+  memory_size   = tonumber(each.key)
+  monitor_image = local.faaas_monitor
+
+  vpc_id = aws_vpc.main.id
+  subnet_ids = [
+    aws_subnet.private_subnet_1.id,
+    aws_subnet.private_subnet_2.id,
+  ]
+
+  rabbit_mq_arn        = aws_mq_broker.rabbit_mq.arn
+  rabbit_mq_secret_arn = aws_secretsmanager_secret_version.rabbit_mq_auth.arn
+
+  redis_security_group_id = aws_security_group.redis.id
+}
+
+######### end experiments
+
 module "pets_proxy" {
   source = "./modules/faaas-handler"
 
@@ -471,6 +596,15 @@ resource "aws_ecr_repository" "postgres_faaas_engine" {
   }
 }
 
+resource "aws_ecr_repository" "echo_engine" {
+  name                 = "echo_engine"
+  image_tag_mutability = "MUTABLE"
+
+  image_scanning_configuration {
+    scan_on_push = true
+  }
+}
+
 resource "aws_ecr_repository" "faaas_monitor" {
   name                 = "faaas_monitor"
   image_tag_mutability = "MUTABLE"
@@ -830,6 +964,24 @@ locals {
     user = aws_db_instance.postgres.username
     pass = aws_db_instance.postgres.password
   }
+}
+
+module "echo_proxy" {
+  source = "./modules/faaas-proxy"
+
+  cluster_id = aws_ecs_cluster.main.id
+  proxy_name = "echo"
+
+  execution_role_arn = aws_iam_role.ecs_task_execution_role.arn
+  repository_url     = aws_ecr_repository.echo_engine.repository_url
+
+  mq = local.mq
+
+  subnets = [
+    aws_subnet.private_subnet_1.id,
+    aws_subnet.private_subnet_2.id
+  ]
+  security_groups = [aws_security_group.ecs_sg.id]
 }
 
 module "pg_proxy_petstore" {

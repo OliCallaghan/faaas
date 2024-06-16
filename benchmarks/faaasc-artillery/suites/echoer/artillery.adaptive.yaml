@@ -1,0 +1,33 @@
+config:
+  target: http://app-lb-1035490685.eu-west-2.elb.amazonaws.com
+  phases:
+    - duration: 2700
+      arrivalRate: 1
+      name: Load period
+  plugins:
+    expect: {}
+    apdex: {}
+    metrics-by-endpoint:
+      useOnlyRequestNames: true
+    fake-data: {}
+  processor: "./payload.mjs"
+scenarios:
+  - flow:
+      - post:
+          url: "/"
+          qs:
+            task_id: "echoer-128-adaptive"
+          beforeRequest: "preparePayload"
+          json: "{{ payload }}"
+      - post:
+          url: "/"
+          qs:
+            task_id: "echoer-128-local"
+          beforeRequest: "preparePayload"
+          json: "{{ payload }}"
+      - post:
+          url: "/"
+          qs:
+            task_id: "echoer-128-proxy"
+          beforeRequest: "preparePayload"
+          json: "{{ payload }}"
