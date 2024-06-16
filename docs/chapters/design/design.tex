@@ -1,4 +1,5 @@
 \chapter{Code splitting using dynamic response time modelling}
+\label{chap:concepts}
 
 As detailed in Section \ref{sec:double-billing-problem}, serverless functions that interface with external asynchronous services are particularly vulnerable to the double billing problem.
 
@@ -176,7 +177,13 @@ This algorithm can be rewritten to use function continuations as shown in Algori
 \end{algorithmic}
 \end{algorithm}
 
-In this example, the function \textsc{fst} makes an asynchronous request to a database, and then returns a continuation to a proxy service \textsc{proxy_db}, which in turn invokes the second part of the handler \textsc{snd} before returning the result. The two handlers \textsc{fst} and \textsc{snd} are executed with \faas{}, and the \textsc{proxy_db} handler is executed in a different context, such as a CaaS context.
+In this example, the function \textsc{fst} makes an asynchronous request to a database, and then returns a continuation to a proxy service \textsc{proxy_db}, which in turn invokes the second part of the handler \textsc{snd} before returning the result. The two handlers \textsc{fst} and \textsc{snd} are executed with \faas{}, and the \textsc{proxy_db} handler is executed in a different context, such as a CaaS context. This flow is illustrated in Figure \ref{fig:double-billing-db-split}.
+
+\begin{figure}
+    \centering\includegraphics[width=0.75\linewidth]{node_modules/@faaas/double-billing-problem/assets/double-billed-db-split.pdf}
+    \caption{Execution a split function querying a database, passing its continuation to the database to execute later.}
+    \label{fig:double-billing-db-split}
+\end{figure}
 
 \subsection{Continuations as first-class citizens for asynchronous services}
 In this research, we have focused on wrapping existing services in proxies, which map the request-response model to a continuation-passing model. This allows us to leverage and test function workloads on existing databases such as PostgreSQL.
@@ -315,13 +322,11 @@ Using this probability, the function developer can then specify a probability th
 \label{sec:faaas-monitoring-and-strat-switching-design}
 In this section we will discuss how this profitability model can be used to switch between code splitting strategies much more indepth.
 
-Two different splitting strategies are proposed and discussed further in Chapter \ref{chap:impl}:
+Two different splitting strategies are proposed and discussed further in Section \ref{sec:faas-function-splitting-strategies}:
 
 \begin{itemize}
     \item Adaptive splitting
     \item Static splitting
 \end{itemize}
 
-\todo[inline]{Link directly to the point which elaborates on how each splitting strategy is implemented.}
-
-In order to effectively perform adaptive splitting as defined in \ref{chap:impl}, a response monitor needs to fit a Weibull distribution to the set of response times of the asynchronous request. In order to fit this distribution, the monitor uses Maximum Likelihood Estimation (MLE) to estimate the parameters $k$, $\phi$ and $\lambda$ of the Weibull distribution. These parameters are then used by the function itself to compute the probability of profitability of splitting the function around an asynchronous request.
+In order to effectively perform adaptive splitting as defined in Section \ref{sec:faaas-adaptive-function-splitting}, a response monitor needs to fit a Weibull distribution to the set of response times of the asynchronous request. In order to fit this distribution, the monitor uses Maximum Likelihood Estimation (MLE) to estimate the parameters $k$, $\phi$ and $\lambda$ of the Weibull distribution. These parameters are then used by the function itself to compute the probability of profitability of splitting the function around an asynchronous request.

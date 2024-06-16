@@ -2,6 +2,7 @@ import { result, type Context } from "@faaas/handler";
 import { database } from "@faaas/sql";
 
 import * as tfc from "@tensorflow/tfjs-core";
+require("@tensorflow/tfjs-backend-cpu");
 import { compile } from "handlebars";
 
 const TEMPLATE = `
@@ -101,7 +102,7 @@ export async function handler(ctx: Context) {
   let output = revenue;
 
   for (let i = 0; i < 1000; i++) {
-    output = tfc.matMul(output, weights);
+    output = tfc.dot(output, weights);
   }
 
   return result("Inference complete", { raw: true });

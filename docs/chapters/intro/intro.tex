@@ -6,13 +6,14 @@
         \input{node_modules/@faaas/perf-v8-event-loop-results/assets/faas-profile-waiting-on-io.pgf}
     \end{center}
     \caption{\faas{} function execution profile}
+    \label{fig:faas-profile-intro-experiment}
 \end{figure}
 
 \faasxlong{} provides an abstraction over application development, decomposing programs into isolated stateless units called `functions', invoked by events such as HTTP requests, or messages received from a message bus\cite{ibmWhatFaaSFunctionasaService2024}.
 
 This abstraction simplifies development, allowing developers to focus on the underlying business logic of their system, rather than managing and scaling infrastructure. Typically, developers design serverless functions to be stateless\cite{ggailey777AzureFunctionsBest2022}, enabling horizontal scaling\cite{ngoEvaluatingScalabilityElasticity2022}, communicating with persistent storage to persist state between function invocations.
 
-In these execution environments, whilst `functions' are running, they are allocated, guaranteed and billed for resources such as CPU and memory throughout the lifecycle of its invocation. Whilst in theory this seems beneficial, in practice, this leads to wasted resources, as the function may be awaiting an asynchronous operation to complete, such as a network request.
+In these execution environments, whilst `functions' are running, they are allocated, guaranteed and billed for resources such as CPU and memory throughout the lifecycle of its invocation. Whilst in theory this seems beneficial, in practice, this leads to wasted resources, as the function may be awaiting an asynchronous operation to complete, such as a network request. This research seeks to reduce this wastage.
 
 In these environments, `functions' are typically implemented either as containers or as virtual machines running atop a serverless `runtime'; whilst these containers are awaiting I/O such as network requests, resources are still allocated, used to determine whether execution can continue.
 
@@ -23,6 +24,7 @@ In these environments, `functions' are typically implemented either as container
         \input{node_modules/@faaas/perf-v8-event-loop-results/assets/faas-profile-strace-calls.pgf}
     \end{center}
     \caption{\faas{} petstore syscall calls profile}
+    \label{fig:faas-strace-freq-intro-experiment}
 \end{figure}
 
 % Syscall Time Breakdown
@@ -31,9 +33,10 @@ In these environments, `functions' are typically implemented either as container
         \input{node_modules/@faaas/perf-v8-event-loop-results/assets/faas-profile-strace-time.pgf}
     \end{center}
     \caption{\faas{} petstore syscall time profile}
+    \label{fig:faas-strace-time-intro-experiment}
 \end{figure}
 
-\faaslong{} has become increasingly more common amongst system architectures since the introduction of AWS Lambda\cite{amazonAWSLambda2024}. Typical \faas{} workloads can be characterised as `glue', most commonly handling HTTP requests and interacting with a form of persistent storage --- in fact, around 50\% of all serverless functions fall into this category\cite{eismannReviewServerlessUse2020}.
+Typical \faas{} workloads can be characterised as `glue', most commonly handling HTTP requests and interacting with a form of persistent storage --- in fact, around 50\% of all serverless functions fall into this category\cite{eismannReviewServerlessUse2020}.
 
 \faas{} architectures generally tend to decrease costs, achieving this by using a fine-grained billing model as described in Section \ref{sec:faas-billing-models}, charging per invocation, and for compute and memory allocations in subsecond increments over the duration of execution, ensuring wasted resources are released back to the cloud provider once a function terminates.
 
@@ -47,27 +50,30 @@ The resolution of the billing model however extends only to the level of granula
         \end{tikzpicture}
     \end{center}
     \caption{\faas{} petstore PutPet pprof sample}
+    \label{fig:faas-pprof-intro-experiment}
 \end{figure*}
 
 Since the median execution time for serverless functions lies between milliseconds and a second\cite{eismannReviewServerlessUse2020}, this latency accounts for a significant proportion of time when resources are allocated and unused during function execution time. Developers are charged for this time, and cannot temporarily yield resources back to the host until the asynchronous action completes. This is refered to as the double billing problem\cite{baldiniServerlessTrilemmaFunction2017,yuCharacterizingServerlessPlatforms2020} and discussed further in Section \ref{sec:double-billing-problem}.
 
-\begin{figure}[t]
-    \includegraphics[width=\linewidth]{node_modules/@faaas/double-billing-problem/assets/double-billed-db-split.pdf}
-    \caption{Illustration of termination function execution once DB request has been sent, with DB responsible for invoking the remaineder of the function with the result of the query.}
-    \label{fig:double-billing-db-split}
-\end{figure}
+\subsection{Motivational Experiment}
+To demonstrate the extent of this problem, a small introductory experiment is proposed, whereby four simple CRUD \faas{} functions are executed within a sandboxed environment, allocated \SI{128}{\mega\byte} of RAM and 0.1 CPU share each, querying an SQL database that has been configured to introduce a random delay of between \qtyrange{60}{90}{\ms} to each query to simulate the typical latency of DynamoDB.
+
+The results of profiling the time spent executing the actual underlying function compared with time the function is idle is shown in Figure \ref{fig:faas-profile-intro-experiment}. Additionally, a \verb|pprof| trace of wall clock time spent in each section of the body of the function and \verb|strace| traces identifying the most common syscalls are provided in Figures \ref{fig:faas-pprof-intro-experiment},
+\ref{fig:faas-strace-freq-intro-experiment} and \ref{fig:faas-strace-time-intro-experiment}.
+
+From the initial results, it is clear that the function spends the vast majority of its time blocked on I/O, and is unable to release resources back to the runtime. Additionally, the most frequent syscall is \verb|epoll_wait|, which yields a process back to the operating system until IO is ready, indicating that under these resources allocations, with the described latency, the function is wasting a large portion of its allocated resources idle.
 
 \section{Contributions}
 
-This research aims to yield control back to the runtime from these `functions' whilst awaiting asynchronous operations to complete, allowing useful work to be scheduled by the runtime. Throughout this report, we propose three main contributions:
+This research aims to yield control back to the runtime from these `functions' whilst awaiting asynchronous operations to complete, allowing useful work to be scheduled by the runtime in its place. Throughout this report, we propose three main contributions:
 
 \begin{itemize}
     \item The \faaasc{} compiler that performs code splitting of JavaScript serverless functions, allowing a function to optionally be deployed in a split manner on any supported \faas{} platform (currently only AWS Lambda is supported).
 
     \item Adaptive function splitting strategy, which determines the probability of profitability when splitting a function, and acts accordingly.
 
-    \item An evaluation of the \faaas{} stack when deployed to AWS Lambda, focusing on the required advancements to the \faas{} ecosystem to enable more aggressive splitting to reduce cost further.
+    \item An evaluation of \faaas{} when deployed to AWS Lambda, with analysis on the impact of a set of hypothetical billing models on split functions.
 \end{itemize}
 
 \section{Thesis Structure}
-\todo[inline]{Explain how this thesis is structured, and what is talked about where.}
+This thesis is structured as follows: Chapter \ref{chap:background} provides an introduction to \faas{}, and the challenges associated with more fine-grained billing. Chapter \ref{chap:concepts} formalises a probabilistic model to allow a function to decide when to split and when not to. It also introduces the concepts related to functions returning continuations. Chapter \ref{chap:impl} details the implementation of the \faaasc{} compiler and the adaptive code splitting strategy. Chapter \ref{chap:eval} evaluates these split functions generated by \faaasc{}, and evaluates this in the context of a hypothetical billing model. Chapter \ref{chap:conclusion} concludes the thesis by discussing future work for \faaas{} in addition to highlighting the key areas that cloud providers need to address in order to apply \faaas{} split functions to OLTP workloads.

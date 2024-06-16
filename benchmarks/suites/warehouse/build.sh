@@ -18,3 +18,4 @@ generate_files() {
 
 generate_files "order-from-supplier"
 generate_files "pricing-summary-report"
+generate_files "revenue-pred"

@@ -249,12 +249,14 @@ This monitor is implemented as a Python AWS Lambda function, scheduled to run ev
 In order to effectively propgatate these parameters to the serverless function, the monitor writes the parameters to a Redis cache, which is read by the serverless function at runtime.
 
 \section{Function splitting strategies}
+\label{sec:faas-function-splitting-strategies}
 In this section, we will describe the different strategies for function splitting that are supported by \faaas{}.
 
 \subsection{Static function splitting}
 This is the simplest form of function splitting, whereby the developer has full control over when the function is to be split. This is implemented simply by always executing the split at runtime.
 
 \subsection{Adaptive function splitting}
+\label{sec:faaas-adaptive-function-splitting}
 Due to the unpredictable nature of asynchronous requests as described in Section \ref{sec:faas-async-service-response-time-modelling}, it is important to consider that the distribution of response times may change over time. This is particularly important when considering the profitability of code splitting, as the distribution of response times is used to determine the optimal split point.
 
 To address this, we introduce the concept of adaptive function splitting, which is a strategy that dynamically adjusts whether to split a function or wait for the response to return based on the distribution of historic response times at runtime. This is achieved by periodically monitoring the distribution of response times from logfiles, and recomputing the optimal split point based on the updated distribution.

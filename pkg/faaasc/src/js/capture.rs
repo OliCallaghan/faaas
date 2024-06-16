@@ -51,6 +51,8 @@ impl FreeVariables {
             "result",
             "console",
             "template",
+            "tfc",
+            "Math",
         ]
         .contains(&used_ident.sym.as_str())
         {

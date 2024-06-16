@@ -1,0 +1,12 @@
+{
+  "name": "@faaas-diagrams/generic-cost-model",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "build": "poetry run python generate.py"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}

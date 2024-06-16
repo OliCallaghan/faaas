@@ -204,6 +204,30 @@ module "warehouse_report" {
   redis_security_group_id = aws_security_group.redis.id
 }
 
+module "warehouse_pred" {
+  for_each = toset(["128", "256", "512", "1024"])
+
+  source = "./modules/faaas-handler-experiment"
+
+  handler_name     = "warehouse-pred-${each.key}"
+  handler_http_zip = "./node_modules/@faaas-bench/warehouse/dist/revenue-pred/http/handler.zip"
+  handler_mq_zip   = "./node_modules/@faaas-bench/warehouse/dist/revenue-pred/mq/handler.zip"
+
+  memory_size   = tonumber(each.key)
+  monitor_image = local.faaas_monitor
+
+  vpc_id = aws_vpc.main.id
+  subnet_ids = [
+    aws_subnet.private_subnet_1.id,
+    aws_subnet.private_subnet_2.id,
+  ]
+
+  rabbit_mq_arn        = aws_mq_broker.rabbit_mq.arn
+  rabbit_mq_secret_arn = aws_secretsmanager_secret_version.rabbit_mq_auth.arn
+
+  redis_security_group_id = aws_security_group.redis.id
+}
+
 ######### end experiments
 
 module "pets_proxy" {
