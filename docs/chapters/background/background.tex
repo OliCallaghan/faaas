@@ -62,7 +62,7 @@ In addition to the I/O event loop provided by LibUV and Tokio, JavaScript runtim
 This event loop, whilst fairly complex, is the core underlying innovation that allows \js{} to handle \textbf{multiple concurrent requests} in a single thread, allowing each to execute without blocking the others.
 
 \section{How do \faas{} platforms execute \faaslong{}?}
-In this section, we will discuss the implementation details of two major \faas{} platforms execute \faas{} functions on their public cloud, and how they handle the isolation of functions from one another.
+In this section, we will discuss the implementation details of how two major \faas{} platforms execute \faas{} functions on their public cloud, and how they handle the isolation of functions from one another.
 
 \subsection{How does AWS Lambda execute \faaslong{}}
 \label{sec:aws-lambda-execution}
@@ -100,7 +100,7 @@ Despite the differences in the execution environments of AWS Lambda and Google C
 \section{How do \faas{} platforms bill \faaslong{}}
 \label{sec:faas-billing-models}
 
-The \faas{} billing model is a complex model built around a number of factors that vary between cloud providers. Despite their intricacies and differences, the prevailing common billing model, referred to in Equation \ref{eq:faas-billing-model}.
+The \faas{} billing model is a complex model built around a number of factors that vary between cloud providers. Despite their intricacies and differences, there is a prevailing common billing model, which is formalised in Section \ref{sec:faas-param-cost-model} in Equation \ref{eq:faas-billing-model}.
 
 All the major cloud providers scale their charged rate per unit of time linearly with resource allocation.
 
@@ -134,20 +134,20 @@ Billing cost curves for function resource allocations of \SI{128}{\mega\byte}, \
 \subsection{AWS Lambda billing model}
 AWS Lambda varies its pricing depending on the datacentre location. As of writing, the pricing model for AWS Lambda is fixed across all regions in the United States, as well as many locations in the EU\cite{ServerlessComputingAWS}.
 
-The flat-rate invocation cost ($C_i$) is uniform regardless of the resources provisioned, and decreases as the number of invocations scales to the millions. The rate per unit of time ($C_r$) is charged based on memory allocation to the function, since function CPU share is not configurable.
+The flat-rate invocation cost is uniform regardless of the resources provisioned, and decreases as the number of invocations scales to the millions. The rate per unit of time is charged based on memory allocation to the function, since function CPU share is not configurable.
 
-Additionally, as of 2020, AWS Lambda changed its billing granularity from \SI{100}{\milli\second} to \SI{1}{\milli\second}\cite{AWSLambdaChanges}, with no minimum billable cost $C_{min}$. As a result, this makes AWS Lambda the only viable option for function splitting with of OLTP workloads, as discussed in Section \ref{sec:double-billing-problem}.
-
-\todo[inline]{Link back to where this change is relevant because its the only provider which has this level of granularity.}
+Additionally, as of 2020, AWS Lambda changed its billing granularity from \SI{100}{\milli\second} to \SI{1}{\milli\second}\cite{AWSLambdaChanges} increments, with no minimum billable cost. As a result, this makes AWS Lambda the only viable option for function splitting of OLTP workloads, as discussed in Section \ref{sec:faas-code-splitting-profitability} and Equation \ref{eq:faas-min-split-time-pathological-scenario}.
 
 \subsection{Google Cloud Platform}
-Google Cloud Functions' (GCF) billing model is similar to AWS Lambda, with a fixed cost per invocation, and a cost per unit of time. GCF charge per \SI{100}{\milli\second} of execution time, rounded up, with a minimum of \SI{100}{\milli\second} per invocation\cite{PricingCloudFunctions}. Unlike AWS Lambda, GCF additionally charged for network traffic outside of the region, and thus for HTTP requests, the size of the response payload must also be accounted for. Also unlike AWS Lambda, GCF allow for different configurations of CPU and memory, which are charged independently ($C_r = C_c + C_m$) of one another.
+Google Cloud Functions' (GCF) billing model is similar to AWS Lambda, with a fixed cost per invocation, and a cost per unit of time. GCF charge per \SI{100}{\milli\second} of execution time, rounded up, with a minimum of \SI{100}{\milli\second} per invocation\cite{PricingCloudFunctions}. Unlike AWS Lambda, GCF additionally charged for network traffic outside of the region, and thus for HTTP requests, the size of the response payload must also be accounted for. Also unlike AWS Lambda, GCF charged for different configurations of CPU and memory, which are charged at different rates to one another. It is however not possible to configure the CPU and memory allocations independently of eachother, and a function may select a configuration from a set of almost linear increments in memory allocation and CPU allocations.
 
 \subsection{Azure Functions}
 Azure Functions use the same billing model, charging per invocation and per unit of execution time, with a granularity of \SI{1}{\milli\second}\cite{PricingFunctionsMicrosoft}. Notably however, they have bill for a minimum execution time of \SI{100}{\milli\second}, with the lowest resource allocation \SI{128}{\mega\byte}.
 
 \section{\caas{} billing models}
 In contrast to \faas{} billing models, typically \caasxlong{} billing models offer a coarser blling granularity. AWS, Google Cloud and Azure all offer \caas{} services, with AWS Fargate, Google Cloud Run and Azure Container Instances respectively, to complement their \faas{} offerings.
+
+In this section, we will discuss the billing model for Google Cloud Run, which is a \caas{} offering providing billing based on the time a container is executing rather than the time each request takes to resolve.
 
 \subsection{Google Cloud Run}
 \label{sec:cloud-run-billing-model}

@@ -95,6 +95,7 @@ When performing an asynchronous request in a function, the function will be allo
 In a split function, the second handler is invoked with the response when it is ready. This means that after the first function exits, there are no functions executing and so there is no billable time in this period. Whilst in practise this seems benficial, in practise, there are a set of challenges that must be overcome to make this a profitable strategy, most notably the billing model of \faas{} platforms, that charge high invocation costs that negate cost savings made by splitting the function.
 
 \subsection{Continuation passing style}
+\label{sec:faas-cps}
 Whilst it is possible to run a web server such as ExpressJS inside an AWS Lambda function (and in fact the entrypoint of the AWS Lambda NodeJS runtime does exactly this), the core principal of \faas{} is to abstract away this concept of directly defining the webserver, and instead to execute logic in reponse to an event. As a result, a typical \faas{} function can be considered to have a function signature defined in Type Signature \ref{def:faaas-type-signature}.
 
 \begin{signature}[FaaS Function Handler]
@@ -269,7 +270,7 @@ From this we can derive some upper bound heuristics which make it easier to reas
 t_1 > \frac{G}{C_r} C_i
 \end{equation}
 
-Additionally, for platforms that charge a minimum billable cost on function invocations, the decision to split becomes more complex, as the decision to split is also influenced by the expected execution time of the continuation. Consider the pathological but also reaosnable scenario where both the initial and continuation sections of a function take less than the minimum billable time to execute, as defined in Equation \ref{eq:faas-min-split-time-pathological-scenario}.
+Additionally, for platforms that charge a minimum billable cost on function invocations, the decision to split becomes more complex, as the decision to split is also influenced by the expected execution time of the continuation. Consider the pathological but also reasonable scenario where both the initial and continuation sections of a function take less than the minimum billable time to execute, as defined in Equation \ref{eq:faas-min-split-time-pathological-scenario}.
 
 \begin{equation} \label{eq:faas-min-split-time-pathological-scenario}
 \begin{aligned}
