@@ -34,7 +34,9 @@ In this section, we discuss potential solutions which would make OLTP workloads 
 \subsubsection{Voluntary release of CPU time back to the hypervisor}
 As discussed in Section TODO\todo{reference to background where cloud providers typically use vms to isolate functions}, cloud providers typically use virtual machines to isolate functions. The hypervisor is responsible for scheduling CPU time to each of the virtual machines and does so fairly, based on the resource allocation of the function to be executed.
 
-From the results of the decribed experiments, it is clear that for the proportion of the time the function is executing, functions are allocated CPU resources which they are not using. The ability to voluntarily release this CPU time back to the hypervisor would allow the hypervisor to allocate this CPU time to other functions, and thus reduce the cost of executing the function, since only the memory must be allocated for the entire duration of the function's execution.
+From the results of the decribed experiments, it is clear that for the proportion of the time the function is executing, functions are allocated CPU resources which they are not using. The ability to voluntarily release this CPU time back to the hypervisor would allow the hypervisor to allocate this CPU time to other functions, and thus reduce the cost of executing the function, since only the memory would need to be allocated for the entire duration of the function's execution.
+
+Freyr aims to accomplish a similar goal identifying overprovisioned CPU and memory allocated to serverless functions \cite{yuAcceleratingServerlessComputing2022} that are underutilised, and reclaiming this ahead of time. Whilst this showed a 40\% cost reduction in their experiments, it only performs this operation in a coarse-grained manner, since it does not adjust resource allocations over the course of a function invocation.
 
 \subsubsection{Voluntary release of memory back to the hypervisor}
 Whilst releasing CPU allocation back to the hypervisor when blocked on IO could reduce the cost of executing the function, memory would still need to be billed since it occupies memory that another function could be using. In the case that a function is blocked on IO, depending on the disk latency, it could be more cost effective to write the blocked function's memory to swap during the period that it is blocked, and then load the function back into memory once the response has arrived, and the node has capacity to continue execution of the function.
@@ -53,3 +55,47 @@ We have so far focused on potential solutions that would allow for better resour
 Mainstream cloud providers typically use either container based isolation or VM based isolation, which both have relatively high invocation overhead. Other isolation mechanisms, such as the WASM isolation methods described in Section \todo{Refernce back to WASM isolation section in background}, have the potential to reduce invocation overhead, allowing continuations to be executed with a much lower cost penalty.
 
 By embedding a WASM runtime into the database, it could enable execution of the continuations reutrned by \faaasc{} handlers directly inside the database.
+
+\section{Review of research into improving cold starts and invocation cost reduction for \faas{}}
+\label{sec:faas-isolation}
+In this section, we will review the current state of the art in research to reduce cold-start times and invocation costs in \faas{} platforms. We group reserach by the isolation mechanisms used by the \faas{} platform, and discuss the trade-offs between security and performance.
+
+Typically, multi-tenany public \faas{} providers can be characterised into two categories: providers offering VM based isolation\cite{agacheFirecrackerLightweightVirtualization2020} and providers offering container based isolation\cite{GVisor}. There have been considerable efforts to reduce the invocation overhead associated with each of these classes.
+
+\subsection{VM based isolation}
+VM based isolation is typically considered a much more secure form of isolation between \faas{} functions on multitenant public clouds\cite{jithinVirtualMachineIsolation2014}, however it typically has the highest overhead, since each function runs in its own virtual machine, with its own kernel. This overhead usually manifests in higher cold start times, however there has been considerable work carried out to reduce this overhead\cite{razaviPrebakedUVMsScalable2015,agacheFirecrackerLightweightVirtualization2020,dawXanaduMitigatingCascading2020,oliverstenbomRefunctionEliminatingServerless2019}.
+
+Kata Containers\cite{KataContainersOpen} provides a container-like interface to VMs, interfacing with existing hypervisors such as Firecracker\cite{agacheFirecrackerLightweightVirtualization2020}, QEMU\cite{QEMU} and Cloud Hypervisor\cite{CloudhypervisorCloudhypervisorVirtual} (previously NEMU\cite{IntelNemu2024}).
+
+Firecracker \cite{agacheFirecrackerLightweightVirtualization2020} is a lightweight KVM\cite{KVM} based Virtual Machine Monitor (VMM) allowing MicroVM provisioning in the order of \qtyrange{125}{150}{\ms} that provides a secure and fast environment for running \faas{} functions.
+
+MicroVMs are intended to be lightweight, and provide a secure environment for running functions, with a fast boot time. Firecracker is written in Rust and unlike QEMU, provides secure, fast and stripped back devices to the guest VM in order to both reduce the attack surface and improve performance\cite{jainStudyFirecrackerMicroVM2020}.
+
+LightVM redesigns the Xen Hypervisor's control plane such that VMs can boot in the order of \qtyrange{2}{3}{\ms}\cite{mancoMyVMLighter2017}, and achieveing a much higher VM density on a host.
+
+\subsection{Container based isolation}
+In contrast to VM based isolation, container based isolation is typically considered to be less secure\cite{DemystifyingContainerVs}, however it has a much lower overhead, since each function runs in its own container sharing a kernel with the host\cite{WhatContainerDocker}. From a security perspective, any kernel vulnerabilities could potentially be exploited by a malicious container to escape the sandbox and gain access to the host\cite{linMeasurementStudyLinux2018}.
+
+GVisor is a container runtime that aims to improve security for running containers in a multitenant environment\cite{GVisor}. It implements a userspace `application kernel' that intercepts system calls made by untrusted container, providing a layer of abstraction between any possible vulnerabilities in the host kernel and the code executing in the untrusted container.
+
+Whilst cold-start times of container-based \faas{} isolation are considerably lower than VM based isolation methods, cold-starts times can vary based on a variety of factors. SOCK reduces cold-start times by caching common dependencies in container images, reducing the image footprint and improving cold start times\cite{oakesSOCKRapidTask2018}. Refunction reuses containers between function invocations, reducing cold start times\cite{oliverstenbomRefunctionEliminatingServerless2019}. Pegurus also reuses warm containers between different function invocations to reduce cold start times\cite{liPagurusEliminatingCold2021}. Xanadu reduces cold start times by pre-warming containers based on a predictive model that estimates which subsequent functions will be triggered in a \faas{} workflow\cite{dawXanaduMitigatingCascading2020}.
+
+Apache OpenWhisk\cite{apacheOpenWhisk2024} is an open-source \faas{} platform that provides container based isolation, leveraging Nginx as an HTTP gateway, Kafka as a message broker to queue invocations, CouchDB as a persistent data storage layer and OCI containers to execute arbitrary function logic.
+
+OpenFaaS\cite{ellisOpenFaaS2024} provides container based isolation for \faas{} using Kubernetes to handle scaling and execution of functions, and Prometheus to handle scaling of the functions.
+
+\subsection{V8 isolate based isolation}
+Whilst containers provide a much lighter footprint in comparison to VM based isolation, CloudFlare Workers\cite{CloudComputingContainers2018} and Vercel Edge Functions\cite{EdgeRuntime} both utilise V8 isolates to provide lightweight user-space isolation between functions. Whilst less secure than process-based isolation employed by contianers, V8 isolates provide a much denser packing of functions on a single host, and can provide much lower cold start times.
+
+Additional work surrounding microarchitectural vulnerabilities such as Spectre within V8 isolates has been carried out to ensure that V8 isolates can execute securely in multitenant environment\cite{schwarzlRobustScalableProcess2022}.
+
+\subsection{Wasm based isolation}
+WASM provides a secure and efficient environment for executing untrusted code\cite{WebAssembly} in a multitenant environment. Initially developed to run in the browser, WASM allows for the execution of untrusted code in a sandboxed environment without the need for a full VM or container. It has formal semantics\cite{haasBringingWebSpeed2017}, its embeddings can be formally proven to be memory-safe\cite{SecurefoundationsVWasm2024}, and utilises software based fault isolation to ensure that code cannot escape the sandbox\cite{SecurityWebAssembly}. Despite this effort, microarchitectural vulnerabilities such as Spectre still exist within WASM runtimes, and additional work is being carried out to mitigate these\cite{narayanSwivelHardeningWebAssembly2021}.
+
+Fastly Edge Compute Platform\cite{EdgeCloudPlatform} utilises Lucet\cite{BytecodeallianceLucet2024} (now Wasmtime\cite{Wasmtime}) to sandbox WebAssembly executables from one-another. Fastly Edge Compute Platform cites startup times in the order of tens of microseconds to instantiate the sandbox. The Wasmtime runtime now used by Fastly Edge Compute Platform employs a set of security features to ensure that code executing within the runtime cannot escape the sandbox, and that the runtime itself is secure\cite{SecurityWasmtime}. Wasmtime prepends a guard region before linear memories in order to protect against sign-extension bugs in the Cranelift JIT compiler resulting in invalid memory accesses between instances. It utilises guard pages on all thread stacks, triggering an exception if they are hit to prevent data leakage. Additionally, since Wasmtime is written in Rust, the surface which a vulnerability could manifest is reduced to only the unsafe sections of the codebase. The runtime is also implementing CFI mechanisms to use ARM specific instructions
+
+In addition to JavaScript functions deployed using V8 isolates, Cloudflare Workers\cite{CloudComputingContainers2018} also allow WASM based functions to be deployed to their edge network. Unlike Fastly, Cloudflare Workers do not execute the function within a WASM runtime, and instead rely on the V8 runtime to execute WASM functions\cite{WebAssemblyWasmCloudflare2024}.
+
+Sledge reduces cold-start times and increases throughput over other WASM based \faas{} frameworks by leveraging LLVM to compile WASM binaries, specifically targetting edge hardware and implements user-space scheduling of functions\cite{gadepalliSledgeServerlessfirstLightweight2020}.
+
+FaaSM employs a similar approach to container based isolation, using CGroups and Namespaces for isolation, and executing WASM binaries. In order to improve interprocess communication and persisting state, FaaSM utilises shared memory to allow functions to communicate with one another\cite{shillakerFaasmLightweightIsolation2020}.

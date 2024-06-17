@@ -91,7 +91,7 @@ export async function handler(ctx: Context) {
         revenue DESC;
   `);
     const country = tfc.tensor(rows.map((row)=>row.n_name));
-    const revenue = tfc.tensor(rows.map((row)=>row.revenue));
+    const revenue = tfc.tensor(rows.map((row)=>Number(row.revenue)));
     const weights = tfc.rand([
         rows.length,
         rows.length
@@ -155,15 +155,15 @@ export async function handler_0(ctx: FaaascInternalContext, state: FaaascInterna
         "handler_1",
         ...rows
     ], {
-        year,
-        region
+        region,
+        year
     });
 }
 export async function handler_1(ctx: FaaascInternalContext, state: FaaascInternalState) {
-    const { year, region } = state;
+    const { region, year } = state;
     const rows = JSON.parse(ctx.data[0]);
     const country = tfc.tensor(rows.map((row)=>row.n_name));
-    const revenue = tfc.tensor(rows.map((row)=>row.revenue));
+    const revenue = tfc.tensor(rows.map((row)=>Number(row.revenue)));
     const weights = tfc.rand([
         rows.length,
         rows.length

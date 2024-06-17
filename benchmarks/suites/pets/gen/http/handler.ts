@@ -42,12 +42,12 @@ export async function handler_0(ctx: FaaascInternalContext, state: FaaascInterna
         "handler_1",
         ...rows
     ], {
-        foo,
-        name
+        name,
+        foo
     });
 }
 export async function handler_1(ctx: FaaascInternalContext, state: FaaascInternalState) {
-    const { foo, name } = state;
+    const { name, foo } = state;
     const rows = JSON.parse(ctx.data[0]);
     let sumAge = 0;
     for (const row of rows){

@@ -95,7 +95,7 @@ export async function handler(ctx: Context) {
   `);
 
   const country = tfc.tensor(rows.map((row) => row.n_name));
-  const revenue = tfc.tensor(rows.map((row) => row.revenue));
+  const revenue = tfc.tensor(rows.map((row) => Number(row.revenue)));
 
   const weights = tfc.rand([rows.length, rows.length], Math.random, "float32");
 
