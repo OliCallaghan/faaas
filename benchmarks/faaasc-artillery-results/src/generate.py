@@ -17,8 +17,10 @@ if tex: mpl.rcParams.update({
 
 suites = [
     ("pets", "pets"),
+    ("bank", "bank"),
     ("warehouse/order-from-supplier", "wh-o"),
-    ("warehouse/pricing-summary-report", "wh-r")
+    ("warehouse/pricing-summary-report", "wh-r"),
+    ("warehouse/revenue-pred", "wh-p")
 ]
 
 strategies = [("proxy", "Always"), ("adaptive", "Adaptive"), ("local", "Never")]

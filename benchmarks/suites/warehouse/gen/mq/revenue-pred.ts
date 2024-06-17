@@ -155,12 +155,12 @@ export async function handler_0(ctx: FaaascInternalContext, state: FaaascInterna
         "handler_1",
         ...rows
     ], {
-        region,
-        year
+        year,
+        region
     });
 }
 export async function handler_1(ctx: FaaascInternalContext, state: FaaascInternalState) {
-    const { region, year } = state;
+    const { year, region } = state;
     const rows = JSON.parse(ctx.data[0]);
     const country = tfc.tensor(rows.map((row)=>row.n_name));
     const revenue = tfc.tensor(rows.map((row)=>Number(row.revenue)));

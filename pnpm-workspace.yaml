@@ -15,6 +15,7 @@ packages:
   - "benchmarks/faaasc-artillery"
   - "benchmarks/faaasc-adaptive-results"
   - "benchmarks/faaasc-artillery-results"
+  - "benchmarks/faaasc-artillery-billed-overhead-results"
   - "benchmarks/faaasc-artillery-concat-results"
   - "benchmarks/faaasc-aws-results"
   - "benchmarks/perf-v8-event-loop"

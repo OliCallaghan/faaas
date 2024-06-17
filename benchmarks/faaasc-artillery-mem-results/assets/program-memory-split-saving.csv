@@ -11,3 +11,11 @@ pets,1024,-54.94,pets
 pets,512,-14.17,pets
 pets,256,-74.1,pets
 pets,128,-137.44,pets
+warehouse-pred,1024,85.66,wh-p
+warehouse-pred,512,83.68,wh-p
+warehouse-pred,256,77.82,wh-p
+warehouse-pred,128,66.65,wh-p
+bank,1024,-56.92,bank
+bank,512,-132.79,bank
+bank,256,-140.05,bank
+bank,128,-140.07,bank

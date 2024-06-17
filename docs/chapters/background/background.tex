@@ -124,13 +124,6 @@ Billing cost curves for function resource allocations of \SI{128}{\mega\byte}, \
     \label{fig:faas-billing-cost-curves}
 \end{figure*}
 
-\begin{figure*}[t]
-    \begin{center}
-        \input{node_modules/@faaas/pricing/assets/min-yield-time.pgf}
-    \end{center}
-    \caption{Minimum profitable duration a \faas{} function with the specified resource allocation must not be executing for (yeild time) in order to overcome the invocation penalty.}
-\end{figure*}
-
 \subsection{AWS Lambda billing model}
 AWS Lambda varies its pricing depending on the datacentre location. As of writing, the pricing model for AWS Lambda is fixed across all regions in the United States, as well as many locations in the EU\cite{ServerlessComputingAWS}.
 

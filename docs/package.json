@@ -9,6 +9,7 @@
   },
   "dependencies": {
     "@faaas-bench/faaasc-adaptive-results": "workspace:^",
+    "@faaas-bench/faaasc-artillery-billed-overhead-results": "workspace:^",
     "@faaas-bench/faaasc-artillery-mem-results": "workspace:^",
     "@faaas-bench/faaasc-artillery-results": "workspace:^",
     "@faaas-bench/hello-seq": "workspace:^",

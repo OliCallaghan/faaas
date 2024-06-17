@@ -1,0 +1,27 @@
+[
+  {
+    "progId": "wh-p",
+    "sumUserDuration": "41124.2214",
+    "sumBillDuration": "41801"
+  },
+  {
+    "progId": "wh-r",
+    "sumUserDuration": "37229.4707",
+    "sumBillDuration": "37251"
+  },
+  {
+    "progId": "wh-o",
+    "sumUserDuration": "64409.8572",
+    "sumBillDuration": "64822"
+  },
+  {
+    "progId": "bank",
+    "sumUserDuration": "1539.1825",
+    "sumBillDuration": "2043"
+  },
+  {
+    "progId": "pets",
+    "sumUserDuration": "1307.0599",
+    "sumBillDuration": "1787"
+  }
+]

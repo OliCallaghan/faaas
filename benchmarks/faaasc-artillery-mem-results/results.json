@@ -166,5 +166,117 @@
     "totalDurationCost": "0.000002056",
     "totalCost": "0.00001966",
     "ratio": "0.1046"
+  },
+  {
+    "@log": "177684222297:/aws/lambda/warehouse-pred-1024-proxy",
+    "totalInvocCost": "0.000016",
+    "totalDurationCost": "0.00009277",
+    "totalCost": "0.0001088",
+    "ratio": "0.8529"
+  },
+  {
+    "@log": "177684222297:/aws/lambda/warehouse-pred-1024-local",
+    "totalInvocCost": "0.0000082",
+    "totalDurationCost": "0.0007504",
+    "totalCost": "0.0007586",
+    "ratio": "0.9892"
+  },
+  {
+    "@log": "177684222297:/aws/lambda/warehouse-pred-512-proxy",
+    "totalInvocCost": "0.000016",
+    "totalDurationCost": "0.00004786",
+    "totalCost": "0.00006386",
+    "ratio": "0.7494"
+  },
+  {
+    "@log": "177684222297:/aws/lambda/warehouse-pred-512-local",
+    "totalInvocCost": "0.000008",
+    "totalDurationCost": "0.0003832",
+    "totalCost": "0.0003912",
+    "ratio": "0.9795"
+  },
+  {
+    "@log": "177684222297:/aws/lambda/warehouse-pred-256-proxy",
+    "totalInvocCost": "0.000016",
+    "totalDurationCost": "0.00002496",
+    "totalCost": "0.00004096",
+    "ratio": "0.6094"
+  },
+  {
+    "@log": "177684222297:/aws/lambda/warehouse-pred-256-local",
+    "totalInvocCost": "0.000008",
+    "totalDurationCost": "0.0001767",
+    "totalCost": "0.0001847",
+    "ratio": "0.9567"
+  },
+  {
+    "@log": "177684222297:/aws/lambda/warehouse-pred-128-proxy",
+    "totalInvocCost": "0.0000162",
+    "totalDurationCost": "0.00001765",
+    "totalCost": "0.00003385",
+    "ratio": "0.5214"
+  },
+  {
+    "@log": "177684222297:/aws/lambda/warehouse-pred-128-local",
+    "totalInvocCost": "0.000008",
+    "totalDurationCost": "0.00009348",
+    "totalCost": "0.0001015",
+    "ratio": "0.9212"
+  },
+  {
+    "@log": "177684222297:/aws/lambda/bank-1024-proxy",
+    "totalInvocCost": "0.0000178",
+    "totalDurationCost": "0.0000128",
+    "totalCost": "0.0000306",
+    "ratio": "0.4183"
+  },
+  {
+    "@log": "177684222297:/aws/lambda/bank-1024-local",
+    "totalInvocCost": "0.0000098",
+    "totalDurationCost": "0.0000097",
+    "totalCost": "0.0000195",
+    "ratio": "0.4974"
+  },
+  {
+    "@log": "177684222297:/aws/lambda/bank-512-proxy",
+    "totalInvocCost": "0.0000412",
+    "totalDurationCost": "0.0000146",
+    "totalCost": "0.0000558",
+    "ratio": "0.2616"
+  },
+  {
+    "@log": "177684222297:/aws/lambda/bank-512-local",
+    "totalInvocCost": "0.0000154",
+    "totalDurationCost": "0.000008567",
+    "totalCost": "0.00002397",
+    "ratio": "0.3574"
+  },
+  {
+    "@log": "177684222297:/aws/lambda/bank-256-proxy",
+    "totalInvocCost": "0.0000552",
+    "totalDurationCost": "0.00002044",
+    "totalCost": "0.00007564",
+    "ratio": "0.2702"
+  },
+  {
+    "@log": "177684222297:/aws/lambda/bank-256-local",
+    "totalInvocCost": "0.0000162",
+    "totalDurationCost": "0.00001531",
+    "totalCost": "0.00003151",
+    "ratio": "0.4859"
+  },
+  {
+    "@log": "177684222297:/aws/lambda/bank-128-proxy",
+    "totalInvocCost": "0.0000422",
+    "totalDurationCost": "0.000003394",
+    "totalCost": "0.00004559",
+    "ratio": "0.07443"
+  },
+  {
+    "@log": "177684222297:/aws/lambda/bank-128-local",
+    "totalInvocCost": "0.000016",
+    "totalDurationCost": "0.000002992",
+    "totalCost": "0.00001899",
+    "ratio": "0.1575"
   }
 ]

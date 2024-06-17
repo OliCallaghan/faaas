@@ -1,0 +1,34 @@
+config:
+  target: https://x3xjimkkrir2fs3lvw5rygyvii0ocpvb.lambda-url.eu-west-2.on.aws
+  http:
+    timeout: 30
+  phases:
+    - duration: 15
+      arrivalCount: 1
+      maxVusers: 1
+      name: Warm function
+    - duration: 15
+      arrivalCount: 1
+      maxVusers: 1
+      name: Reinvoke function
+    - duration: 15
+      arrivalCount: 1
+      maxVusers: 1
+      name: Reinvoke function
+    - duration: 15
+      arrivalCount: 1
+      maxVusers: 1
+      name: Reinvoke function
+  plugins:
+    expect: {}
+    apdex: {}
+    metrics-by-endpoint:
+      useOnlyRequestNames: true
+    fake-data: {}
+  processor: "./payload.mjs"
+scenarios:
+  - flow:
+      - post:
+          url: "/"
+          beforeRequest: "preparePayload"
+          json: "{{ payload }}"

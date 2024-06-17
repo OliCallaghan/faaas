@@ -81,6 +81,9 @@ min_yield_time_df = min_yield_time_df[min_yield_time_df["memory"] <= 2048]
 db_req_roundtrip_time_upper = 9e-2
 db_req_roundtrip_time_lower = 6e-2
 
+pg_req_roundtrip_time_lower = 1e-2
+pg_res_roundtrip_time_upper = 2.5e-2
+
 mpl.rcParams.update({
     "pgf.texsystem": "pdflatex",
     'font.family': 'serif',
@@ -108,10 +111,15 @@ plt.xscale("log", base=2)
 handles, labels = plt.gca().get_legend_handles_labels()
 
 db_latency = plt.axhspan(db_req_roundtrip_time_lower, db_req_roundtrip_time_upper, color='r', alpha=0.2, label='DynamoDB latency bounds')
-plt.axhline(y=db_req_roundtrip_time_upper, color='r', linestyle='--')
-plt.axhline(y=db_req_roundtrip_time_lower, color='r', linestyle='--')
+pg_latency = plt.axhspan(pg_req_roundtrip_time_lower, pg_res_roundtrip_time_upper, color='b', alpha=0.2, label='PostgreSQL latency bounds')
 
-handles.extend([db_latency])
+plt.axhline(y=db_req_roundtrip_time_upper, color='r', linestyle='--', alpha=0.2)
+plt.axhline(y=db_req_roundtrip_time_lower, color='r', linestyle='--', alpha=0.2)
+
+plt.axhline(y=pg_res_roundtrip_time_upper, color='b', linestyle='--', alpha=0.2)
+plt.axhline(y=pg_req_roundtrip_time_lower, color='b', linestyle='--', alpha=0.2)
+
+handles.extend([db_latency, pg_latency])
 plt.legend(handles=handles)
 
 plt.savefig("assets/min-yield-time.pgf", bbox_inches="tight")

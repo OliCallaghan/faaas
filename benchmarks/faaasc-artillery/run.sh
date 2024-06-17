@@ -16,6 +16,15 @@ $RUN_ARTILLERY --output /scripts/reports/local.json /scripts/artillery.local.yam
 $RUN_ARTILLERY --output /scripts/reports/proxy.json /scripts/artillery.proxy.yaml
 cd -
 
+# Pets
+cd suites/bank
+echo "Running suites/bank"
+$RUN_ARTILLERY --output /scripts/reports/adaptive.json /scripts/artillery.adaptive.yaml
+$RUN_ARTILLERY --output /scripts/reports/http.json /scripts/artillery.http.yaml
+$RUN_ARTILLERY --output /scripts/reports/local.json /scripts/artillery.local.yaml
+$RUN_ARTILLERY --output /scripts/reports/proxy.json /scripts/artillery.proxy.yaml
+cd -
+
 # Warehouse order from supplier
 cd suites/warehouse/order-from-supplier
 echo "Running suites/warehouse/order-from-supplier"
@@ -28,6 +37,15 @@ cd -
 # Warehouse pricing summary report generation
 cd suites/warehouse/pricing-summary-report
 echo "Running suites/warehouse/pricing-summary-report"
+$RUN_ARTILLERY --output /scripts/reports/adaptive.json /scripts/artillery.adaptive.yaml
+$RUN_ARTILLERY --output /scripts/reports/http.json /scripts/artillery.http.yaml
+$RUN_ARTILLERY --output /scripts/reports/local.json /scripts/artillery.local.yaml
+$RUN_ARTILLERY --output /scripts/reports/proxy.json /scripts/artillery.proxy.yaml
+cd -
+
+# Warehouse pricing summary report generation
+cd suites/warehouse/revenue-pred
+echo "Running suites/warehouse/revenue-pred"
 $RUN_ARTILLERY --output /scripts/reports/adaptive.json /scripts/artillery.adaptive.yaml
 $RUN_ARTILLERY --output /scripts/reports/http.json /scripts/artillery.http.yaml
 $RUN_ARTILLERY --output /scripts/reports/local.json /scripts/artillery.local.yaml

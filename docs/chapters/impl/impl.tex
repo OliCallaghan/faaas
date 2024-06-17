@@ -1,16 +1,20 @@
 \chapter{Implementation of \faaas{}: Automatic Adaptive Code Splitting for \faaslong{}}
 \label{chap:impl}
-In this chapter, the implementation of \faaasc{}, an automatic function splitting compiler, is discussed. Following this, a general architectural outline is defined, shown in Figure \ref{fig:faaas-arch}, before focusing more indepth on the implementation of the proxy wrapper around PostgreSQL in addition to the gateway. Finally, the approach to deploying this stack onto AWS is discussed, alongside the adaptive and static splitting strategies for determining when to split functons.
+In this chapter, we introduce \faaas{}, a deployment of adaptive code split \faas{} functions.
+We discuss the implementation of \faaasc{}, an automatic function splitting compiler, followed by a general architectural outline, shown in Figure \ref{fig:faaas-arch}. The implementation of the proxy wrapper around PostgreSQL in addition to the gateway is discussed. Finally, the approach to deploying this stack onto AWS is discussed, alongside the adaptive and static splitting strategies for determining when to split functions.
+
+\section{Decomposition of \faas{} functions returning continuations}
+The core principal underpinning the design of \faaas{} is to decompose each \faas{} invocation into a set of functions that return continuations. Similarly to how event driven runtimes such as \js{} handle continuations of asynchronous code with an event loop as described in Section \ref{sec:js-event-loop}, \faaas{} takes advantage of function splitting (via code generation) and uses message passing to register continuations to be executed with a continuation context.
 
 \section{Requirements}
 In this section, we will discuss the technical requirements around the core components of \faaas{}.
 
 \cprotect\subsection{DX of the \faaasc{} compiler}
-In alignment with the ethos of \faas{} whereby developer time is spent focusing on the business logic of their application rather than the infrastructure, the \faaasc{} compiler was designed such that it is easy to use and requires minimal developer effort to leverage the benefits of function splitting. It allows the same code to be executed in a split and non split manner without modification.
+In alignment with the ethos of \faas{} whereby developer time is spent focusing on the business logic of the application rather than the infrastructure, the \faaasc{} compiler was designed such that it is easy to use and requires minimal developer effort to leverage the benefits of function splitting. It allows the same code to be executed in a split and non split manner without modification.
 
 Since the primary code target of \faaasc{} is JavaScript (and by extension TypeScript) serverless functions, specifically ES6 syntax, \faaasc{} was be designed such that it can target these codebases and integrate within the existing ecosystem of JavaScript tooling.
 
-To reduce developer effort adapting existing functions to support function splitting, a custom directive is introduced into the function handler body, \verb|'use async'|. The purpose of this directive is to marshall to the \faaasc{} compiler at which point in the function body the function should be split into multiple function handlers that return continuations, each of which can be executed independently in separate \awslambda{} function invocations. An example of this can be seen in Listing \ref{listing:use-async-simple-example}.
+To reduce developer effort adapting existing functions to support function splitting, a custom directive is introduced into the function handler body, \verb|'use async'|. The purpose of this directive is to marshal to the \faaasc{} compiler at which point in the function body the function should be split into multiple function handlers that return continuations, each of which can be executed independently in separate \awslambda{} function invocations. An example of this can be seen in Listing \ref{listing:use-async-simple-example}.
 
 \begin{listing}[H]
 \begin{minted}[obeytabs=true,tabsize=2]{javascript}
@@ -45,12 +49,13 @@ The SWC compiler is a fast JavaScript/TypeScript compiler that is written in Rus
     \item \verb|swc_ecma_ast|: A crate that provides a set of utilities for working with the SWC ECMAScript AST.
     \item \verb|swc_ecma_codegen|: A crate that provides a set of utilities for generating JavaScript code from the SWC AST. It is used to generate the output code from the \faaasc{} compiler.
     \item \verb|swc_ecma_parser|: A crate that provides a set of utilities for parsing JavaScript code into the SWC AST. It is used to parse the input code in the \faaasc{} compiler.
+    \item \verb|swc_ecma_transforms|: A crate that provides a set of utilities for transforming the SWC AST. It is used resolve variables to their correct scope in the \faaasc{} compiler.
 \end{itemize}
 
 The \faaasc{} compiler specifically uses the \verb|swc_ecma_parser| package to parse the JavaScript code into an AST, and then a visitor pattern is used to traverse the AST and identity function splitting points.
 
 \subsubsection{SWC and the identifier resolution}
-Since JavaScript allows for variable scoping, it is important to resolve identifiers to their correct scope. This is achieved in SWC by using a process akin to global renaming of variables, whereby each identifier is assigned its corresponding \verb|SyntaxContext|, which is used to distinguish between inner and outer declarations of variables with the same textual identifier.
+Since JavaScript permits variable scoping, it is important to resolve identifiers to their correct scope. This is achieved in SWC by using a process akin to global renaming of variables, whereby each identifier is assigned its corresponding \verb|SyntaxContext|, which is used to distinguish between inner and outer declarations of variables with the same textual identifier.
 
 To avoid this same issue, \faaasc{} uses the \verb|swc_ecma_transforms| crate which performs a pass over the AST and resolves declarations and references to identifiers within nodes to their correct \verb|SyntaxContext|. This is important when handling cases where incorrect scope may be captured in a continuation, as shown in Listing \ref{listing:scope-syntax-context}
 
@@ -72,9 +77,14 @@ export async function handler(ctx: FaaascInternalContext, state: FaaascInternalS
 \end{listing}
 
 \subsection{Splitting \faas{} handlers}
-In order to split handlers, the \faaasc{} compiler needs to traverse the AST, starting from the module root. It then works its way through exported function definitions, until it finds the function \verb|handler|. It then traverses the function body, looking for the directive \verb|'use async'|. When this directive is found, the function is split at this point, whereby every visited statement to that point is pushed to the body of a generated function handler, and code generation is performed to capture the state of the function at that point.
+In order to split handlers, the \faaasc{} compiler needs to traverse the AST, an example of which is shown in Figure \ref{fig:suites-hello-seq-module-ast}, starting from the module root. It then works its way through exported function definitions, until it finds the function \verb|handler|. It then traverses the function body, looking for the directive \verb|'use async'|. Immediately following the \verb|'use async'| directive, it is expected that a variable declaration is made and initialised to the resolved value from a promise constructed by calling a function, as seen in Listing \ref{listing:use-async-simple-example}. When this directive is found, the function is split at this point, whereby every visited statement to that point is pushed to the body of a generated function handler, and code generation is performed to capture the state of the function at that point.
 
-This process is illustrated in Figure \ref{fig:faaasc-split-ast-mapping}, whereby \verb|handler| is divided into two sections, \verb|handler_0| and \verb|handler_1|.
+\begin{listing}
+  \inputminted{javascript}{node_modules/@faaas-bench/hello-seq/src/onHttpGetHello.trigger.ts}
+  \caption{Typical serverless function handler interacting with a database via an ORM.}
+\end{listing}
+
+This process is illustrated in Figure \ref{fig:faaasc-split-ast-mapping}, whereby \verb|handler| is divided into two sections, \verb|handler_0| and \verb|handler_1|. In the diagram, sections are colour-coded to reference from where in the generated AST each section was derived from in the source AST.
 
 \begin{figure*}
     \fontsize{8}{10}\selectfont
@@ -84,10 +94,18 @@ This process is illustrated in Figure \ref{fig:faaasc-split-ast-mapping}, whereb
     \label{fig:faaasc-split-ast-mapping}
 \end{figure*}
 
+\begin{figure}
+    \includegraphics[width=\linewidth]{node_modules/@faaas-bench/hello-seq/assets/module.pdf}
+    \caption{AST of handler body.}
+    \label{fig:suites-hello-seq-module-ast}
+\end{figure}
+
 \subsection{Contexts in \faaasc{}}
 In this section, we will discuss the concept of context, and how it is used in \faaasc{}.
 
-As defined in Type Signature \ref{def:faaas-continuation-signature}, Handlers are functions that take an event and a context, and return a result or a continuation. In \faaasc{}, both the event and context are wrapped up into a single object, referred to as \verb|Context|. This contains the data that is passed to the function handler, as well as the invocation ID.
+As defined in Type Signature \ref{def:faaas-continuation-signature}, Handlers are functions that take an event and a context, and return a result or a continuation. In \faaasc{}, rather confusingly, the context of a handler is referred to as \verb|FaaascInternalState|. This is a serialised representation of the state of the function at the point of the split, and is used to restore the state of the function when the continuation is executed. This context is hidden from the user, and appended to the set of arguments passed to a handler at code generation time.
+
+The event defined in Type Signature \ref{def:faaas-continuation-signature} is actually referred to in function definitions as \verb|FaaascInternalContext|, or more simply from a programmer's perspective \verb|Context|. This is because typically developers wish to have access to the event data, as well as the context in which the function was invoked, and so the two are combined in a single object containing the data that is passed to the function handler, as well as the invocation ID for ease of use.
 
 When returning a continuation from the handler, a continuation object is created, which contains a reference to the asynchronous function to be called, the handler continuation to execute after the asynchronous function returns (\verb|handler_1|) the arguments to pass to the function, as well as a serialised state as shown in Listing \ref{listing:faaasc-compiler-handler-ret-continuation}. This allows the continuation to be executed with the same context as the original function.
 
@@ -114,14 +132,14 @@ export async function handler_0(ctx: FaaascInternalContext, state: FaaascInterna
 When this continuation is returned from \verb|handler_0|, the adaptor entrypoint decides whether it should invoke the \verb|sql| function locally, or use the proxy to execute the SQL query remotely and reinvoke \verb|handler_1| at a later point.
 
 \subsection{\faas{} provider adaptor pattern}
-In order to support multiple \faas{} providers, the \faaasc{} compiler is designed to be extensible, such that new providers can be added with minimal effort. This is achieved through the use of implementing adaptors for each cloud provider, whereby the logic for splitting and executing continuations is provided by an NPM package. The core requirement for an adaptor is that it exports a \verb|buildEntrypoint| function, with the following function signature:
+In order to support multiple \faas{} providers, the \faaasc{} compiler is designed to be extensible, such that new providers can be added with minimal effort. This is achieved through the use of implementing adaptors for each \faas{} provider, whereby the logic for splitting and executing continuations is provided by an NPM package. The core requirement for an adaptor is that it exports a \verb|buildEntrypoint| function, with the following function signature:
 
 \begin{signature}
 $$\textbf{type}\, \textrm{Handlers} = \textrm{Map}\mathord{<}\textrm{Str}, \textrm{Handler}\mathord{>}$$
 $$\textbf{type}\, \textrm{EntryFactory} = \textrm{Handlers} \rightarrow \textrm{RawHandler}$$
 \end{signature}
 
-The \faaasc{} compiler output the following.
+The \faaasc{} compiler will then split a function as in Listing \ref{listing:faaasc-compiler-adaptor-output}, importing \verb|buildEntrypoint| from the specified adaptor package.
 
 \begin{listing}[H]
 \begin{minted}[obeytabs=true,tabsize=2]{javascript}
@@ -147,31 +165,59 @@ export const entrypoint = buildEntrypoint({
 \end{listing}
 
 \subsection{AWS Adaptor}
-To allow cost effective deployment to AWS, the \faaasc{} AWS adaptor was implemented. This adaptor is responsible for executing function handlers as continuations, and deferring to proxies based on predicted cost savings.
+To allow cost effective deployment to AWS, two \faaasc{} AWS adaptors were implemented: \verb|@faaas/aws-adaptor| and \verb|@faaas/aws-http-adaptor|. The \verb|@faaas/aws-adaptor| adaptor consumes tasks from RabbitMQ and publishes continuations back to the queue, whereas the \verb|@faaas/aws-http-adaptor| is used for only for evaluation as a baseline, executing the original unsplit handler when invoked from an AWS Lambda HTTP endpoint.
 
-In order to effectively compute the cost savings, it accounts for the memory allocated to the function, the architecture of the function, and the cost of invoking a function to compute the critical threshold as in \ref{sec:faas-code-splitting-profitability}.
+The \verb|@faaas/aws-adaptor| is responsible for executing function handlers as continuations, and deferring to proxies based on predicted cost savings.
+
+In order to effectively compute the cost savings, it accounts for the memory allocated to the function, the architecture of the function, and the cost of invoking a function to compute the critical threshold as in Section \ref{sec:faas-code-splitting-profitability}.
+
+\section{Architectural overview of \faaas{}}
+In this section we discuss the general architecture of how functions expressed as handlers returning continuations are executed in a general cloud provider configuration, and then specifically for AWS.
+
+The setup is as follows: a thin gateway is deployed that is responsible for accepting HTTP requests, and initiating the invocation of a function.
+
+\begin{itemize}
+\item[1] When the gateway recieves a request, it publishes a message to a message queue to invoke the entrypoint of the split function output by \faaasc{}.
+
+\item[2] This then triggers subsequent invocation of the entrypoint of the function, which executes the first part of the split function \verb|handler_0|. This handler either returns a continuation or a result.
+
+\begin{itemize}
+\item[a] If the handler returns a continuation, it is published back to the message queue, which is consumed by the gateway, which responds with the data to back to the HTTP client.
+
+\item[b] If the handler returns a continuation, it applies the specified strategy to determine whether to execute the continuation function locally, or whether to defer to the proxy.
+
+\begin{itemize}
+\item[i] If the strategy decides to defer to the proxy, the continuation is published to the message queue, which is consumed by the proxy and processed. This continuation captures the current state of the function, in addition to the next part of the split handler to invoke with the result. Once the proxy has its result, it publishes another invocation request back to the message queue to invoke the next handler.
+
+\item[ii] If the strategy decides to execute the continuation locally, exactly this occurs, and the adaptor then executes the next part of the split handler, passing it the result from the locally executed continuation.
+\end{itemize}
+\end{itemize}
+
+\item[3] Eventually, the handlers will return a result, and this will cause the adaptor to send the back to the HTTP client.
+\end{itemize}
+
+This architecture is illustrated for both AWS and a generic cloud provider in \ref{fig:faaas-arch}.
+
+\begin{figure*}
+    \centering
+    \subfigure[AWS Native \faaas{} architecture]{
+        \fontsize{8}{10}\selectfont
+        \includesvg[width=0.7\linewidth]{node_modules/@faaas/aws-faaas-arch/assets/aws-faaas-arch.svg}
+    }
+    \subfigure[Cloud provider agnostic \faaas{} architecture]{
+        \fontsize{8}{10}\selectfont
+        \includesvg[width=0.7\linewidth]{node_modules/@faaas/faaas-arch/assets/faaas-arch.svg}
+    }
+    \caption{\faaas{} architecture utilising AWS cloud primitives, for comparison with the cloud agnostic \faaastime{} implementation}
+    \label{fig:faaas-arch}
+\end{figure*}
+
+In order to deploy this architecture on AWS, the gateway and proxies were deployed using Elastic Container Service running containers on Fargate. Additionally, the function handlers themselves were deployed to AWS Lambda. The message queue used to coordinate the invocation of the function handlers was RabbitMQ, deployed on Amazon MQ, a managed message broker service. This process was orchestrated using Terraform.
 
 \section{Queuing function continuations}
-In this section, we will discuss further how function continuations are queued and consumed in the \faaas{} stack.
+In this section, we will discuss further how function continuations are queued and consumed in \faaas{}.
 
-At the core of the \faaas{} stack is a message queue, specifically RabbitMQ was selected since it supports the ActiveMQ message protocol. This allows the \faaas{} stack to be run locally using a locally hosted version of RabbitMQ, however equally, from an architectural standpoint, there is no reason that AWS SQS or Google Cloud Pub/Sub could not be used instead.
-
-Specifically for AWS Lambda, RabbitMQ is configured such that for every invocation request that is sent to the queue, it in turn invokes the corresponding AWS Lambda function associated with its routing key. The Lambda function then is responsible for executing the function executes the corresponding handler from the \verb|Handlers| map.
-
-This means that with AWS Lambda, the same Lambda function can handle all of the continuations of the split lambda function, albeit in separate invocations. This allows the handler to avoid cascading cold-starts. When a Lambda chooses to defer to a proxy, it publishes a message to the RabbitMQ queue with the continuation, serialised context and the routing key of the next handler to be invoked.
-
-\section{Gateway}
-In this section we will introduce the gateway as the entrypoint for all function invocations, and discuss how it adds the initial invocation to the queue. Following this, we will then discuss how this is deployed on AWS, and fits into the rest of the stack.
-
-The gateway acts an an entrypoint to allow functions to be invoked with data, and listens for the result of the invocation to be published to the message queue before sending the result as a response back to the client. The decision to implement a gateway was made since HTTP triggers are the most common form of triggers\cite{eismannReviewServerlessUse2020}, and all other triggers can effectively be built atop of this HTTP trigger.
-
-The core design principal behind the gateway is that it should act as a thin layer between the client and the message queue, and would need to handle many concurrent connections. To achieve this, the gateway was written in Rust, using Hyper, Tokio and AMPQRS crates to handle HTTP requests and interface with RabbitMQ respsectively. In a production setting, this logic would be incorporated directly into the existing gateway to AWS Lambda, however for the purposes of this project, it was implemented as a standalone service.
-
-In order to deploy the gateway to AWS, it was containerised using Docker, and deployed to AWS ECS.
-
-When the gateway recieves its initial invocation, it serialises the request body and creates a \verb|TaskContext| object, containing the invocation ID, the body, in addition to initial handler for the split function to execute. This is then published to the RabbitMQ queue, which in turn invokes the corresponding AWS Lambda function. The gateway then listens to a unique queue for the invocation ID, and when the result is published to the queue, it is deserialised and sent back to the client as a response.
-
-\begin{figure}[htp]
+\begin{figure}
     \centering
     \subfigure[\faas{} architecture from request to response]{
         \centering
@@ -188,65 +234,20 @@ When the gateway recieves its initial invocation, it serialises the request body
     \caption{\faas{} architecture enabling split function handlers}
 \end{figure}
 
-\begin{figure*}
-    \centering
-    \subfigure[AWS Native \faaas{} architecture]{
-        \fontsize{8}{10}\selectfont
-        \includesvg[width=0.7\linewidth]{node_modules/@faaas/aws-faaas-arch/assets/aws-faaas-arch.svg}
-    }
-    \subfigure[Cloud provider agnostic \faaas{} architecture]{
-        \fontsize{8}{10}\selectfont
-        \includesvg[width=0.7\linewidth]{node_modules/@faaas/faaas-arch/assets/faaas-arch.svg}
-    }
-    \caption{\faaas{} stack architecture utilising AWS cloud primitives, for comparison with the cloud agnostic \faaastime{} implementation}
-    \label{fig:faaas-arch}
-\end{figure*}
+At the core of \faaas{} is a message queue, specifically RabbitMQ was selected since it supports the ActiveMQ message protocol. This allows \faaas{} to be run locally using a locally hosted version of RabbitMQ, however equally, from an architectural standpoint, there is no reason that AWS SQS or Google Cloud Pub/Sub could not be used instead.
 
-\section{Splitting Directive}
-To reduce developer effort adapting existing functions to support function splitting, a custom directive is introduced into the function handler body, \verb|'use async'|. The purpose of this directive is to indicate to the \faaasc{} compiler that the function handler body should be split into multiple functions at this point, each of which is executed in separate \awslambda{} functions.
+Specifically for AWS Lambda, RabbitMQ is configured such that for every invocation request that is sent to the queue, it in turn invokes the corresponding AWS Lambda function associated with its routing key. The Lambda function then is responsible for executing the function executes the corresponding handler from the \verb|Handlers| map.
 
-\begin{listing}[H]
-  \inputminted{javascript}{node_modules/@faaas-bench/hello-seq/src/onHttpGetHello.trigger.ts}
-  \caption{Typical serverless function handler interacting with a database via an ORM.}
-\end{listing}
+This means that with AWS Lambda, the same Lambda function can handle all of the continuations of the split lambda function, albeit in separate invocations. This allows the handler to avoid cascading cold-starts. When a Lambda chooses to defer to a proxy, it publishes a message to the RabbitMQ queue with the continuation, serialised context and the routing key of the next handler to be invoked.
 
-This splitting directive resembles the \verb|'use strict'| directive in JavaScript, which indicates that the code should be executed in strict mode. The \verb|'use async'| directive is a pragma that is not part of the JavaScript language, but is understood by the \faaasc{} compiler. Therefore as a result, unless the \faaasc{} compiler is used, the directive will be ignored by the JavaScript runtime, and so the same code can be run on any other \faas{} platform without modification.
+\section{Gateway}
+In this section we will introduce the gateway as the entrypoint for all function invocations, and discuss how it adds the initial invocation to the queue. Following this, we will then discuss how this is deployed on AWS, and fits into the rest of the stack.
 
-%\begin{listing}[H]
-%\begin{minted}[obeytabs=true,tabsize=2]{javascript}
-%export async function handler(_) {
-%  "use async";
-%  const foo = await bar();
-%}
-%\end{minted}
-%\caption{Example usage of the directive.}
-%\label{listing:use-async-simple-example}
-%\end{listing}
+The gateway acts an an entrypoint to allow functions to be invoked with data, and listens for the result of the invocation to be published to the message queue before sending the result as a response back to the client. The decision to implement a gateway was made since HTTP triggers are the most common form of triggers\cite{eismannReviewServerlessUse2020}, and all other triggers can effectively be built on this HTTP trigger.
 
-Immediately following the \verb|'use async'| directive, it is expected that a variable declaration is made and initialised to the resolved value from a promise constructed by calling a function, as seen in Listing \ref{listing:use-async-simple-example}.
+The core design principal behind the gateway is that it should act as a thin layer between the client and the message queue, and would need to handle many concurrent connections. To achieve this, the gateway was written in Rust, using Hyper, Tokio and AMPQRS crates to handle HTTP requests and interface with RabbitMQ respsectively. In a production setting, this logic would be incorporated directly into the existing gateway to AWS Lambda, however for the purposes of this project, it was implemented as a standalone service.
 
-\section{Code generation}
-\label{sec:faaasc-codegen-ast}
-
-\begin{figure}[t]
-    \includegraphics[width=\linewidth]{node_modules/@faaas-bench/hello-seq/assets/module.pdf}
-    \caption{AST of handler body.}
-    \label{fig:suites-hello-seq-module-ast}
-\end{figure}
-
-\section{Decomposition of \faas{} functions into continuations}
-The core principal underpinning the design of \faaas{} is to decompose each \faas{} invocation into a set of function continuations. Similarly to how event driven runtimes such as \js{} handle continuations of asynchronous code with an event loop as described in Section \ref{sec:js-event-loop}, \faaas{} takes advantage of function splitting (via code generation) and uses message passing to register continuations to be executed with a continuation context.
-
-\subsection{Monitoring and reactivity}
-In this section, we build atop the assetion that asynchronous requests are inherently unpredictable, as described in Section \ref{sec:faas-async-service-response-time-modelling}, and describe the implementation of the monitor that periodically recomputes the distribution that models async response times, described in \ref{sec:faaas-monitoring-and-strat-switching-design}.
-
-Since the distribution of response times is vulnerable to variations of time, for factors due spikes in traffic, a monitor needs to run periodically to recompute the distribution that models async response times. This monitor is responsible for collecting the response times of asynchronous requests, and updating the parameters for their corresponding distributions.
-
-This is vital otherwise the splitting strategy may be otherwise using out-of-date data, that impacts the profitability of code splitting.
-
-This monitor is implemented as a Python AWS Lambda function, scheduled to run every 5 minutes, and is responsible for aggregating response times from log data, and updating the distribution parameters for each function split. A new monitor is deployed with every function that uses adaptive splitting.
-
-In order to effectively propgatate these parameters to the serverless function, the monitor writes the parameters to a Redis cache, which is read by the serverless function at runtime.
+When the gateway recieves its initial invocation, it serialises the request body and creates a \verb|TaskContext| object, containing the invocation ID, the body, in addition to initial handler for the split function to execute. This is then published to the \verb|amq.direct| RabbitMQ exchange with the handler's routing key, which in turn invokes the corresponding AWS Lambda function. Handlers are assigned routing keys of the form \verb|mq.invocations.tasks.{task-name}|. The gateway then listens to a unique emphemeral queue for that invocation ID, and when the result is published to the queue, it is deserialised and sent back to the client as a response.
 
 \section{Function splitting strategies}
 \label{sec:faas-function-splitting-strategies}
@@ -264,3 +265,14 @@ To address this, we introduce the concept of adaptive function splitting, which 
 This was achieved in the AWS deployment by defining a scheduled AWS Lambda function to be invoked every 5 minutes, that is responsible for collecting a sample of response times from AWS CloudWatch of asynchronous requests, and updating the parameters for their corresponding distributions. The monitor then computes the optimal parameters $k$, $\phi$, and $\lambda$ by fitting the Weibull distribution to the source data using Maximum Likelihood Estimation, and then writing these parameters to the Redis cache, which is read by the serverless function at runtime.
 
 This approach is particularly useful for functions that are subject to high variability in response times, as it allows the function to adapt to changes in the distribution of response times over time, and adjust the split point accordingly.
+
+\subsection{Monitoring and reactivity}
+In this section, we build atop the assetion that asynchronous requests are inherently unpredictable, as described in Section \ref{sec:faas-async-service-response-time-modelling}, and describe the implementation of the monitor that periodically recomputes the distribution that models async response times, described in \ref{sec:faaas-monitoring-and-strat-switching-design}.
+
+Since the distribution of response times is vulnerable to variations of time, for factors due spikes in traffic, a monitor needs to run periodically to recompute the distribution that models async response times. This monitor is responsible for collecting the response times of asynchronous requests, and updating the parameters for their corresponding distributions.
+
+This is vital otherwise the splitting strategy may be otherwise using out-of-date data, that impacts the profitability of code splitting.
+
+This monitor is implemented as a Python AWS Lambda function, scheduled to run every 5 minutes, and is responsible for aggregating response times from log data, and updating the distribution parameters for each function split. A new monitor is deployed with every function that uses adaptive splitting.
+
+In order to effectively propgatate these parameters to the serverless function, the monitor writes the parameters to a Redis cache, which is read by the serverless function at runtime.

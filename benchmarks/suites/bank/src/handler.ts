@@ -14,7 +14,7 @@ export async function handler(ctx: Context) {
   const { src, dst, amount } = JSON.parse(ctx.data[0]);
 
   ("use async");
-  const srcAcc = await sql(`SELECT balance FROM accounts WHERE id == '${src}'`);
+  const srcAcc = await sql(`SELECT balance FROM accounts WHERE id = '${src}'`);
 
   const [account] = srcAcc;
 
@@ -25,20 +25,13 @@ export async function handler(ctx: Context) {
   }
 
   ("use async");
-  const _ = await sql(`
-    BEGIN;
+  const _1 = await sql(
+    `UPDATE accounts SET balance = balance - ${amount} WHERE id = ${src}`,
+  );
 
-    -- Decrement the balance of the sender's account
-    UPDATE accounts
-    SET balance = balance - ${amount}
-    WHERE id = ${src};
-
-    -- Increment the balance of the receiver's account
-    UPDATE accounts
-    SET balance = balance + ${amount}
-    WHERE id = '${dst}';
-
-    COMMIT;
+  ("use async");
+  const _2 = await sql(`
+    UPDATE accounts SET balance = balance + ${amount} WHERE id = '${dst}'
   `);
 
   return result({

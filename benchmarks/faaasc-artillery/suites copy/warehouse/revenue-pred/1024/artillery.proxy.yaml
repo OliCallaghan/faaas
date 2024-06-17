@@ -1,0 +1,31 @@
+config:
+  target: http://app-lb-1035490685.eu-west-2.elb.amazonaws.com
+  http:
+    timeout: 30
+  phases:
+    - duration: 10
+      arrivalRate: 1
+      rampTo: 1
+      name: Warm up phase
+    - duration: 20
+      arrivalRate: 1
+      name: Maximum AWS Lambda instance load
+    - duration: 10
+      arrivalRate: 1
+      rampTo: 1
+      name: Decrease load
+  plugins:
+    expect: {}
+    apdex: {}
+    metrics-by-endpoint:
+      useOnlyRequestNames: true
+    fake-data: {}
+  processor: "./payload.mjs"
+scenarios:
+  - flow:
+      - post:
+          url: "/"
+          qs:
+            task_id: "warehouse-pred-1024-proxy"
+          beforeRequest: "preparePayload"
+          json: "{{ payload }}"

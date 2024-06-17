@@ -179,13 +179,13 @@ export async function handler_0(ctx: FaaascInternalContext, state: FaaascInterna
         "handler_1",
         ...suppliers
     ], {
+        regionName,
         partSize,
-        partType,
-        regionName
+        partType
     });
 }
 export async function handler_1(ctx: FaaascInternalContext, state: FaaascInternalState) {
-    const { partSize, partType, regionName } = state;
+    const { regionName, partSize, partType } = state;
     const suppliers = JSON.parse(ctx.data[0]);
     const selectedSupplier = suppliers[0];
     if (!selectedSupplier) return result({

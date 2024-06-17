@@ -7,7 +7,7 @@
     \caption{Cost breakdown of the \texttt{warehouse-order} OLAP function workload running on AWS Lambda (256MB). Using the adaptive split strategy, a cost reduction of 62\% is observed, whilst for always split, a cost reduction of 75\% is observed.}
 \end{figure}
 
-In this chapter, \faaas{} is evaluated in terms of its cost savings and overhead on a suite of \faas{} functions executing OLTP, OLAP and mixed workloads. In order to effectively evaluate cost savings if used today, \faas{} is deployed to AWS, and evaluated against the current AWS billing model, resulting in a cost reduction of 75\% across the OLAP benchmark suite. Following this, \faaas{} is then evaluated against a set of hypothetical billing models, in order to evaluate potential cost savings if changes to the billing model were to be made. Finally, key areas that cloud providers need to address are highlighed in order to enable more effective cost reductions across a wider range of \faas{} workloads. Throughout this chapter, we aim to provide answers to the following set of research questions:
+In this chapter, \faaas{} is evaluated in terms of its cost savings and overhead on a suite of \faas{} functions executing OLTP, OLAP and mixed workloads. In order to effectively evaluate cost savings if used today, \faas{} is deployed to AWS, and evaluated against the current AWS billing model, resulting in a cost reduction of betwen 58\% and 98\% across set of evaluated OLAP benchmarks. Following this, \faaas{} is then evaluated against a set of hypothetical billing models, in order to evaluate potential cost savings if changes to the billing model were to be made. Finally, key areas that cloud providers need to address are highlighed in order to enable more effective cost reductions across a wider range of \faas{} workloads. Throughout this chapter, we aim to provide answers to the following set of research questions:
 
 \begin{itemize}
     \item[(q1)] To what extent can code splitting reduce costs when executing serverless functions?
@@ -50,6 +50,8 @@ In order to benchmark a representative OLAP workload, we define a set of serverl
 
 \subsection{OLTP workloads}
 In order to benchmark a representative OLTP workload, we define a set of serverless functions that execute OLTP queries against a database, and return the results. Specifically, we define a function that executes banking transactions within the context of a bank, and a function that queries the ages of a set of pets.
+
+The banking transaction benchmark is representative of performing sequential queries in a linear manner. The pet age benchmark is representative of performing a single short lived query.
 
 \section{Measuring cost savings}
 In this section, we aim to provide provide an answer to the first research question: \blockquote{To what extent can code splitting reduce costs when executing serverless functions?}. In order to do this, we will examine which types of workloads result in cost reductions, and describe specifically how the values for total function cost of the \faaas{} deployment to AWS was measured.
@@ -130,19 +132,18 @@ From the experiments, it is clear that \faaas{} introduces a high latency overhe
     \label{table:faaas-response-time-latency}
 \end{table}
 
-In order to provide a breakdown of the time spent during billed function invocation time, the AWS \faaas{} adaptor was instrumented to log times spend executing each part of the function during execution. This data was extracted from CloudWatch logs, and analysed into Table \ref{table:faaas-duration-breakdown}, and visualised for both the pets OLTP function \ref{fig:faaasc-oltp-duration-bill-breakdown}.
+In order to provide a breakdown of the time spent during billed function invocation time, the AWS \faaas{} adaptor was instrumented to log times spend executing each part of the function during execution. This data was extracted from CloudWatch logs, and analysed into Table \ref{table:faaas-duration-breakdown}, and visualised for both the pets OLTP function \ref{fig:faaasc-oltp-duration-bill-breakdown}. From the OLTP workloads, it emerged that the actual code running in the AWS Lambda instance accounted for only 75\% of the billed time for OLTP workloads.
 
 \begin{table}
     \centering
-    \begin{tabularx}{\linewidth}{|c|c|Z|Z|}\hline
-        \textbf{PID} & \textbf{Strategy} & \textbf{Mean} & \textbf{p95} \\
+    \begin{tabularx}{\linewidth}{|c|Z|Z|Z|}\hline
+        \textbf{PID} & \textbf{Billed Time (ms)} & \textbf{Handler Time (ms)} & \textbf{Overhead (\%)} \\
         \hline
         \csvreader[column count=13,late after line=\\\hline,late after last line=\\\hline]
-        {assets/tmp/faaas-bench-faaasc-artillery-results-response-times.csv}
-        {1=\name, 13=\strat, 5=\mean, 10=\p95}
-        {\texttt{\name} & \texttt{\strat} & \mean & \p95}
+        {assets/tmp/faaas-bench-faaasc-artillery-billed-overhead-results.csv}
+        {2=\name, 3=\billedTime, 4=\userTime, 5=\overheadRatio}
+        {\texttt{\name} & \billedTime & \userTime & \overheadRatio}
     \end{tabularx}
-    \todo[inline]{Generate this data}
     \caption{Duration breakdown of \faaas{} function execution}
     \label{table:faaas-duration-breakdown}
 \end{table}
@@ -190,7 +191,18 @@ Since AWS is not the only provider of \faas{}, it is important to consider how t
 \subsection{Changes to invocation cost pricing}
 Invocation costs for cloud functions are loosely coupled to the technical overhead experienced when executing a \faas{} function. Therefore, by reducing the overhead of invoking a function, it would be expected that this cost would also decrease.
 
-Referring back to the cost model in Section \ref{sec:faas-param-cost-model}, by reducing the invocation cost, it would reduce the critical threshold which it becomes profitably to split a function across an asynchronous request.
+Referring back to the cost model in Section \ref{sec:faas-param-cost-model}, by reducing the invocation cost, it would decrease the critical threshold which it becomes profitably to split a function across an asynchronous request. The current critical yield threshold for each of the three cloud platforms is shown in Figure \ref{fig:faas-min-yield-by-mem-alloc}. By reducing the invocation cost, this would shift each of the curves downwards, allowing more splitting scenarios to become profitable.
+
+\begin{figure*}[t]
+    \begin{center}
+        \input{node_modules/@faaas/pricing/assets/min-yield-time.pgf}
+    \end{center}
+    \caption{Minimum profitable duration a \faas{} function with the specified resource allocation must not be executing for (yeild time) in order to overcome the invocation penalty.}
+    \label{fig:faas-min-yield-by-mem-alloc}
+\end{figure*}
+
+\subsection{Minimum billable time reduction}
+The reason that function splitting is considerably less profitable for Azure and Google Cloud Functions at present is due to the minimum billable time restriction imposed by their respective billing models, as discussed in Section \ref{sec:faas-code-splitting-profitability}. This rules out a large class of potential splitting scenarios, unless the postprocessing of the results from an asynchronous operation take longer than the minimum billable split.
 
 \subsection{Reduction in startup times (cold-start and warm-start)}
 From the overhead analysis, it is shown that there is considerable overhead when reinvoking a function above typical function cold starts. This is is due to a variety of factors, including the extra network round-trips to and from RabbitMQ, in addition to the additional setup costs of invoking a function with Lambda.
