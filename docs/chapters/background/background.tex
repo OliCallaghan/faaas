@@ -1,7 +1,11 @@
 \chapter{Background}
 \label{chap:background}
 
-\section{Terminology}
+In this Chapter, we will introduce the reader to the core concepts of serverless computing, building up to \faas{}. Following this, we will discuss the typical characteristics of \faas{} workloads. Then we will bring these workloads into context with discussion on the execution model of JavaScript and \faas{}, specifically AWS Lambda. Then we will describe the various billing models of \faas{} platforms on different public cloud providers. After this, we introduce the double billing problem, and the relevance of tail recursion and stack execution models.
+
+% We then defer to the additional Chapter detailing isolation mechanisms in \faas{} platforms, the performance and security characteristics of each, and a summary of current research in this area for each.
+
+\section{A brief background and introduction to serverless in the cloud}
 \subsection{What is serverless?}
 Serverless computing emerged in the mid-to-late 2000s\cite{wardleyWardleyMaps2022,IntroducingGoogleApp,patilServerlessComputingEmergence2021} as a new paradigm for deploying applications, with the emergence of low-cost public cloud providers\cite{patilServerlessComputingEmergence2021,BenjaminBlackEC2}. It allows developers to deploy applications without managing the underlying infrastructure, leading to much more scalable and cost-effective solutions.
 
@@ -10,7 +14,7 @@ Typically, resources such as VMs\cite{hoeferTaxonomyCloudComputing2010} are rent
 Serverless applications are usually composed of cloud provider managed services, such as databases, storage, and compute, and are often event-driven\cite{EventarcOverview,EventListenerAmazon,robeceOverviewAzureEvent2024}. This means that application logic can be invoked by events, such as HTTP requests, database changes, or file uploads. This allows the application to scale independently\cite{goniwadaCloudNativeArchitecture2022}, as the cloud provider can provision resources as needed.
 
 \subsection{What is a VM?}
-Virtual Machines (VMs) are a form of virtualisation that enables multiple operating systems to run on a single physical host machine\cite{ramosjoaocarloscarvalhodossantosSecurityChallengesVirtualization2009}. They run ontop of a hypervisor or virtual machine monitor (VMM), and are typically used to run systems for multiple tennants on the same physical hardware. Typically VMs enable more optimal use of hardware resources \cite{desaiHypervisorSurveyConcepts2013}.
+Virtual Machines (VMs) are a form of virtualisation that enables multiple operating systems to run on a single physical host machine\cite{ramosjoaocarloscarvalhodossantosSecurityChallengesVirtualization2009}. They run ontop of a hypervisor or virtual machine monitor (VMM), and are typically used to run systems for multiple tennants on the same physical hardware. Typically VMs enable more optimal use of hardware resources \cite{desaiHypervisorSurveyConcepts2013} compared with non virtualised systems.
 
 Since VMs do not share a kernel, they provide a high level of isolation between VMs\cite{hoeferTaxonomyCloudComputing2010}, whereby isolation is enforced by the VMM. This eliminates an entire set of security vulnerabilities, notabily kernel layer vulnerabilities, since for a malicious VM to access another, it must find vulnerabilities in the kernel. Whilst VMs reduce the attack surface for vulnerabilities, they do not eliminate it entirely, as there could still be vulnerabilities in the VMMs itself\cite{reubenSurveyVirtualMachine,ramosjoaocarloscarvalhodossantosSecurityChallengesVirtualization2009}.
 
@@ -36,53 +40,33 @@ Within the container runtime, the OCI runtime is responsible for taking the comp
 \subsection{What is \faas{}?}
 Derived from the success of serverless computing, \faas{} rose to prominence in the mid-2010s\cite{AmazonWebServices2014,azureAnnouncingGeneralAvailability2016}. It allows developers to write code as functions that are executed in sandboxed environments in response to events, such as HTTP requests, database changes, or file uploads\cite{EventarcOverview,EventListenerAmazon,robeceOverviewAzureEvent2024}. Typically, serverless functions are billed for the duration of their execution in addition to a flat invocation cost, allowing for fine-grained billing of resources\cite{bortoliniInvestigatingPerformanceCost2020}. Additionally, since the underlying infrastructure of the function is abstracted away from the developer, the responsibility for scaling the function is moved to the cloud provider.
 
-\section{\faas{} isolation mechanisms}
-\label{sec:faas-isolation}
-Typically, multi-tenany public \faas{} providers can be characterised into two categories: providers offering VM based isolation\cite{agacheFirecrackerLightweightVirtualization2020} and providers offering container based isolation\cite{GVisor}. Both types provide differing levels of security guarantees, and have different performance characteristics.
+\section{Characteristics of \faas{} workloads}
+A review of serverless use cases and their characteristics by Eismann et al.\cite{eismannReviewServerlessUse2020} found that the majority of serverless functions have shortlived executions on the order of milliseconds to seconds.
 
-\subsection{VM based isolation}
-VM based isolation is typically considered a much more secure form of isolation between \faas{} functions on multitenant public clouds\cite{jithinVirtualMachineIsolation2014}, however it typically has the highest overhead, since each function runs in its own virtual machine, with its own kernel. This overhead usually manifests in higher cold start times, however there has been considerable work carried out to reduce this overhead\cite{razaviPrebakedUVMsScalable2015,agacheFirecrackerLightweightVirtualization2020,dawXanaduMitigatingCascading2020,oliverstenbomRefunctionEliminatingServerless2019}.
+It was found that the most popular languages to write serverless functions in were JavaScript and Python. Additionally, it was noted that the majority of applications consisted of 5 or less distinct cloud functions, indicating that high granularity is preferred for serverless functions.
 
-Kata Containers\cite{KataContainersOpen} provides a container-like interface to VMs, interfacing with existing hypervisors such as Firecracker\cite{agacheFirecrackerLightweightVirtualization2020}, QEMU\cite{QEMU} and Cloud Hypervisor\cite{CloudhypervisorCloudhypervisorVirtual} (previously NEMU\cite{IntelNemu2024}).
+Finally, it was identified that the overwhelming majority of serverless functions interface with either persistent block storage or databases, accounting for 61\% and 47\% respectively.
 
-Firecracker \cite{agacheFirecrackerLightweightVirtualization2020} is a lightweight KVM\cite{KVM} based Virtual Machine Monitor (VMM) allowing MicroVM provisioning in the order of \qtyrange{125}{150}{\ms} that provides a secure and fast environment for running \faas{} functions.
+This further reinforces the notion that \faas{} workloads are much more prone to the double-billing problem, as described further in Section \ref{sec:double-billing-problem}.
 
-MicroVMs are intended to be lightweight, and provide a secure environment for running functions, with a fast boot time. Firecracker is written in Rust and unlike QEMU, provides secure, fast and stripped back devices to the guest VM in order to both reduce the attack surface and improve performance\cite{jainStudyFirecrackerMicroVM2020}.
+\section{Loopin': An introduction to JavaScript execution}
+\label{sec:js-event-loop}
+At the core of every JavaScript runtime is an I/O event loop, whether it be LibUV\cite{LibuvCrossplatformAsynchronous, DesignOverviewLibuv} in V8\cite{googleWhatV82024} based runtimes such as Node.JS\cite{foundationNodeJS2024}, or Tokio\cite{TokioAsynchronousRust} as used in Deno\cite{incDeno2024}.
 
-LightVM redesigns the Xen Hypervisor's control plane such that VMs can boot in the order of \qtyrange{2}{3}{\ms}\cite{mancoMyVMLighter2017}, and achieveing a much higher VM density on a host.
+The I/O event loop is responsible for handling asynchronous IO operations, file system operations, network requests, and IPC in a non-blocking manner. Typically, event loops use operating system level syscalls such as \verb|epoll| and \verb|io_uring| \textbf{to efficiently yield to other processes} whilst blocked by IO. These syscalls are described in more detail in Section \ref{sec:os-level-io}.
 
-\subsection{Container based isolation}
-In contrast to VM based isolation, container based isolation is typically considered to be less secure\cite{DemystifyingContainerVs}, however it has a much lower overhead, since each function runs in its own container sharing a kernel with the host\cite{WhatContainerDocker}. From a security perspective, any kernel vulnerabilities could potentially be exploited by a malicious container to escape the sandbox and gain access to the host\cite{linMeasurementStudyLinux2018}.
+\todo[inline]{Further discuss JavaScript's own event loop ontop of libuv and tokio.}
 
-GVisor is a container runtime that aims to improve security for running containers in a multitenant environment\cite{GVisor}. It implements a userspace `application kernel' that intercepts system calls made by untrusted container, providing a layer of abstraction between any possible vulnerabilities in the host kernel and the code executing in the untrusted container.
+\section{How do \faas{} platforms execute \faaslong{}?}
+In this section, we will discuss the implementation details of two major \faas{} platforms execute \faas{} functions on their public cloud, and how they handle the isolation of functions from one another.
 
-Whilst cold-start times of container-based \faas{} isolation are considerably lower than VM based isolation methods, cold-starts times can vary based on a variety of factors. SOCK reduces cold-start times by caching common dependencies in container images, reducing the image footprint and improving cold start times\cite{oakesSOCKRapidTask2018}. Refunction reuses containers between function invocations, reducing cold start times\cite{oliverstenbomRefunctionEliminatingServerless2019}. Pegurus also reuses warm containers between different function invocations to reduce cold start times\cite{liPagurusEliminatingCold2021}. Xanadu reduces cold start times by pre-warming containers based on a predictive model that estimates which subsequent functions will be triggered in a \faas{} workflow\cite{dawXanaduMitigatingCascading2020}.
+\subsection{How does AWS Lambda execute \faaslong{}}
+\todo[inline]{Introduce the AWS Lambda slotting algorithm and how it executes each invocation in its own MicroVM using Firecracker.}
 
-Apache OpenWhisk\cite{apacheOpenWhisk2024} is an open-source \faas{} platform that provides container based isolation, leveraging Nginx as an HTTP gateway, Kafka as a message broker to queue invocations, CouchDB as a persistent data storage layer and OCI containers to execute arbitrary function logic.
+\subsection{How does Google Cloud Functions execute \faaslong{}}
+\todo[inline]{Introduce the Google Cloud Functions slotting algorithm and how it executes each invocation in its own container using gVisor.}
 
-OpenFaaS\cite{ellisOpenFaaS2024} provides container based isolation for \faas{} using Kubernetes to handle scaling and execution of functions, and Prometheus to handle scaling of the functions.
-
-\subsection{V8 isolate based isolation}
-Whilst containers provide a much lighter footprint in comparison to VM based isolation, CloudFlare Workers\cite{CloudComputingContainers2018} and Vercel Edge Functions\cite{EdgeRuntime} both utilise V8 isolates to provide lightweight user-space isolation between functions. Whilst less secure than process-based isolation employed by contianers, V8 isolates provide a much denser packing of functions on a single host, and can provide much lower cold start times.
-
-Additional work surrounding microarchitectural vulnerabilities such as Spectre within V8 isolates has been carried out to ensure that V8 isolates can execute securely in multitenant environment\cite{schwarzlRobustScalableProcess2022}.
-
-\subsection{Wasm based isolation}
-WASM provides a secure and efficient environment for executing untrusted code\cite{WebAssembly} in a multitenant environment. Initially developed to run in the browser, WASM allows for the execution of untrusted code in a sandboxed environment without the need for a full VM or container. It has formal semantics\cite{haasBringingWebSpeed2017}, its embeddings can be formally proven to be memory-safe\cite{SecurefoundationsVWasm2024}, and utilises software based fault isolation to ensure that code cannot escape the sandbox\cite{SecurityWebAssembly}. Despite this effort, microarchitectural vulnerabilities such as Spectre still exist within WASM runtimes, and additional work is being carried out to mitigate these\cite{narayanSwivelHardeningWebAssembly2021}.
-
-Fastly Edge Compute Platform\cite{EdgeCloudPlatform} utilises Lucet\cite{BytecodeallianceLucet2024} (now Wasmtime\cite{Wasmtime}) to sandbox WebAssembly executables from one-another. Fastly Edge Compute Platform cites startup times in the order of tens of microseconds to instantiate the sandbox. The Wasmtime runtime now used by Fastly Edge Compute Platform employs a set of security features to ensure that code executing within the runtime cannot escape the sandbox, and that the runtime itself is secure\cite{SecurityWasmtime}. The guarantees provides by WASM are defined in Section \ref{sec:wasm-safety-mechanisms}. Wasmtime prepends a guard region before linear memories in order to protect against sign-extension bugs in the Cranelift JIT compiler resulting in invalid memory accesses between instances. It utilises guard pages on all thread stacks, triggering an exception if they are hit to prevent data leakage. Additionally, since Wasmtime is written in Rust, the surface which a vulnerability could manifest is reduced to only the unsafe sections of the codebase. The runtime is also implementing CFI mechanisms to use ARM specific instructions
-
-\todo[inline]{WASM safety mechanisms need to be fleshed out}
-\section{WASM Safety Mechanisms}
-\label{sec:wasm-safety-mechanisms}
-
-In addition to JavaScript functions deployed using V8 isolates, Cloudflare Workers\cite{CloudComputingContainers2018} also allow WASM based functions to be deployed to their edge network. Unlike Fastly, Cloudflare Workers do not execute the function within a WASM runtime, and instead rely on the V8 runtime to execute WASM functions\cite{WebAssemblyWasmCloudflare2024}.
-
-Sledge reduces cold-start times and increases throughput over other WASM based \faas{} frameworks by leveraging LLVM to compile WASM binaries, specifically targetting edge hardware and implements user-space scheduling of functions\cite{gadepalliSledgeServerlessfirstLightweight2020}.
-
-FaaSM employs a similar approach to container based isolation, using CGroups and Namespaces for isolation, and executing WASM binaries. In order to improve interprocess communication and persisting state, FaaSM utilises shared memory to allow functions to communicate with one another\cite{shillakerFaasmLightweightIsolation2020}.
-
-\section{\faas{} billing models}
+\section{How do \faas{} platforms bill \faaslong{}}
 \label{sec:faas-billing-models}
 
 The \faas{} billing model is a complex model built around a number of factors that vary between cloud providers. Despite their intricacies and differences, the prevailing common billing model, referred to in Equation \ref{eq:faas-billing-model}.
@@ -133,21 +117,6 @@ Google Cloud Run offers a scale-to-zero solution, and the billing only for this 
 
 The core difference between Google Cloud Functions and Google Cloud Run is that the latter charges for the time the container is executing, rather than the time each request takes to resolve. This allows concurrent requests awaiting IO to not be double charged, as described in Section \ref{sec:double-billing-problem}.
 
-\section{V8 and the Event Loop}
-\label{sec:js-event-loop}
-At the core of every JavaScript runtime is an I/O event loop, whether it be LibUV\cite{LibuvCrossplatformAsynchronous, DesignOverviewLibuv} in V8\cite{googleWhatV82024} based runtimes such as Node.JS\cite{foundationNodeJS2024}, or Tokio\cite{TokioAsynchronousRust} as used in Deno\cite{incDeno2024}.
-
-The I/O event loop is responsible for handling asynchronous IO operations, file system operations, network requests, and IPC in a non-blocking manner. Typically, event loops use operating system level syscalls such as \verb|epoll| and \verb|io_uring|, which are described in more detail in Section \ref{sec:os-level-io}.
-
-\section{Linux asynchronous IO}
-\label{sec:os-level-io}
-
-\subsection{What is epoll?}
-\todo[inline]{Explain what is the epoll syscall}
-
-\subsection{What is iouring?}
-\todo[inline]{Explain what is the iouring syscall}
-
 \section{Double billing problem}
 \label{sec:double-billing-problem}
 
@@ -157,8 +126,8 @@ The double billing problem emerges from the fact that \faas{} platforms charge f
 Figure \ref{fig:double-billing-db} illustrates this exact scenario whereby a function makes a request to a database, and is billed whilst idle and awaiting the response.
 
 \begin{figure}[t]
-    \includegraphics[width=\linewidth]{node_modules/@faaas/double-billing-problem/assets/double-billed-db.pdf}
-    \caption{Double billing in action with call to persistent storage. Note that the function handler is idle whilst the DB is executing its query, yet still billed for the entire duration of the function.}
+    \centering\includegraphics[width=0.75\linewidth]{node_modules/@faaas/double-billing-problem/assets/double-billed-db.pdf}
+    \caption{Double billing in action with call to persistent storage. Note that the function handler is idle, as denoted by the hourglass emojis, whilst the DB is executing its query, yet still billed for the entire duration of the function. In this figure, time is represented on the vertical axis flowing down the page.}
     \label{fig:double-billing-db}
 \end{figure}
 
@@ -182,14 +151,85 @@ This issue also manifests more importantly when function invocations are nested 
     \caption{Minimum profitable duration a \faas{} function with the specified resource allocation must not be executing for (yeild time) in order to overcome the invocation penalty.}
 \end{figure*}
 
-\section{Characteristics of \faas{} workloads}
-A review of serverless use cases and their characteristics by Eismann et al.\cite{eismannReviewServerlessUse2020} found that the majority of serverless functions have shortlived executions on the order of milliseconds to seconds.
+\subsection{Avoiding double billing with function fusion}
+\label{sec:function-fusion}
+Fuzionize \cite{schirmerFusionizeImprovingServerless2022} uses monitoring data to dynamically fuse functions together reducing network travel time.
 
-It was found that the most popular languages to write serverless functions in were JavaScript, Python. Additionally, it was noted that the majority of applications consisted of 5 or less distinct cloud functions, indicating that large granularity is preferred for serverless functions.
+\todo[inline]{Discuss how existing research has reduced double billing by employing function fusion.}
 
-Finally, it was identified that the overwhelming majority of serverless functions interface with persistent block storage, and databases, accounting for 61\% and 47\% respectively.
+\subsection{First-class support of fusion primitives on \faas{} platforms}
+\label{sec:fusion-primitives}
+There has been some research into this area, notably Baldini et al. \cite{baldiniServerlessTrilemmaFunction2017} introducing the serverlss trilemma, arguing that function composition needs to be a first class citizen in the design of serverless platforms to avoid the double billing problem. They utilise higher order functions to compose functions together.
 
-This further reinforces the notion that \faas{} workloads are much more prone to the double-billing problem, as described further in Section \ref{sec:double-billing-problem}.
+\todo[inline]{Discuss how in the serverless trilemma they describe the need to have first class support for function composition.}
+
+\subsection{Homomorphism of the call stack and the double billing problem}
+\todo[inline]{Whilst this sounds fucking mental, it actually illustrates the problem correctly.}
+\todo[inline]{Discuss how continuations are able to utilise tail recursion to avoid the stack needing to be persisted.}
+
+\section{Continuations and Continuation Passing Style}
+A function continuation is a concept in programming\cite{sussmanSCHEMEInterpreterExtended1975}, reified as a datastructure encapsulating an execution state, and a function pointer that can be called to resume execution. They are used extensively across many languages, for example, they form the underpinnings of Rust's Futures AP in addition to how JavaScript represent callbacks internally within their event loop.
+
+%%%%%%%%%%%%%
+% Isolation %
+%%%%%%%%%%%%%
+
+\newpage
+
+\section{\faas{} isolation mechanisms}
+\label{sec:faas-isolation}
+Typically, multi-tenany public \faas{} providers can be characterised into two categories: providers offering VM based isolation\cite{agacheFirecrackerLightweightVirtualization2020} and providers offering container based isolation\cite{GVisor}. Both types provide differing levels of security guarantees, and have different performance characteristics.
+
+\subsection{VM based isolation}
+VM based isolation is typically considered a much more secure form of isolation between \faas{} functions on multitenant public clouds\cite{jithinVirtualMachineIsolation2014}, however it typically has the highest overhead, since each function runs in its own virtual machine, with its own kernel. This overhead usually manifests in higher cold start times, however there has been considerable work carried out to reduce this overhead\cite{razaviPrebakedUVMsScalable2015,agacheFirecrackerLightweightVirtualization2020,dawXanaduMitigatingCascading2020,oliverstenbomRefunctionEliminatingServerless2019}.
+
+Kata Containers\cite{KataContainersOpen} provides a container-like interface to VMs, interfacing with existing hypervisors such as Firecracker\cite{agacheFirecrackerLightweightVirtualization2020}, QEMU\cite{QEMU} and Cloud Hypervisor\cite{CloudhypervisorCloudhypervisorVirtual} (previously NEMU\cite{IntelNemu2024}).
+
+Firecracker \cite{agacheFirecrackerLightweightVirtualization2020} is a lightweight KVM\cite{KVM} based Virtual Machine Monitor (VMM) allowing MicroVM provisioning in the order of \qtyrange{125}{150}{\ms} that provides a secure and fast environment for running \faas{} functions.
+
+MicroVMs are intended to be lightweight, and provide a secure environment for running functions, with a fast boot time. Firecracker is written in Rust and unlike QEMU, provides secure, fast and stripped back devices to the guest VM in order to both reduce the attack surface and improve performance\cite{jainStudyFirecrackerMicroVM2020}.
+
+LightVM redesigns the Xen Hypervisor's control plane such that VMs can boot in the order of \qtyrange{2}{3}{\ms}\cite{mancoMyVMLighter2017}, and achieveing a much higher VM density on a host.
+
+\subsection{Container based isolation}
+In contrast to VM based isolation, container based isolation is typically considered to be less secure\cite{DemystifyingContainerVs}, however it has a much lower overhead, since each function runs in its own container sharing a kernel with the host\cite{WhatContainerDocker}. From a security perspective, any kernel vulnerabilities could potentially be exploited by a malicious container to escape the sandbox and gain access to the host\cite{linMeasurementStudyLinux2018}.
+
+GVisor is a container runtime that aims to improve security for running containers in a multitenant environment\cite{GVisor}. It implements a userspace `application kernel' that intercepts system calls made by untrusted container, providing a layer of abstraction between any possible vulnerabilities in the host kernel and the code executing in the untrusted container.
+
+Whilst cold-start times of container-based \faas{} isolation are considerably lower than VM based isolation methods, cold-starts times can vary based on a variety of factors. SOCK reduces cold-start times by caching common dependencies in container images, reducing the image footprint and improving cold start times\cite{oakesSOCKRapidTask2018}. Refunction reuses containers between function invocations, reducing cold start times\cite{oliverstenbomRefunctionEliminatingServerless2019}. Pegurus also reuses warm containers between different function invocations to reduce cold start times\cite{liPagurusEliminatingCold2021}. Xanadu reduces cold start times by pre-warming containers based on a predictive model that estimates which subsequent functions will be triggered in a \faas{} workflow\cite{dawXanaduMitigatingCascading2020}.
+
+Apache OpenWhisk\cite{apacheOpenWhisk2024} is an open-source \faas{} platform that provides container based isolation, leveraging Nginx as an HTTP gateway, Kafka as a message broker to queue invocations, CouchDB as a persistent data storage layer and OCI containers to execute arbitrary function logic.
+
+OpenFaaS\cite{ellisOpenFaaS2024} provides container based isolation for \faas{} using Kubernetes to handle scaling and execution of functions, and Prometheus to handle scaling of the functions.
+
+\subsection{V8 isolate based isolation}
+Whilst containers provide a much lighter footprint in comparison to VM based isolation, CloudFlare Workers\cite{CloudComputingContainers2018} and Vercel Edge Functions\cite{EdgeRuntime} both utilise V8 isolates to provide lightweight user-space isolation between functions. Whilst less secure than process-based isolation employed by contianers, V8 isolates provide a much denser packing of functions on a single host, and can provide much lower cold start times.
+
+Additional work surrounding microarchitectural vulnerabilities such as Spectre within V8 isolates has been carried out to ensure that V8 isolates can execute securely in multitenant environment\cite{schwarzlRobustScalableProcess2022}.
+
+\subsection{Wasm based isolation}
+WASM provides a secure and efficient environment for executing untrusted code\cite{WebAssembly} in a multitenant environment. Initially developed to run in the browser, WASM allows for the execution of untrusted code in a sandboxed environment without the need for a full VM or container. It has formal semantics\cite{haasBringingWebSpeed2017}, its embeddings can be formally proven to be memory-safe\cite{SecurefoundationsVWasm2024}, and utilises software based fault isolation to ensure that code cannot escape the sandbox\cite{SecurityWebAssembly}. Despite this effort, microarchitectural vulnerabilities such as Spectre still exist within WASM runtimes, and additional work is being carried out to mitigate these\cite{narayanSwivelHardeningWebAssembly2021}.
+
+Fastly Edge Compute Platform\cite{EdgeCloudPlatform} utilises Lucet\cite{BytecodeallianceLucet2024} (now Wasmtime\cite{Wasmtime}) to sandbox WebAssembly executables from one-another. Fastly Edge Compute Platform cites startup times in the order of tens of microseconds to instantiate the sandbox. The Wasmtime runtime now used by Fastly Edge Compute Platform employs a set of security features to ensure that code executing within the runtime cannot escape the sandbox, and that the runtime itself is secure\cite{SecurityWasmtime}. The guarantees provides by WASM are defined in Section \ref{sec:wasm-safety-mechanisms}. Wasmtime prepends a guard region before linear memories in order to protect against sign-extension bugs in the Cranelift JIT compiler resulting in invalid memory accesses between instances. It utilises guard pages on all thread stacks, triggering an exception if they are hit to prevent data leakage. Additionally, since Wasmtime is written in Rust, the surface which a vulnerability could manifest is reduced to only the unsafe sections of the codebase. The runtime is also implementing CFI mechanisms to use ARM specific instructions
+
+\todo[inline]{WASM safety mechanisms need to be fleshed out}
+\section{WASM Safety Mechanisms}
+\label{sec:wasm-safety-mechanisms}
+
+In addition to JavaScript functions deployed using V8 isolates, Cloudflare Workers\cite{CloudComputingContainers2018} also allow WASM based functions to be deployed to their edge network. Unlike Fastly, Cloudflare Workers do not execute the function within a WASM runtime, and instead rely on the V8 runtime to execute WASM functions\cite{WebAssemblyWasmCloudflare2024}.
+
+Sledge reduces cold-start times and increases throughput over other WASM based \faas{} frameworks by leveraging LLVM to compile WASM binaries, specifically targetting edge hardware and implements user-space scheduling of functions\cite{gadepalliSledgeServerlessfirstLightweight2020}.
+
+FaaSM employs a similar approach to container based isolation, using CGroups and Namespaces for isolation, and executing WASM binaries. In order to improve interprocess communication and persisting state, FaaSM utilises shared memory to allow functions to communicate with one another\cite{shillakerFaasmLightweightIsolation2020}.
+
+\section{Linux asynchronous IO}
+\label{sec:os-level-io}
+
+\subsection{What is epoll?}
+\todo[inline]{Explain what is the epoll syscall}
+
+\subsection{What is iouring?}
+\todo[inline]{Explain what is the iouring syscall}
 
 \section{AWS Lambda}
 AWS Lambda is by far the most popular\cite{eismannReviewServerlessUse2020,StateServerlessDatadog} \faas{} platform used by developers to deploy serverless applications. Unlike Google Cloud Functions, which utilise gVisor\cite{GVisor},
@@ -205,6 +245,9 @@ The AWS Lambda system architecture is centered around the concept of Firecracker
     \label{fig:aws-lambda-exec-env}
 \end{figure*}
 
+\section{Overprovisioning of resources}
+Freyr aims to reclaim overprovisioned serverless functions \cite{yuAcceleratingServerlessComputing2022}.
+
 \subsection{Concurrent executions}
 
 Each invocation of a lambda function executes independently inside of it's own Firecracker MicroVM, in what is known as a slot.
@@ -214,6 +257,3 @@ Each MicroVM provides a slot which can handle a single invocation, however once 
 \subsection{Pricing structure}
 
 Billed for execution time from start to finish, since a MicroVM is provisioned the entire time.
-
-\section{Continuations and Continuation Passing Style}
-A function continuation is a concept in programming\cite{sussmanSCHEMEInterpreterExtended1975}, reified as a datastructure encapsulating an execution state, and a function pointer that can be called to resume execution. They are used extensively across many languages, for example, they form the underpinnings of Rust's Futures API.

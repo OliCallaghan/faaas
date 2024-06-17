@@ -412,6 +412,25 @@
   url = {https://arxiv.org/abs/2008.11110}
 }
 
+@article{eismannStateServerlessApplications2022,
+  title = {The {{State}} of {{Serverless Applications}}: {{Collection}}, {{Characterization}}, and {{Community Consensus}}},
+  shorttitle = {The {{State}} of {{Serverless Applications}}},
+  author = {Eismann, Simon and Scheuner, Joel and family=Eyk, given=Erwin, prefix=van, useprefix=false and Schwinger, Maximilian and Grohmann, Johannes and Herbst, Nikolas and Abad, Cristina L. and Iosup, Alexandru},
+  date = {2022-10},
+  journaltitle = {IEEE Transactions on Software Engineering},
+  volume = {48},
+  number = {10},
+  pages = {4152--4166},
+  issn = {1939-3520},
+  doi = {10.1109/TSE.2021.3113940},
+  url = {https://ieeexplore.ieee.org/abstract/document/9543531},
+  urldate = {2024-06-16},
+  abstract = {Over the last five years, all major cloud platform providers have increased their serverless offerings. Many early adopters report significant benefits for serverless-based over traditional applications, and many companies are considering moving to serverless themselves. However, currently there exist only few, scattered, and sometimes even conflicting reports on when serverless applications are well suited and what the best practices for their implementation are. We address this problem in the present study about the state of serverless applications. We collect descriptions of 89 serverless applications from open-source projects, academic literature, industrial literature, and domain-specific feedback. We analyze 16 characteristics that describe why and when successful adopters are using serverless applications, and how they are building them. We further compare the results of our characterization study to 10 existing, mostly industrial, studies and datasets; this allows us to identify points of consensus across multiple studies, investigate points of disagreement, and overall confirm the validity of our results. The results of this study can help managers to decide if they should adopt serverless technology, engineers to learn about current practices of building serverless applications, and researchers and platform providers to better understand the current landscape of serverless applications.},
+  eventtitle = {{{IEEE Transactions}} on {{Software Engineering}}},
+  keywords = {Buildings,community consensus,Computer architecture,FaaS,FAIR dataset,Logic gates,Open source software,Production,Serverless,serverless applications,Software engineering,survey,Systematics},
+  file = {/Users/oli/Zotero/storage/V3K4LH4F/Eismann et al. - 2022 - The State of Serverless Applications Collection, .pdf;/Users/oli/Zotero/storage/LZRT3Z5T/9543531.html}
+}
+
 @online{ellisOpenFaaS2024,
   title = {{{OpenFaaS}}},
   author = {Ellis, Alex},
@@ -1172,6 +1191,22 @@
   keywords = {Distributed computing,IBM Cloud Functions,IBM Cloud Object Storage,PyWren,Serverless computing}
 }
 
+@inproceedings{schirmerFusionizeImprovingServerless2022,
+  title = {Fusionize: {{Improving Serverless Application Performance}} through {{Feedback-Driven Function Fusion}}},
+  shorttitle = {Fusionize},
+  booktitle = {2022 {{IEEE International Conference}} on {{Cloud Engineering}} ({{IC2E}})},
+  author = {Schirmer, Trever and Scheuner, Joel and Pfandzelter, Tobias and Bermbach, David},
+  date = {2022-09},
+  pages = {85--95},
+  doi = {10.1109/IC2E55432.2022.00017},
+  url = {https://ieeexplore.ieee.org/abstract/document/9946241},
+  urldate = {2024-06-16},
+  abstract = {Serverless computing increases developer productivity by removing operational concerns such as managing hardware or software runtimes. Developers, however, still need to partition their application into functions, which can be error-prone and adds complexity: Using a small function size where only the smallest logical unit of an application is inside a function maximizes flexibility and reusability. Yet, having small functions leads to invocation overheads, additional cold starts, and may increase cost due to double billing during synchronous invocations. In this paper we present Fusionize, a framework that removes these concerns from developers by automatically fusing the application code into a multi-function orchestration with varying function size. Developers only need to write the application code following a lightweight programming model and do not need to worry how the application is turned into functions. Our framework automatically fuses different parts of the application into functions and manages their interactions. Leveraging monitoring data, the framework optimizes the distribution of application parts to functions to optimize deployment goals such as end-to-end latency and cost. Using two example applications, we show that Fusionizecan automatically and iteratively improve the deployment artifacts of the application.},
+  eventtitle = {2022 {{IEEE International Conference}} on {{Cloud Engineering}} ({{IC2E}})},
+  keywords = {cloud orchestration,Codes,Costs,FaaS,function fusion,Fuses,Programming,Prototypes,Runtime,serverless computing,Serverless computing},
+  file = {/Users/oli/Zotero/storage/KE435HZC/Schirmer et al. - 2022 - Fusionize Improving Serverless Application Perfor.pdf;/Users/oli/Zotero/storage/FXI9WKYL/9946241.html}
+}
+
 @inproceedings{schwarzlRobustScalableProcess2022,
   title = {Robust and~{{Scalable Process Isolation Against Spectre}} in~the~{{Cloud}}},
   booktitle = {Computer {{Security}} – {{ESORICS}} 2022},
@@ -1462,6 +1497,24 @@
   langid = {english},
   keywords = {Container,Docker engine,Hypervisor,VMs},
   file = {/Users/oli/Zotero/storage/WSQNL697/Yadav et al. - 2019 - Docker Containers Versus Virtual Machine-Based Vir.pdf}
+}
+
+@inproceedings{yuAcceleratingServerlessComputing2022,
+  title = {Accelerating {{Serverless Computing}} by {{Harvesting Idle Resources}}},
+  booktitle = {Proceedings of the {{ACM Web Conference}} 2022},
+  author = {Yu, Hanfei and Wang, Hao and Li, Jian and Yuan, Xu and Park, Seung-Jong},
+  date = {2022-04-25},
+  series = {{{WWW}} '22},
+  pages = {1741--1751},
+  publisher = {Association for Computing Machinery},
+  location = {New York, NY, USA},
+  doi = {10.1145/3485447.3511979},
+  url = {https://doi.org/10.1145/3485447.3511979},
+  urldate = {2024-06-16},
+  abstract = {Serverless computing automates fine-grained resource scaling and simplifies the development and deployment of online services with stateless functions. However, it is still non-trivial for users to allocate appropriate resources due to various function types, dependencies, and input sizes. Misconfiguration of resource allocations leaves functions either under-provisioned or over-provisioned and leads to continuous low resource utilization. This paper presents Freyr, a new resource manager (RM) for serverless platforms that maximizes resource efficiency by dynamically harvesting idle resources from over-provisioned functions to under-provisioned functions. Freyr monitors each function’s resource utilization in real-time, detects over-provisioning and under-provisioning, and learns to harvest idle resources safely and accelerates functions efficiently by applying deep reinforcement learning algorithms along with a safeguard mechanism. We have implemented and deployed a Freyr prototype in a 13-node Apache OpenWhisk cluster. Experimental results show that 38.8\% of function invocations have idle resources harvested by Freyr, and 39.2\% of invocations are accelerated by the harvested resources. Freyr reduces the 99th-percentile function response latency by 32.1\% compared to the baseline RMs.},
+  isbn = {978-1-4503-9096-5},
+  keywords = {reinforcement learning,resource harvesting,Serverless computing},
+  file = {/Users/oli/Zotero/storage/7IBU5PKK/Yu et al. - 2022 - Accelerating Serverless Computing by Harvesting Id.pdf}
 }
 
 @inproceedings{yuCharacterizingServerlessPlatforms2020,
