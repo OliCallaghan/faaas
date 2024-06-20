@@ -100,7 +100,7 @@ From the results, it is clear that \faaas{} is much less effective at reducing c
         \includesvg{node_modules/@faaas-bench/faaasc-artillery-mem-results/assets/program-memory-split-saving.svg}
         %\import{node_modules/@faaas-bench/faaasc-artillery-mem-results/assets/}{program-memory-split-saving.pgf}
     \end{center}
-    \caption{Cost breakdown of the \texttt{pets} OLTP function workload running on AWS Lambda (256MB). Using the always split strategy, a cost increase of 75\% is observed, indicating that function splitting for short lived requests is not profitable.}
+    \caption{Heatmap highlighting the percentage cost reductions by applying code splitting to each of the functions in the benchmark suite when deployed to AWS Lambda, for a set of memory configurations, relative to their unsplit counterparts.}
     \label{fig:faaas-mem-prog-strat-heatmap-splitting-saving}
 \end{figure*}
 
@@ -115,7 +115,7 @@ From the experiments, it is clear that \faaas{} introduces a high latency overhe
     \begin{center}
         \input{node_modules/@faaas-bench/faaasc-artillery-results/assets/mean_response_times.pgf}
     \end{center}
-    \caption{Artillery response times}
+    \caption{Response times of each of the functions in the benchmarking suite when deployed using each of the splitting strategies on AWS Lambda. The baseline in this instance is the response time of the function when deployed without splitting to an HTTP endpoint.}
 \end{figure}
 
 \begin{table}
@@ -128,7 +128,7 @@ From the experiments, it is clear that \faaas{} introduces a high latency overhe
         {1=\name, 13=\strat, 5=\mean, 10=\p95}
         {\texttt{\name} & \texttt{\strat} & \mean & \p95}
     \end{tabularx}
-    \caption{Response time latency impact of using \faaas{}}
+    \caption{Response time latency impact of using \faaas{} deployed on AWS Lambda (256MB)}
     \label{table:faaas-response-time-latency}
 \end{table}
 
@@ -144,7 +144,7 @@ In order to provide a breakdown of the time spent during billed function invocat
         {2=\name, 3=\billedTime, 4=\userTime, 5=\overheadRatio}
         {\texttt{\name} & \billedTime & \userTime & \overheadRatio}
     \end{tabularx}
-    \caption{Duration breakdown of \faaas{} function execution}
+    \caption{Duration breakdown of \faaas{} function execution deployed on AWS Lambda (256MB)}
     \label{table:faaas-duration-breakdown}
 \end{table}
 
@@ -167,7 +167,7 @@ The total cost of each strategy is plotted over time in Figure \ref{fig:strategy
     \begin{center}
         \input{node_modules/@faaas-bench/faaasc-adaptive-results/assets/split-profitability.pgf}
     \end{center}
-    \caption{Strategy cost over time.}
+    \caption{Cost over time when applying the adaptive splitting strategy to the echoer program in the benchmark suite, applying high latency during the experiment to evaluate how the strategy switches based on response times.}
     \label{fig:strategy-cost-over-time}
 \end{figure*}
 
@@ -177,7 +177,7 @@ In figure \ref{fig:strategy-decision-over-time}, the latency inferred by the mon
     \begin{center}
         \input{node_modules/@faaas-bench/faaasc-adaptive-results/assets/decision-mapping.pgf}
     \end{center}
-    \caption{Strategy cost over time.}
+    \caption{Split profitability probability applying the adaptive splitting strategy to the echoer program in the benchmark suite, applying high latency during the experiment to evaluate how the strategy switches based on response times.}
     \label{fig:strategy-decision-over-time}
 \end{figure*}
 

@@ -5,7 +5,7 @@
     \begin{center}
         \input{node_modules/@faaas/perf-v8-event-loop-results/assets/faas-profile-waiting-on-io.pgf}
     \end{center}
-    \caption{\faas{} function execution profile}
+    \caption{Profile of a four CRUD \faas{} functions querying a PostgreSQL database with simulated additional latency. Time is broken down by phase, covering time spent in the kernel during syscalls, executing NodeJS code, and blocked on IO.}
     \label{fig:faas-profile-intro-experiment}
 \end{figure}
 
@@ -23,7 +23,7 @@ In these environments, `functions' are typically implemented either as container
     \begin{center}
         \input{node_modules/@faaas/perf-v8-event-loop-results/assets/faas-profile-strace-calls.pgf}
     \end{center}
-    \caption{\faas{} petstore syscall calls profile}
+    \caption{\texttt{strace} profile of the \faas{} petstore, showing the frequency of calls to each syscall during the course of the experiement.}
     \label{fig:faas-strace-freq-intro-experiment}
 \end{figure}
 
@@ -32,7 +32,7 @@ In these environments, `functions' are typically implemented either as container
     \begin{center}
         \input{node_modules/@faaas/perf-v8-event-loop-results/assets/faas-profile-strace-time.pgf}
     \end{center}
-    \caption{\faas{} petstore syscall time profile}
+    \caption{\texttt{strace} profile of the \faas{} petstore, showing the time spent in each of the syscalls during the course of the experiement.}
     \label{fig:faas-strace-time-intro-experiment}
 \end{figure}
 
@@ -49,7 +49,7 @@ The resolution of the billing model however extends only to the level of granula
             \input{node_modules/@faaas/perf-v8-event-loop-results-pprof/assets/faas-profile-pprof-put-pet.pgf}
         \end{tikzpicture}
     \end{center}
-    \caption{\faas{} petstore PutPet pprof sample}
+    \caption{\texttt{pprof} profile of the \faas{} petstore showing where in the program wall-clock time was spent whilst in the NodeJS phase shown in Figure \ref{fig:faas-strace-freq-intro-experiment}.}
     \label{fig:faas-pprof-intro-experiment}
 \end{figure*}
 

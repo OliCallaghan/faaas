@@ -229,7 +229,7 @@ Code can then be generated to capture and serialise any free variables into a co
 \end{algorithmic}
 \end{algorithm}
 
-Once free variable analysis has been performed, the proceeding statements after the async directive can be detached from the AST and reattached to the body for the generated continuation function. This is described much more in-depth in Section \ref{sec:faaasc-codegen-ast}.
+Once free variable analysis has been performed, the proceeding statements after the async directive can be detached from the AST and reattached to the body for the generated continuation function. This is described in more depth in Section \ref{sec:faaasc-codegen-ast}.
 
 \section{Code splitting profitability analysis}
 \label{sec:faas-code-splitting-profitability}
@@ -315,7 +315,7 @@ Using this probability, the function developer can then specify a probability th
     \begin{center}
         \input{node_modules/@faaas-diagrams/db-response-times/assets/split-profitability.pgf}
     \end{center}
-    \caption{Visualisation of the profitability analysis of code splitting around an asynchronous request, using a Weibull distribution.}
+    \caption{Visualisation of the profitability analysis of code splitting around an asynchronous request, using a Weibull distribution. The green vertical line \^t is the minimum profitability threshold. The green and red areas under the curve represent the probability of profitability and loss by splitting.}
     \label{fig:splitting-profitability-analysis-weibull-fit}
 \end{figure}
 
